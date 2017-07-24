@@ -34,11 +34,11 @@ namespace newrelic_infra_perfmon_plugin
                 throw new Exception("'counterlist' is empty. Do you have a 'config/plugin.json' file?");
             }
 
-            PerfmonInfraService pService = new PerfmonInfraService(name, counterlist);
+            PerfmonPlugin plugin = new PerfmonPlugin(name, counterlist);
             do
             {
                 DateTime then = DateTime.Now;
-                pService.PollCycle();
+                plugin.PollCycle();
                 DateTime now = DateTime.Now;
                 TimeSpan elapsedTime = now.Subtract(then);
                 if(pollingInterval.TotalMilliseconds > elapsedTime.TotalMilliseconds) {
