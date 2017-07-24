@@ -30,3 +30,6 @@
 
 # Debug files
 *.dSYM/
+
+perfmon-infra-plugin/bin/**
+perfmon-infra-plugin/obj/**
