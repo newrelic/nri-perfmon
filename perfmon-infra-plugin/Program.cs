@@ -5,36 +5,75 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
 using System.IO;
+using CommandLine;
+using CommandLine.Text;
 
 namespace newrelic_infra_perfmon_plugin
 {
+    class Options
+    {
+        [Option('c', "configFile", DefaultValue = "config.json", Required = false,
+          HelpText = "Config file to use.")]
+        public string ConfigFile { get; set; }
+
+        [Option('i', "pollingInterval", DefaultValue = 10000, Required = false,
+         HelpText = "Frequency of polling (ms).")]
+        public int PollingInterval { get; set; }
+
+        [Option('n', "computerName", DefaultValue = "ThisComputer", Required = false,
+         HelpText = "Name of computer that you want to poll.")]
+        public string ComputerName { get; set; }
+
+        [Option('p', "prettyPrint", DefaultValue = false, Required = false,
+          HelpText = "Pretty-print JSON output for visual debugging.")]
+        public bool PrettyPrint { get; set; }
+
+        [ParserState]
+        public IParserState LastParserState { get; set; }
+
+        [HelpOption(HelpText = "This help dialog.")]
+        public string GetUsage()
+        {
+            return HelpText.AutoBuild(this,
+              (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current));
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            TimeSpan pollingInterval = new TimeSpan(10000); // In ms
-            string configFile = "config.json";
-            if (args.Length > 0)
+            var options = new Options();
+            if (!CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                configFile = args[0];
+                Environment.Exit(1);
             }
 
-            StreamReader configFileReader = new StreamReader(configFile);
-            Config properties = JsonConvert.DeserializeObject<Config>(configFileReader.ReadToEnd());
+            TimeSpan pollingInterval = new TimeSpan(options.PollingInterval);
 
-            string name = properties.name;
-            if (String.IsNullOrEmpty(name) || String.Equals(name, "ComputerName"))
+            List<Counterlist> counterlist = null;
+            try
             {
-                name = Environment.MachineName;
+                StreamReader configFileReader = new StreamReader(options.ConfigFile);
+                Config properties = JsonConvert.DeserializeObject<Config>(configFileReader.ReadToEnd());
+                counterlist = properties.counterlist;
+            } catch (IOException)
+            {
+                Console.Error.WriteLine("ERROR: " + options.ConfigFile + " could not be found or opened.");
+                Environment.Exit(1);
             }
 
-            List<Counterlist> counterlist = properties.counterlist;
-            if (counterlist.Count == 0)
+            if (String.IsNullOrEmpty(options.ComputerName) || String.Equals(options.ComputerName, "ThisComputer"))
+            {
+                options.ComputerName = Environment.MachineName;
+            }
+
+            if (counterlist == null || counterlist.Count == 0)
             {
                 throw new Exception("'counterlist' is empty. Do you have a 'config/plugin.json' file?");
             }
 
-            PerfmonPlugin plugin = new PerfmonPlugin(name, counterlist);
+            PerfmonPlugin plugin = new PerfmonPlugin(options.ComputerName, counterlist, options.PrettyPrint);
             do
             {
                 DateTime then = DateTime.Now;

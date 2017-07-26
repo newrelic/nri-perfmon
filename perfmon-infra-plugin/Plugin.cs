@@ -88,19 +88,26 @@ namespace newrelic_infra_perfmon_plugin
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private static string DefaultUnit = "count";
-
         private string Name { get; set; }
+        private Formatting PrintFormat { get; set; }
         private List<PerfmonQuery> PerfmonQueries { get; set; }
         private ManagementScope Scope { get; set; }
         private Dictionary<string, Object> Metrics = new Dictionary<string, Object>();
         private Output output = new Output();
-
-        public PerfmonPlugin(string compname, List<Counterlist> counters)
+        
+        public PerfmonPlugin(string compname, List<Counterlist> counters, bool prettyPrint)
         {
             PerfmonQueries = new List<PerfmonQuery>();
             Name = compname;
-
-            output.name = compname;
+            if (prettyPrint)
+            {
+                Console.WriteLine("Pretty Print enabled.");
+                PrintFormat = Formatting.Indented;
+            } else
+            {
+                PrintFormat = Formatting.None;
+            }
+            output.name = Name;
             output.protocol_version = "1";
             output.integration_version = "0.1.0";
             Scope = new ManagementScope("\\\\" + Name + "\\root\\cimv2");
@@ -264,7 +271,8 @@ namespace newrelic_infra_perfmon_plugin
             }
 
             output.metrics.Add(Metrics);
-            Console.Out.Write(JsonConvert.SerializeObject(output, Formatting.Indented) + "\n");
+
+            Console.Out.Write(JsonConvert.SerializeObject(output, PrintFormat) + "\n");
             Metrics.Clear();
             output.metrics.Clear();
         }

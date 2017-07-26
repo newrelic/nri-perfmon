@@ -33,3 +33,6 @@
 
 perfmon-infra-plugin/bin/**
 perfmon-infra-plugin/obj/**
+packages/**
+.vs/**
+
