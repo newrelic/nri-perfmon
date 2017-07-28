@@ -24,6 +24,8 @@ namespace newrelic_infra_perfmon_plugin
         public string counter { get; set; }
         public string unit { get; set; }
         public List<Counter> counters { get; set; }
+        public string query { get; set; }
+        public string eventname { get; set; }
     }
 
     public class Config
@@ -48,6 +50,13 @@ namespace newrelic_infra_perfmon_plugin
 
     class PerfmonQuery
     {
+        public PerfmonQuery(string query, string ename) 
+        {
+            metricName = ename;
+            metricUnit = PerfmonPlugin.queryToEvent;
+            counterOrQuery = query;
+        }
+
         public PerfmonQuery(string pname, string caname, string coname, string iname, string munit)
         {
             if (String.Equals(pname, "PerfCounter"))
@@ -86,8 +95,10 @@ namespace newrelic_infra_perfmon_plugin
 
     public class PerfmonPlugin
     {
+        public static string queryToEvent = "queryToEvent";
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private static string DefaultUnit = "count";
+        private static string DefaultEvent = "WMIEvent";
         private string Name { get; set; }
         private Formatting PrintFormat { get; set; }
         private List<PerfmonQuery> PerfmonQueries { get; set; }
@@ -110,12 +121,23 @@ namespace newrelic_infra_perfmon_plugin
             output.name = Name;
             output.protocol_version = "1";
             output.integration_version = "0.1.0";
+            output.metrics = new List<Dictionary<string, object>>();
+            output.events = new List<Dictionary<string, object>>();
+            output.inventory = new Dictionary<string, string>();
+            
             Scope = new ManagementScope("\\\\" + Name + "\\root\\cimv2");
 
             int whichCounter = -1;
             foreach (Counterlist aCounter in counters)
             {
                 whichCounter++;
+                if (!String.IsNullOrEmpty(aCounter.query))
+                {
+                    String ename = aCounter.eventname ?? DefaultEvent;
+                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, ename));
+                    continue;
+                }
+
                 if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
                 {
                     logger.Error("plugin.json contains malformed counter: counterlist[{0}] missing 'provider' or 'category'. Please review and compare to template.", whichCounter);
@@ -207,6 +229,11 @@ namespace newrelic_infra_perfmon_plugin
                         var queryResults = (new ManagementObjectSearcher(Scope, new ObjectQuery((string)thisQuery.counterOrQuery))).Get();
                         foreach (ManagementObject result in queryResults)
                         {
+                            if(string.Equals(thisQuery.metricUnit, queryToEvent)) {
+                                RecordMetricMap(thisQuery.metricName, result.Properties);
+                                continue;
+                            }
+
                             string thisInstanceName = string.Empty;
                             if (result["Name"] != null)
                             {
@@ -249,6 +276,16 @@ namespace newrelic_infra_perfmon_plugin
             }
             ReportAll();
         }
+        private void RecordMetricMap(string eventType, PropertyDataCollection properties)
+        {
+            Dictionary<string, Object> propsOut = new Dictionary<string, Object>();
+            propsOut.Add("event_type", eventType);
+            foreach (PropertyData prop in properties)
+            {
+                propsOut.Add(prop.Name, prop.Value);
+            }
+            output.metrics.Add(propsOut);
+        }
 
         private void RecordMetric(string metricName, string metricUnit, double metricValue)
         {
@@ -257,21 +294,7 @@ namespace newrelic_infra_perfmon_plugin
 
         private void ReportAll()
         {
-            if (output.metrics == null)
-            {
-                output.metrics = new List<Dictionary<string, object>>();
-            }
-            if (output.events == null)
-            {
-                output.events = new List<Dictionary<string, object>>();
-            }
-            if (output.inventory == null)
-            {
-                output.inventory = new Dictionary<string, string>();
-            }
-
             output.metrics.Add(Metrics);
-
             Console.Out.Write(JsonConvert.SerializeObject(output, PrintFormat) + "\n");
             Metrics.Clear();
             output.metrics.Clear();
