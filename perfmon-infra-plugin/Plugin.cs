@@ -38,12 +38,13 @@ namespace newrelic_infra_perfmon_plugin
 
     // Plugin options
 
-    class Options
+    public class Options
     {
         public string ConfigFile { get; set; }
         public int PollingInterval { get; set; }
         public string ComputerName { get; set; }
         public bool PrettyPrint { get; set; }
+        public bool Debug { get; set; }
     }
 
     // Output format
@@ -130,19 +131,22 @@ namespace newrelic_infra_perfmon_plugin
         ManagementScope Scope { get; set; }
         private Dictionary<string, Object> Metrics = new Dictionary<string, Object>();
         private Output output = new Output();
-        private TimeSpan PollingInterval;
+        private int PollingInterval;
+        private bool IsDebug = false;
 
-        public PerfmonPlugin(string compname, Counterlist counter, bool prettyprint, TimeSpan pollingInterval)
+        public PerfmonPlugin(Options options, Counterlist counter)
         {
-            PollingInterval = pollingInterval;
-            Initialize(compname, prettyprint);
+            Initialize(options);
             AddCounter(counter, 0);
+            if(counter.querytype.Equals(WMIEvent))
+            {
+                PollingInterval = 0;
+            }
         }
 
-        public PerfmonPlugin(string compname, List<Counterlist> counters, bool prettyprint, TimeSpan pollingInterval)
+        public PerfmonPlugin(Options options, List<Counterlist> counters)
         {
-            PollingInterval = pollingInterval;
-            Initialize(compname, prettyprint);
+            Initialize(options);
             int whichCounter = -1;
             foreach (Counterlist aCounter in counters)
             {
@@ -150,14 +154,20 @@ namespace newrelic_infra_perfmon_plugin
                 AddCounter(aCounter, whichCounter);
             }
         }
-        
-        private void Initialize(string compname, bool prettyprint) {   
+
+        private void Initialize(Options options) {
             PerfmonQueries = new List<PerfmonQuery>();
-            Name = compname;
-            if (prettyprint)
+            Name = options.ComputerName;
+            PollingInterval = options.PollingInterval;
+            if(options.Debug) 
             {
-                Console.WriteLine("Pretty Print enabled.");
+                IsDebug = true;
+                options.PrettyPrint = true;
+            }
+            if (options.PrettyPrint)
+            {
                 PrintFormat = Formatting.Indented;
+                Debug("Pretty Print enabled.");
             } else
             {
                 PrintFormat = Formatting.None;
@@ -168,7 +178,7 @@ namespace newrelic_infra_perfmon_plugin
             output.metrics = new List<Dictionary<string, object>>();
             output.events = new List<Dictionary<string, object>>();
             output.inventory = new Dictionary<string, string>();
-            
+
             Scope = new ManagementScope("\\\\" + Name + "\\root\\cimv2");
         }
 
@@ -232,10 +242,10 @@ namespace newrelic_infra_perfmon_plugin
         }
 
         public void RunThread() {
-            if (PollingInterval.TotalMilliseconds == 0)
+            TimeSpan pollingIntervalTS = TimeSpan.FromMilliseconds(PollingInterval);
+            if (pollingIntervalTS.TotalMilliseconds == 0)
             {
-                // Console.Out.WriteLine("Running this thread: " + Thread.CurrentThread.ManagedThreadId 
-                //      + " in constant polling mode.");
+                Debug("Running in constant polling mode.");
                 do
                 {
                     PollCycle();
@@ -244,21 +254,20 @@ namespace newrelic_infra_perfmon_plugin
             }
             else
             {
-                // Console.Out.WriteLine("Running this thread: " + Thread.CurrentThread.ManagedThreadId
-                //      + " with polling interval of " + PollingInterval);
+                Debug("Running with polling interval of " + pollingIntervalTS);
                 do
                 {
                     DateTime then = DateTime.Now;
                     PollCycle();
                     DateTime now = DateTime.Now;
                     TimeSpan elapsedTime = now.Subtract(then);
-                    if (PollingInterval.TotalMilliseconds > elapsedTime.TotalMilliseconds)
+                    if (pollingIntervalTS.TotalMilliseconds > elapsedTime.TotalMilliseconds)
                     {
-                        Thread.Sleep(PollingInterval - elapsedTime);
+                        Thread.Sleep(pollingIntervalTS - elapsedTime);
                     }
                     else
                     {
-                        Thread.Sleep(PollingInterval);
+                        Thread.Sleep(pollingIntervalTS);
                     }
                 }
                 while (1 == 1);
@@ -277,6 +286,8 @@ namespace newrelic_infra_perfmon_plugin
                     {
                         try
                         {
+                            Debug("Collecting Perf Counter: " + ((PerformanceCounter)thisQuery.counterOrQuery).ToString());
+
                             float value = ((PerformanceCounter)thisQuery.counterOrQuery).NextValue();
                             string metricName = thisQuery.metricName;
                             if (!float.IsNaN(value))
@@ -313,13 +324,14 @@ namespace newrelic_infra_perfmon_plugin
                             continue;
                         }
                         if (thisQuery.unitOrType.Equals(WMIEvent)) {
-                            // Console.Out.WriteLine("Event Listener: " + thisQuery.counterOrQuery);
+                            Debug("Running Event Listener: " + thisQuery.counterOrQuery);
                             var watcher = new ManagementEventWatcher(Scope,
                                 new EventQuery((string)thisQuery.counterOrQuery)).WaitForNextEvent();
                             RecordMetricMap(thisQuery, watcher);
                         }
                         else
                         {
+                            Debug("Running Query: " + (string)thisQuery.counterOrQuery);
                             var queryResults = (new ManagementObjectSearcher(Scope, new ObjectQuery((string)thisQuery.counterOrQuery))).Get();
                             foreach (ManagementObject result in queryResults)
                             {
@@ -382,7 +394,7 @@ namespace newrelic_infra_perfmon_plugin
                 foreach (var member in thisQuery.queryMembers)
                 {
                     string label;
-                    if(member.Value.Equals(PerfmonPlugin.DefaultUnit))
+                    if (member.Value.Equals(PerfmonPlugin.DefaultUnit))
                     {
                         label = member.Key;
                     } else
@@ -400,7 +412,7 @@ namespace newrelic_infra_perfmon_plugin
                                 memberprops.Properties[splitmem[1]].Value);
                         } else
                         {
-                            foreach(var memberprop in memberprops.Properties)
+                            foreach (var memberprop in memberprops.Properties)
                             {
                                 propsOut.Add(memberprop.Name, memberprop.Value);
                             }
@@ -429,7 +441,7 @@ namespace newrelic_infra_perfmon_plugin
 
         private void ReportAll()
         {
-            if(Metrics.Count > 1)
+            if (Metrics.Count > 1)
             {
                 output.metrics.Add(Metrics);
             }
@@ -439,6 +451,14 @@ namespace newrelic_infra_perfmon_plugin
             }
             Metrics.Clear();
             output.metrics.Clear();
+        }
+
+        private void Debug(string output)
+        {
+            if (this.IsDebug)
+            {
+                Console.Out.WriteLine(DateTime.Now.ToString("u") + " : Thread-" + Thread.CurrentThread.ManagedThreadId + " : " + output);
+            }
         }
     }
 }

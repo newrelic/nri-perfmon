@@ -10,17 +10,19 @@
           "unit":  "operationClass"
         },
         {
-          "counter": "targetInstance.Description"
+          "counter": "targetInstance.Manufacturer"
         },
         {
           "counter": "targetInstance.DeviceID"
         },
         {
+          "counter": "targetInstance.Description"
+        },
+        {
           "counter": "targetInstance.Name"
         },
         {
-          "counter": "targetInstance.Present",
-          "unit": "targetInstance.deviceIsPresent"
+          "counter": "targetInstance.Service"
         },
         {
           "counter": "targetInstance.Status"
@@ -28,9 +30,21 @@
       ]
     },
     {
-      "query": "Select Name,Description,Manufacturer,Service,Status,PNPClass from Win32_PnPEntity WHERE PNPClass != 'System'",
+      "query": "Select Name,DeviceID,Description,Manufacturer,Service,Status from Win32_PnPEntity WHERE NOT DeviceID LIKE 'PCI%' AND NOT DeviceID LIKE 'ROOT%' AND NOT DeviceID LIKE 'ACPI%'",
       "eventname": "Win32_PnPEntity"
     },
+    {
+      "query": "SELECT * FROM Win32_Fan",
+      "eventname": "Win32_Fan"
+    },
+    {
+      "query": "SELECT * FROM Win32_Battery",
+      "eventname": "Win32_Battery"
+    },
+    { 
+      "query": "SELECT * FROM W32_Processor",
+      "eventname": "W32_Processor"
+    }, 
     {
       "query": "select Name, BytesinJournalQueue, BytesinQueue, MessagesinJournalQueue, MessagesinQueue from Win32_PerfFormattedData_msmq_MSMQQueue",
       "eventname": "MSMQQueue"

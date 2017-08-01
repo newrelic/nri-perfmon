@@ -41,22 +41,29 @@ namespace newrelic_infra_perfmon_plugin
             .SetDefault(defaultPrettyPrint)
             .WithDescription("Pretty-print JSON output for visual debugging");
 
+            parser.Setup(arg => arg.Debug)
+            .As('d', "debug")
+            .SetDefault(false)
+            .WithDescription("Debug logging mode");
+
             parser.SetupHelp("?", "help")
              .Callback(text => Console.WriteLine(text));
 
-            var options = parser.Parse(args);
+            var parse = parser.Parse(args);
 
-            if (options.HasErrors)
+            if (parse.HasErrors)
             {
                 parser.HelpOption.ShowHelp(parser.Options);
                 Environment.Exit(1);
-            } else if (options.HelpCalled)
+            } else if (parse.HelpCalled)
             {
                 Environment.Exit(0);
             }
 
-            parser.Object.ComputerName = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? parser.Object.ComputerName;
-            parser.Object.ConfigFile = Environment.GetEnvironmentVariable("CONFIGFILE") ?? parser.Object.ConfigFile;
+            var options = parser.Object;
+
+            options.ComputerName = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? options.ComputerName;
+            options.ConfigFile = Environment.GetEnvironmentVariable("CONFIGFILE") ?? options.ConfigFile;
             
             // All of the possibilities for polling interval figured here...
             string env_PollingInterval = Environment.GetEnvironmentVariable("POLLINGINTERVAL");
@@ -64,28 +71,29 @@ namespace newrelic_infra_perfmon_plugin
             if(!String.IsNullOrEmpty(env_PollingInterval)) {
                 pollingInterval = Int32.Parse(env_PollingInterval);         
             } else { 
-                pollingInterval = parser.Object.PollingInterval;
+                pollingInterval = options.PollingInterval;
             }
             if (pollingInterval < pollingIntervalFloor) {
                 pollingInterval = pollingIntervalFloor;
             }
-            var pollingIntervalTS = TimeSpan.FromMilliseconds(pollingInterval);
+
+            options.PollingInterval = pollingInterval;
 
             List<Counterlist> counterlist = null;
             try
             {
-                StreamReader configFileReader = new StreamReader(parser.Object.ConfigFile);
+                StreamReader configFileReader = new StreamReader(options.ConfigFile);
                 Config properties = JsonConvert.DeserializeObject<Config>(configFileReader.ReadToEnd());
                 counterlist = properties.counterlist;
             } catch (IOException)
             {
-                Console.Error.WriteLine("ERROR: " + parser.Object.ConfigFile + " could not be found or opened.");
+                Console.Error.WriteLine("ERROR: " + options.ConfigFile + " could not be found or opened.");
                 Environment.Exit(1);
             }
 
-            if (String.IsNullOrEmpty(parser.Object.ComputerName) || String.Equals(parser.Object.ComputerName, defaultCompName))
+            if (String.IsNullOrEmpty(options.ComputerName) || String.Equals(options.ComputerName, defaultCompName))
             {
-                parser.Object.ComputerName = Environment.MachineName;
+                options.ComputerName = Environment.MachineName;
             }
 
             if (counterlist == null || counterlist.Count == 0)
@@ -93,16 +101,15 @@ namespace newrelic_infra_perfmon_plugin
                 throw new Exception("'counterlist' is empty. Do you have a 'config/plugin.json' file?");
             }
             List<Counterlist> mainCounters = new List<Counterlist>();
-            List<Thread> asyncThreads = new List<Thread>();
+            List<Thread> eventThreads = new List<Thread>();
 
             foreach (var thisCounter in counterlist)
             {
                 if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent))
                 {
-                    PerfmonPlugin aPlugin = new PerfmonPlugin(
-                        parser.Object.ComputerName, thisCounter, parser.Object.PrettyPrint, new TimeSpan(0));
+                    PerfmonPlugin aPlugin = new PerfmonPlugin(options, thisCounter);
                     Thread aThread = new Thread(new ThreadStart(aPlugin.RunThread));
-                    asyncThreads.Add(aThread);
+                    eventThreads.Add(aThread);
                     aThread.Start();
                 }
                 else
@@ -114,12 +121,12 @@ namespace newrelic_infra_perfmon_plugin
             if (mainCounters.Count > 0)
             {
                 // Console.Out.WriteLine("Running main counter list.");
-                PerfmonPlugin thisPlugin = new PerfmonPlugin(parser.Object.ComputerName, mainCounters, parser.Object.PrettyPrint, pollingIntervalTS);
+                PerfmonPlugin thisPlugin = new PerfmonPlugin(options, mainCounters);
                 thisPlugin.RunThread();
             }
 
             // If the main function has nothing or exits, wait on other threads (which should stay running)
-            foreach(Thread aThread in asyncThreads)
+            foreach(Thread aThread in eventThreads)
             {
                 aThread.Join();
             }
