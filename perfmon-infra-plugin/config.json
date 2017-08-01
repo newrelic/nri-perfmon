@@ -1,12 +1,35 @@
 {
   "counterlist": [
     {
-      "query": "Select Name,Service,Status from Win32_PnPEntity",
-      "eventname": "Win32_PnPEntity"
+      "query": "SELECT * FROM __InstanceOperationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_PnPEntity'",
+      "eventname": "InstanceOperationEvent",
+      "querytype": "wmi_eventlistener",
+      "counters": [
+        {
+          "counter": "__CLASS",
+          "unit":  "operationClass"
+        },
+        {
+          "counter": "targetInstance.Description"
+        },
+        {
+          "counter": "targetInstance.DeviceID"
+        },
+        {
+          "counter": "targetInstance.Name"
+        },
+        {
+          "counter": "targetInstance.Present",
+          "unit": "targetInstance.deviceIsPresent"
+        },
+        {
+          "counter": "targetInstance.Status"
+        }
+      ]
     },
     {
-      "query": "select * from __InstanceOperationEvent within 10 where TargetInstance ISA 'Win32_PnPEntity'",
-      "eventname": "InstanceOperationEvent"
+      "query": "Select Name,Description,Manufacturer,Service,Status,PNPClass from Win32_PnPEntity WHERE PNPClass != 'System'",
+      "eventname": "Win32_PnPEntity"
     },
     {
       "query": "select Name, BytesinJournalQueue, BytesinQueue, MessagesinJournalQueue, MessagesinQueue from Win32_PerfFormattedData_msmq_MSMQQueue",

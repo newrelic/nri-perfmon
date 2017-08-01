@@ -9,41 +9,36 @@ using Fclp;
 
 namespace newrelic_infra_perfmon_plugin
 {
-    class Options
-    {
-        public string ConfigFile { get; set; }
-        public int PollingInterval { get; set; }
-        public string ComputerName { get; set; }
-        public bool PrettyPrint { get; set; }
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
-            // var options = new Options();
+            var pollingIntervalFloor = 10000;
+            var defaultCompName = "ThisComputer";
+            var defaultConfigFile = "config.json";
+            var defaultPrettyPrint = false;
 
             // create a generic parser for the ApplicationArguments type
             var parser = new FluentCommandLineParser<Options>();
 
             parser.Setup(arg => arg.ConfigFile)
             .As('c', "configFile")
-            .SetDefault("config.json")
+            .SetDefault(defaultConfigFile)
             .WithDescription("Config file to use");
 
             parser.Setup(arg => arg.PollingInterval)
             .As('i', "pollInt")
-            .SetDefault(10000)
+            .SetDefault(pollingIntervalFloor)
             .WithDescription("Frequency of polling (ms)");
 
             parser.Setup(arg => arg.ComputerName)
             .As('n', "compName")
-            .SetDefault("ThisComputer")
+            .SetDefault(defaultCompName)
             .WithDescription("Name of computer that you want to poll");
 
             parser.Setup(arg => arg.PrettyPrint)
             .As('p', "prettyPrint")
-            .SetDefault(false)
+            .SetDefault(defaultPrettyPrint)
             .WithDescription("Pretty-print JSON output for visual debugging");
 
             parser.SetupHelp("?", "help")
@@ -60,7 +55,21 @@ namespace newrelic_infra_perfmon_plugin
                 Environment.Exit(0);
             }
 
-            TimeSpan pollingInterval = TimeSpan.FromMilliseconds(parser.Object.PollingInterval);
+            parser.Object.ComputerName = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? parser.Object.ComputerName;
+            parser.Object.ConfigFile = Environment.GetEnvironmentVariable("CONFIGFILE") ?? parser.Object.ConfigFile;
+            
+            // All of the possibilities for polling interval figured here...
+            string env_PollingInterval = Environment.GetEnvironmentVariable("POLLINGINTERVAL");
+            int pollingInterval = pollingIntervalFloor;
+            if(!String.IsNullOrEmpty(env_PollingInterval)) {
+                pollingInterval = Int32.Parse(env_PollingInterval);         
+            } else { 
+                pollingInterval = parser.Object.PollingInterval;
+            }
+            if (pollingInterval < pollingIntervalFloor) {
+                pollingInterval = pollingIntervalFloor;
+            }
+            var pollingIntervalTS = TimeSpan.FromMilliseconds(pollingInterval);
 
             List<Counterlist> counterlist = null;
             try
@@ -74,7 +83,7 @@ namespace newrelic_infra_perfmon_plugin
                 Environment.Exit(1);
             }
 
-            if (String.IsNullOrEmpty(parser.Object.ComputerName) || String.Equals(parser.Object.ComputerName, "ThisComputer"))
+            if (String.IsNullOrEmpty(parser.Object.ComputerName) || String.Equals(parser.Object.ComputerName, defaultCompName))
             {
                 parser.Object.ComputerName = Environment.MachineName;
             }
@@ -83,21 +92,38 @@ namespace newrelic_infra_perfmon_plugin
             {
                 throw new Exception("'counterlist' is empty. Do you have a 'config/plugin.json' file?");
             }
+            List<Counterlist> mainCounters = new List<Counterlist>();
+            List<Thread> asyncThreads = new List<Thread>();
 
-            PerfmonPlugin plugin = new PerfmonPlugin(parser.Object.ComputerName, counterlist, parser.Object.PrettyPrint);
-            do
+            foreach (var thisCounter in counterlist)
             {
-                DateTime then = DateTime.Now;
-                plugin.PollCycle();
-                DateTime now = DateTime.Now;
-                TimeSpan elapsedTime = now.Subtract(then);
-                if(pollingInterval.TotalMilliseconds > elapsedTime.TotalMilliseconds) {
-                    Thread.Sleep(pollingInterval - elapsedTime);
-                } else {
-                    Thread.Sleep(pollingInterval);
+                if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent))
+                {
+                    PerfmonPlugin aPlugin = new PerfmonPlugin(
+                        parser.Object.ComputerName, thisCounter, parser.Object.PrettyPrint, new TimeSpan(0));
+                    Thread aThread = new Thread(new ThreadStart(aPlugin.RunThread));
+                    asyncThreads.Add(aThread);
+                    aThread.Start();
+                }
+                else
+                {
+                    mainCounters.Add(thisCounter);
                 }
             }
-            while(1 == 1);
+               
+            if (mainCounters.Count > 0)
+            {
+                // Console.Out.WriteLine("Running main counter list.");
+                PerfmonPlugin thisPlugin = new PerfmonPlugin(parser.Object.ComputerName, mainCounters, parser.Object.PrettyPrint, pollingIntervalTS);
+                thisPlugin.RunThread();
+            }
+
+            // If the main function has nothing or exits, wait on other threads (which should stay running)
+            foreach(Thread aThread in asyncThreads)
+            {
+                aThread.Join();
+            }
+
         }
     }
 }
