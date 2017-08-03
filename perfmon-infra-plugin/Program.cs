@@ -16,7 +16,6 @@ namespace newrelic_infra_perfmon_plugin
             var pollingIntervalFloor = 10000;
             var defaultCompName = "ThisComputer";
             var defaultConfigFile = "config.json";
-            var defaultPrettyPrint = false;
 
             // create a generic parser for the ApplicationArguments type
             var parser = new FluentCommandLineParser<Options>();
@@ -36,15 +35,10 @@ namespace newrelic_infra_perfmon_plugin
             .SetDefault(defaultCompName)
             .WithDescription("Name of computer that you want to poll");
 
-            parser.Setup(arg => arg.PrettyPrint)
-            .As('p', "prettyPrint")
-            .SetDefault(defaultPrettyPrint)
-            .WithDescription("Pretty-print JSON output for visual debugging");
-
-            parser.Setup(arg => arg.Debug)
-            .As('d', "debug")
-            .SetDefault(false)
-            .WithDescription("Debug logging mode");
+            parser.Setup(arg => arg.Verbose)
+            .As('v', "verbose")
+            .SetDefault(0)
+            .WithDescription("Verbose logging mode");
 
             parser.SetupHelp("?", "help")
              .Callback(text => Console.WriteLine(text));
@@ -105,7 +99,7 @@ namespace newrelic_infra_perfmon_plugin
 
             foreach (var thisCounter in counterlist)
             {
-                if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent))
+                if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent) || !thisCounter.querynamespace.Equals(PerfmonPlugin.DefaultNamespace))
                 {
                     PerfmonPlugin aPlugin = new PerfmonPlugin(options, thisCounter);
                     Thread aThread = new Thread(new ThreadStart(aPlugin.RunThread));

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Management;
 using System.Diagnostics;
 using System.Threading;
-using NLog;
 using Newtonsoft.Json;
 
 namespace newrelic_infra_perfmon_plugin
@@ -14,7 +13,7 @@ namespace newrelic_infra_perfmon_plugin
     public class Counter
     {
         public string counter { get; set; }
-        public string unit { get; set; } = PerfmonPlugin.DefaultUnit;
+        public string attrname { get; set; } = PerfmonPlugin.UseOwnName;
     }
 
     public class Counterlist
@@ -22,12 +21,11 @@ namespace newrelic_infra_perfmon_plugin
         public string provider { get; set; }
         public string category { get; set; }
         public string instance { get; set; }
-        public string counter { get; set; }
-        public string unit { get; set; } = PerfmonPlugin.DefaultUnit;
         public List<Counter> counters { get; set; }
         public string query { get; set; }
         public string eventname { get; set; } = PerfmonPlugin.DefaultEvent;
         public string querytype { get; set; } = PerfmonPlugin.WMIQuery;
+        public string querynamespace { get; set; } = PerfmonPlugin.DefaultNamespace;
     }
 
     public class Config
@@ -43,8 +41,7 @@ namespace newrelic_infra_perfmon_plugin
         public string ConfigFile { get; set; }
         public int PollingInterval { get; set; }
         public string ComputerName { get; set; }
-        public bool PrettyPrint { get; set; }
-        public bool Debug { get; set; }
+        public int Verbose { get; set; }
     }
 
     // Output format
@@ -63,26 +60,24 @@ namespace newrelic_infra_perfmon_plugin
 
     class PerfmonQuery
     {
-        public PerfmonQuery(string query, string ename, string querytype)
+        public PerfmonQuery(string query, string ename, string querytype, string querynamespace, List<Counter> members) 
         {
             metricName = ename;
-            unitOrType = querytype;
+            queryType = querytype;
             counterOrQuery = query;
-        }
-
-        public PerfmonQuery(string query, string ename, string querytype, List<Counter> members) 
-        {
-            metricName = ename;
-            unitOrType = querytype;
-            counterOrQuery = query;
-            foreach(var member in members)
-            {
-                queryMembers.Add(member.counter, member.unit);
+            queryNamespace = querynamespace ?? PerfmonPlugin.DefaultNamespace;
+            if (members != null) {
+                foreach(var member in members)
+                {
+                    queryMembers.Add(member.counter, member.attrname);
+                }
             }
         }
 
-        public PerfmonQuery(string pname, string caname, string coname, string iname, string munit)
+        public PerfmonQuery(string pname, string caname, string coname, string iname)
         {
+            queryNamespace = PerfmonPlugin.DefaultNamespace;
+            queryType = PerfmonPlugin.WMIQuery;
             if (String.Equals(pname, "PerfCounter"))
             {
                 if (String.IsNullOrEmpty(iname))
@@ -108,32 +103,31 @@ namespace newrelic_infra_perfmon_plugin
                     counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2} Where Name Like '{3}'", coname, pname, caname, iname);
                 }
             }
-            unitOrType = munit;
         }
 
         public object counterOrQuery { get; private set; }
         public string metricName { get; private set; }
-        public string unitOrType { get; private set; } = PerfmonPlugin.DefaultUnit;
+        public string queryType { get; private set; }
         public Dictionary<string, string> queryMembers { get; private set; } = new Dictionary<string, string>();
+        public string queryNamespace { get; private set; }
     }
 
     public class PerfmonPlugin
     {
         public static string WMIQuery = "wmi_query";
         public static string WMIEvent = "wmi_eventlistener";
-        public static string DefaultUnit = "count";
-        public static string DefaultEvent = "WMIMetrics";
+        public static string DefaultEvent = "WMIQueryResult";
+        public static string DefaultNamespace = "root\\cimv2";
+        public static string UseOwnName = "derp";
 
-        private static Logger logger = LogManager.GetCurrentClassLogger();
         string Name { get; set; }
-        Formatting PrintFormat { get; set; }
         List<PerfmonQuery> PerfmonQueries { get; set; }
         ManagementScope Scope { get; set; }
-        private Dictionary<string, Object> Metrics = new Dictionary<string, Object>();
-        private Output output = new Output();
-        private int PollingInterval;
-        private bool IsDebug = false;
-
+        Dictionary<string, Object> Metrics = new Dictionary<string, Object>();
+        Output output = new Output();
+        int PollingInterval;
+        bool IsDebug = false;
+        
         public PerfmonPlugin(Options options, Counterlist counter)
         {
             Initialize(options);
@@ -159,18 +153,9 @@ namespace newrelic_infra_perfmon_plugin
             PerfmonQueries = new List<PerfmonQuery>();
             Name = options.ComputerName;
             PollingInterval = options.PollingInterval;
-            if(options.Debug) 
+            if (options.Verbose > 0)
             {
                 IsDebug = true;
-                options.PrettyPrint = true;
-            }
-            if (options.PrettyPrint)
-            {
-                PrintFormat = Formatting.Indented;
-                Debug("Pretty Print enabled.");
-            } else
-            {
-                PrintFormat = Formatting.None;
             }
             output.name = Name;
             output.protocol_version = "1";
@@ -178,8 +163,6 @@ namespace newrelic_infra_perfmon_plugin
             output.metrics = new List<Dictionary<string, object>>();
             output.events = new List<Dictionary<string, object>>();
             output.inventory = new Dictionary<string, string>();
-
-            Scope = new ManagementScope("\\\\" + Name + "\\root\\cimv2");
         }
 
         public void AddCounter(Counterlist aCounter, int whichCounter) {
@@ -190,22 +173,23 @@ namespace newrelic_infra_perfmon_plugin
                     foreach (var testCounter in aCounter.counters) {
                         if (String.IsNullOrEmpty(testCounter.counter))
                         {
-                            logger.Error("plugin.json contains malformed counter: counterlist[{0}] missing 'counter' in 'counters'. Please review and compare to template.", whichCounter);
+                            
+                            Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'counter' in 'counters'. Please review and compare to template.", whichCounter);
                             return;
                         }
                     }
-                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, aCounter.eventname, aCounter.querytype, aCounter.counters));
+                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, aCounter.eventname, aCounter.querytype, aCounter.querynamespace, aCounter.counters));
                 }
                 else
                 {
-                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, aCounter.eventname, aCounter.querytype));
+                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, aCounter.eventname, aCounter.querytype, aCounter.querynamespace, null));
                 }
                 return;
             }
 
             if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
             {
-                logger.Error("plugin.json contains malformed counter: counterlist[{0}] missing 'provider' or 'category'. Please review and compare to template.", whichCounter);
+                Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'provider' or 'category'. Please review and compare to template.", whichCounter);
                 return;
             }
 
@@ -218,26 +202,29 @@ namespace newrelic_infra_perfmon_plugin
             if (aCounter.counters != null)
             {
                 int whichSubCounter = -1;
+                string countersStr = "";
                 foreach (var aSubCounter in aCounter.counters)
                 {
                     whichSubCounter++;
                     if (String.IsNullOrEmpty(aSubCounter.counter))
                     {
-                        logger.Error("plugin.json contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
+                        Console.Error.WriteLine("plugin.json contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
                         continue;
+                    } else {
+                        if(String.IsNullOrEmpty(countersStr)) {
+                            countersStr = aSubCounter.counter;
+                        } else {
+                            countersStr += (", " + aSubCounter.counter);
+                        }
                     }
-                    string metricUnit = aSubCounter.unit;
-                    PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, aSubCounter.counter, instanceName, metricUnit));
                 }
-            }
-            else if (!String.IsNullOrEmpty(aCounter.counter))
-            {
-                string metricUnit = aCounter.unit;
-                PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, aCounter.counter, instanceName, metricUnit));
+                if(!String.IsNullOrEmpty(countersStr)) {
+                    PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, countersStr, instanceName));
+                }
             }
             else
             {
-                logger.Error("plugin.json contains malformed counter: counterlist[{0}] missing 'counter' or 'counters'. Please review and compare to template.", whichCounter);
+                Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'counters'. Please review and compare to template.", whichCounter);
             }
         }
 
@@ -278,8 +265,11 @@ namespace newrelic_infra_perfmon_plugin
         {
             Metrics.Add("event_type", PerfmonPlugin.DefaultEvent);
             var metricNames = new Dictionary<string, int>();
-            foreach (var thisQuery in PerfmonQueries)
+
+            // Working backwards so we can safely delete queries that fail because of invalid classes.
+            for(int i = PerfmonQueries.Count-1; i>=0; i--)
             {
+                var thisQuery = PerfmonQueries[i];
                 try
                 {
                     if (thisQuery.counterOrQuery is PerformanceCounter)
@@ -300,86 +290,78 @@ namespace newrelic_infra_perfmon_plugin
                                 {
                                     metricNames.Add(metricName, 1);
                                 }
-                                logger.Debug("{0}/{1}: {2} {3}", Name, metricName, value, thisQuery.unitOrType);
-                                RecordMetric(metricName, thisQuery.unitOrType, value);
+                                Debug(string.Format("{0}/{1}: {2} {3}", Name, metricName, value));
+                                Metrics.Add(metricName, value);
+
                             }
                         }
                         catch (Exception e)
                         {
-                            logger.Error("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace);
+                            Console.Error.WriteLine("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace);
                         }
                     }
                     else if (thisQuery.counterOrQuery is string)
                     {
                         try
                         {
+                            string scopeString = "\\\\" + Name + "\\" + thisQuery.queryNamespace;
+                            if (Scope == null)
+                            {
+                                Debug("Setting up scope: " + scopeString);
+                                Scope = new ManagementScope(scopeString);
+                            }
+                            else if (Scope != null && !Scope.Path.ToString().Equals(scopeString))
+                            {
+                                Debug("Updating Scope Path from " + Scope.Path + " to " + scopeString);
+                                Scope = new ManagementScope(scopeString);
+                            }
+
                             if (!Scope.IsConnected)
                             {
+                                Debug("Connecting to scope: " + scopeString);
                                 Scope.Connect();
                             }
                         }
                         catch (Exception e)
                         {
-                            logger.Error("Unable to connect to \"{0}\". {1}", Name, e.Message);
+                            Console.Error.WriteLine("Unable to connect to \"{0}\". {1}", Name, e.Message);
                             continue;
                         }
-                        if (thisQuery.unitOrType.Equals(WMIEvent)) {
+                        if (thisQuery.queryType.Equals(WMIQuery))
+                        {
+                            Debug("Running Query: " + (string)thisQuery.counterOrQuery);
+                            var queryResults = (new ManagementObjectSearcher(Scope,
+                                new ObjectQuery((string)thisQuery.counterOrQuery))).Get();
+                            foreach (ManagementObject result in queryResults)
+                            {
+                                {
+                                    RecordMetricMap(thisQuery, result);
+                                    continue;
+                                }
+                            }
+                        } 
+                            else if (thisQuery.queryType.Equals(WMIEvent)) 
+                        {
                             Debug("Running Event Listener: " + thisQuery.counterOrQuery);
                             var watcher = new ManagementEventWatcher(Scope,
                                 new EventQuery((string)thisQuery.counterOrQuery)).WaitForNextEvent();
                             RecordMetricMap(thisQuery, watcher);
                         }
-                        else
-                        {
-                            Debug("Running Query: " + (string)thisQuery.counterOrQuery);
-                            var queryResults = (new ManagementObjectSearcher(Scope, new ObjectQuery((string)thisQuery.counterOrQuery))).Get();
-                            foreach (ManagementObject result in queryResults)
-                            {
-                                if (thisQuery.unitOrType.Equals(WMIQuery))
-                                {
-                                    RecordMetricMap(thisQuery, result);
-                                    continue;
-                                }
 
-                                string thisInstanceName = string.Empty;
-                                if (result["Name"] != null)
-                                {
-                                    thisInstanceName = string.Format("({0})", result["Name"]);
-                                }
-
-                                foreach (PropertyData prop in result.Properties)
-                                {
-                                    if (prop.Name == "Name")
-                                        continue;
-
-                                    float value = Convert.ToSingle(prop.Value);
-                                    string metricName = string.Format("{0}{1}/{2}", thisQuery.metricName, thisInstanceName, prop.Name);
-
-                                    if (metricNames.ContainsKey(metricName))
-                                    {
-                                        metricName = metricName + "#" + metricNames[metricName]++;
-                                    }
-                                    else
-                                    {
-                                        metricNames.Add(metricName, 1);
-                                    }
-                                    if (!float.IsNaN(value))
-                                    {
-                                        logger.Debug("{0}/{1}: {2} {3}", Name, metricName, value, thisQuery.unitOrType);
-                                        RecordMetric(metricName, thisQuery.unitOrType, value);
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
                 catch (ManagementException e)
                 {
-                    logger.Error("Exception occurred in polling. {0}\r\n{1}", e.Message, (string)thisQuery.counterOrQuery);
+                    Console.Error.WriteLine("Exception occurred in polling. {0}: {1}", e.Message, (string)thisQuery.counterOrQuery);
+                    if(e.Message.ToLower().Contains("invalid class") || e.Message.ToLower().Contains("not supported")) 
+                    {
+                        Console.Error.WriteLine("Query Removed: {0}", thisQuery.counterOrQuery);
+                        PerfmonQueries.RemoveAt(i);
+                    }
                 }
                 catch (Exception e)
                 {
-                    logger.Error("Exception occurred in processing results. {0}\r\n{1}", e.Message, e.StackTrace);
+                    Console.Error.WriteLine("Exception occurred in processing results. {0}\r\n{1}", e.Message, e.StackTrace);
                 }
             }
             ReportAll();
@@ -394,7 +376,7 @@ namespace newrelic_infra_perfmon_plugin
                 foreach (var member in thisQuery.queryMembers)
                 {
                     string label;
-                    if (member.Value.Equals(PerfmonPlugin.DefaultUnit))
+                    if (member.Value.Equals(PerfmonPlugin.UseOwnName))
                     {
                         label = member.Key;
                     } else
@@ -423,7 +405,8 @@ namespace newrelic_infra_perfmon_plugin
                         propsOut.Add(label, properties.Properties[member.Key].Value);
                     }
                 }
-            } else
+            } 
+            else
             {
                 foreach (PropertyData prop in properties.Properties)
                 {
@@ -434,11 +417,6 @@ namespace newrelic_infra_perfmon_plugin
             output.metrics.Add(propsOut);
         }
 
-        private void RecordMetric(string metricName, string metricUnit, double metricValue)
-        {
-            Metrics.Add(metricName.Replace("/", "."), metricValue);
-        }
-
         private void ReportAll()
         {
             if (Metrics.Count > 1)
@@ -447,7 +425,12 @@ namespace newrelic_infra_perfmon_plugin
             }
             if (output.metrics.Count > 0)
             {
-                Console.Out.Write(JsonConvert.SerializeObject(output, PrintFormat) + "\n");
+                if(IsDebug)
+                {
+                    Console.Error.WriteLine("Output: ");
+                    Console.Error.Write(JsonConvert.SerializeObject(output, Formatting.Indented) + "\n");
+                }
+                Console.Out.Write(JsonConvert.SerializeObject(output, Formatting.None) + "\n");
             }
             Metrics.Clear();
             output.metrics.Clear();
@@ -457,7 +440,7 @@ namespace newrelic_infra_perfmon_plugin
         {
             if (this.IsDebug)
             {
-                Console.Out.WriteLine(DateTime.Now.ToString("u") + " : Thread-" + Thread.CurrentThread.ManagedThreadId + " : " + output);
+                Console.Error.WriteLine("Thread-" + Thread.CurrentThread.ManagedThreadId + " : " + output);
             }
         }
     }
