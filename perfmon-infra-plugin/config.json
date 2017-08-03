@@ -7,7 +7,7 @@
       "counters": [
         {
           "counter": "__CLASS",
-          "unit":  "operationClass"
+          "attrname":  "operationClass"
         },
         {
           "counter": "targetInstance.Manufacturer"
@@ -44,7 +44,12 @@
     { 
       "query": "SELECT * FROM W32_Processor",
       "eventname": "W32_Processor"
-    }, 
+    },
+    { 
+      "querynamespace": "root\\WMI",
+      "query": "SELECT * FROM MSAcpi_ThermalZoneTemperature",
+      "eventname": "CPUTemperature"
+    },
     {
       "query": "select Name, BytesinJournalQueue, BytesinQueue, MessagesinJournalQueue, MessagesinQueue from Win32_PerfFormattedData_msmq_MSMQQueue",
       "eventname": "MSMQQueue"
@@ -61,15 +66,14 @@
       "provider": "ASPNET",
       "category": "ASPNETApplications",
       "instance": "__total__",
-      "counter": "ErrorsTotal",
-      "unit": "errors"
-    },
-    {
-      "provider": "ASPNET",
-      "category": "ASPNETApplications",
-      "instance": "__total__",
-      "counter": "RequestsPerSec",
-      "unit": "requests/second"
+      "counters": [
+        {
+          "counter": "ErrorsTotal"
+        },
+        {
+          "counter": "RequestsPerSec"
+        }
+      ]
     },
     {
       "provider": "NETFramework",
@@ -77,24 +81,19 @@
       "instance": "_Global_",
       "counters": [
         {
-          "counter": "NumberofExcepsThrown",
-          "unit": "excepts"
+          "counter": "NumberofExcepsThrown"
         },
         {
-          "counter": "NumberofExcepsThrownPersec",
-          "unit": "excepts/second"
+          "counter": "NumberofExcepsThrownPersec"
         },
         {
-          "counter": "NumberofFiltersPersec",
-          "unit": "filters/second"
+          "counter": "NumberofFiltersPersec"
         },
         {
-          "counter": "NumberofFinallysPersec",
-          "unit": "finallys/second"
+          "counter": "NumberofFinallysPersec"
         },
         {
-          "counter": "ThrowToCatchDepthPersec",
-          "unit": "throw_to_catch_depth/second"
+          "counter": "ThrowToCatchDepthPersec"
         }
       ]
     },
@@ -104,24 +103,19 @@
       "instance": "_Global_",
       "counters": [
         {
-          "counter": "NumberofCCWs",
-          "unit": "ccws"
+          "counter": "NumberofCCWs"
         },
         {
-          "counter": "Numberofmarshalling",
-          "unit": "marshalling"
+          "counter": "Numberofmarshalling"
         },
         {
-          "counter": "NumberofStubs",
-          "unit": "stubs"
+          "counter": "NumberofStubs"
         },
         {
-          "counter": "NumberofTLBexportsPersec",
-          "unit": "tlb_exports/second"
+          "counter": "NumberofTLBexportsPersec"
         },
         {
-          "counter": "NumberofTLBimportsPersec",
-          "unit": "tlb_imports/second"
+          "counter": "NumberofTLBimportsPersec"
         }
       ]
     },
@@ -131,24 +125,19 @@
       "instance": "_Global_",
       "counters": [
         {
-          "counter": "ILBytesJittedPersec",
-          "unit": "tlb_imports/second"
+          "counter": "ILBytesJittedPersec"
         },
         {
-          "counter": "NumberofILBytesJitted",
-          "unit": "bytes"
+          "counter": "NumberofILBytesJitted"
         },
         {
-          "counter": "NumberofMethodsJitted",
-          "unit": "methods"
+          "counter": "NumberofMethodsJitted"
         },
         {
-          "counter": "PercentTimeinJit",
-          "unit": "%"
+          "counter": "PercentTimeinJit"
         },
         {
-          "counter": "TotalNumberofILBytesJitted",
-          "unit": "bytes"
+          "counter": "TotalNumberofILBytesJitted"
         }
       ]
     },
@@ -158,48 +147,37 @@
       "instance": "_Global_",
       "counters": [
         {
-          "counter": "AssemblySearchLength",
-          "unit": "assemblies"
+          "counter": "AssemblySearchLength"
         },
         {
-          "counter": "BytesinLoaderHeap",
-          "unit": "bytes"
+          "counter": "BytesinLoaderHeap"
         },
         {
-          "counter": "Currentappdomains",
-          "unit": "appdomains"
+          "counter": "Currentappdomains"
         },
         {
-          "counter": "CurrentAssemblies",
-          "unit": "assemblies"
+          "counter": "CurrentAssemblies"
         },
         {
-          "counter": "CurrentClassesLoaded",
-          "unit": "classes"
+          "counter": "CurrentClassesLoaded"
         },
         {
-          "counter": "PercentTimeLoading",
-          "unit": "%"
+          "counter": "PercentTimeLoading"
         },
         {
-          "counter": "TotalAppdomains",
-          "unit": "appdomains"
+          "counter": "TotalAppdomains"
         },
         {
-          "counter": "Totalappdomainsunloaded",
-          "unit": "appdomains"
+          "counter": "Totalappdomainsunloaded"
         },
         {
-          "counter": "TotalAssemblies",
-          "unit": "assemblies"
+          "counter": "TotalAssemblies"
         },
         {
-          "counter": "TotalClassesLoaded",
-          "unit": "classes"
+          "counter": "TotalClassesLoaded"
         },
         {
-          "counter": "TotalNumberofLoadFailures",
-          "unit": "failures"
+          "counter": "TotalNumberofLoadFailures"
         }
       ]
     },
@@ -209,36 +187,28 @@
       "instance": "_Global_",
       "counters": [
         {
-          "counter": "ContentionRatePersec",
-          "unit": "failures"
+          "counter": "ContentionRatePersec"
         },
         {
-          "counter": "CurrentQueueLength",
-          "unit": "queue_length"
+          "counter": "CurrentQueueLength"
         },
         {
-          "counter": "NumberofcurrentlogicalThreads",
-          "unit": "threads"
+          "counter": "NumberofcurrentlogicalThreads"
         },
         {
-          "counter": "NumberofcurrentphysicalThreads",
-          "unit": "threads"
+          "counter": "NumberofcurrentphysicalThreads"
         },
         {
-          "counter": "Numberofcurrentrecognizedthreads",
-          "unit": "threads"
+          "counter": "Numberofcurrentrecognizedthreads"
         },
         {
-          "counter": "Numberoftotalrecognizedthreads",
-          "unit": "threads"
+          "counter": "Numberoftotalrecognizedthreads"
         },
         {
-          "counter": "QueueLengthPersec",
-          "unit": "length/second"
+          "counter": "QueueLengthPersec"
         },
         {
-          "counter": "TotalNumberofContentions",
-          "unit": "contentions"
+          "counter": "TotalNumberofContentions"
         }
       ]
     },
@@ -248,60 +218,46 @@
       "instance": "_Global_",
       "counters": [
         {
-          "counter": "AllocatedBytesPersec",
-          "unit": "bytes/second"
+          "counter": "AllocatedBytesPersec"
         },
         {
-          "counter": "Gen0heapsize",
-          "unit": "bytes"
+          "counter": "Gen0heapsize"
         },
         {
-          "counter": "Gen1heapsize",
-          "unit": "bytes"
+          "counter": "Gen1heapsize"
         },
         {
-          "counter": "Gen2heapsize",
-          "unit": "bytes"
+          "counter": "Gen2heapsize"
         },
         {
-          "counter": "LargeObjectHeapsize",
-          "unit": "bytes"
+          "counter": "LargeObjectHeapsize"
         },
         {
-          "counter": "NumberBytesinallHeaps",
-          "unit": "bytes"
+          "counter": "NumberBytesinallHeaps"
         },
         {
-          "counter": "NumberInducedGC",
-          "unit": "collections"
+          "counter": "NumberInducedGC"
         },
         {
-          "counter": "NumberTotalcommittedBytes",
-          "unit": "bytes"
+          "counter": "NumberTotalcommittedBytes"
         },
         {
-          "counter": "NumberTotalreservedBytes",
-          "unit": "bytes"
+          "counter": "NumberTotalreservedBytes"
         },
         {
-          "counter": "AllocatedBytesPersec",
-          "unit": "contentions"
+          "counter": "AllocatedBytesPersec"
         },
         {
-          "counter": "NumberGen0Collections",
-          "unit": "collections"
+          "counter": "NumberGen0Collections"
         },
         {
-          "counter": "NumberGen1Collections",
-          "unit": "collections"
+          "counter": "NumberGen1Collections"
         },
         {
-          "counter": "NumberGen2Collections",
-          "unit": "collections"
+          "counter": "NumberGen2Collections"
         },
         {
-          "counter": "PercentTimeinGC",
-          "unit": "%"
+          "counter": "PercentTimeinGC"
         }
       ]
     },
@@ -310,20 +266,16 @@
       "category": "ASPNETStateService",
       "counters": [
         {
-          "counter": "StateServerSessionsAbandoned",
-          "unit": "sessions"
+          "counter": "StateServerSessionsAbandoned"
         },
         {
-          "counter": "StateServerSessionsActive",
-          "unit": "sessions"
+          "counter": "StateServerSessionsActive"
         },
         {
-          "counter": "StateServerSessionsTimedOut",
-          "unit": "sessions"
+          "counter": "StateServerSessionsTimedOut"
         },
         {
-          "counter": "StateServerSessionsTotal",
-          "unit": "sessions"
+          "counter": "StateServerSessionsTotal"
         }
       ]
     },
@@ -332,56 +284,43 @@
       "category": "ASPNET",
       "counters": [
         {
-          "counter": "ApplicationRestarts",
-          "unit": "restarts"
+          "counter": "ApplicationRestarts"
         },
         {
-          "counter": "ApplicationsRunning",
-          "unit": "applications"
+          "counter": "ApplicationsRunning"
         },
         {
-          "counter": "ErrorEventsRaised",
-          "unit": "errors"
+          "counter": "ErrorEventsRaised"
         },
         {
-          "counter": "InfrastructureErrorEventsRaised",
-          "unit": "errors"
+          "counter": "InfrastructureErrorEventsRaised"
         },
         {
-          "counter": "RequestErrorEventsRaised",
-          "unit": "errors"
+          "counter": "RequestErrorEventsRaised"
         },
         {
-          "counter": "RequestExecutionTime",
-          "unit": "milliseconds"
+          "counter": "RequestExecutionTime"
         },
         {
-          "counter": "RequestsCurrent",
-          "unit": "requests"
+          "counter": "RequestsCurrent"
         },
         {
-          "counter": "RequestsQueued",
-          "unit": "requests"
+          "counter": "RequestsQueued"
         },
         {
-          "counter": "RequestsRejected",
-          "unit": "requests"
+          "counter": "RequestsRejected"
         },
         {
-          "counter": "RequestWaitTime",
-          "unit": "milliseconds"
+          "counter": "RequestWaitTime"
         },
         {
-          "counter": "WorkerProcessesRunning",
-          "unit": "processes"
+          "counter": "WorkerProcessesRunning"
         },
         {
-          "counter": "WorkerProcessRestarts",
-          "unit": "restarts"
+          "counter": "WorkerProcessRestarts"
         },
         {
-          "counter": "RequestWaitTime",
-          "unit": "milliseconds"
+          "counter": "RequestWaitTime"
         }
       ]
     },
@@ -391,20 +330,16 @@
       "instance": "_Total",
       "counters": [
         {
-          "counter": "BytesReceivedPersec",
-          "unit": "bytes"
+          "counter": "BytesReceivedPersec"
         },
         {
-          "counter": "BytesSentPersec",
-          "unit": "bytes"
+          "counter": "BytesSentPersec"
         },
         {
-          "counter": "ConnectionAttemptsPersec",
-          "unit": "bytes"
+          "counter": "ConnectionAttemptsPersec"
         },
         {
-          "counter": "CurrentConnections",
-          "unit": "bytes"
+          "counter": "CurrentConnections"
         }
       ]
     }
