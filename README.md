@@ -59,7 +59,7 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 }
 ```
 
-### Simple Queries & Performance Counters
+#### Simple Queries & Performance Counters
 
 The "provider, category, (optional) instance" form of the counter is for building simple queries, with the following limititions:
   * Uses the default namespace ("root/cimv2")
