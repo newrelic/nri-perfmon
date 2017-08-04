@@ -21,7 +21,7 @@ If run at command line without anything, the executible should report JSON resul
 
 ### Configuration
 
-Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET applications. If you would like to collect your own counters, customize the `counterList` in `config.json` following the structure found there. Here is an excerpt describing the format:
+Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET applications. If you would like to collect your own counters, customize the `counterlist` in `config.json` following the structure found there. Here is an excerpt describing the format:
 
 #### `config.json` Format
 
@@ -91,7 +91,7 @@ For more complex queries, use the "query, eventname, (optional) querytype, (opti
   * `attrname` property in `counters` is optional. If used, that counter name will be renamed in the Insights event to the value set here. If left out, the attribute in Insights will be named with the original name of that counter.
   * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`.
 
-#### Tips for finding/building new simple entries for `counterList`
+#### Tips for finding/building new simple entries for `counterlist`
 
 First, to get a list of all counter categories:
 
@@ -145,7 +145,7 @@ PSComputerName        :
 
 * counter = "Buffercachehitratio"
 
-Putting that all together, you would add the following under `counterList`:
+Putting that all together, you would add the following under `counterlist`:
 
 ```javascript
 {
