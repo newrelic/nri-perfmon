@@ -14,10 +14,10 @@ This is an executable that provides Windows Perfmon/WMI query & event results to
 
 If run at command line without anything, the executible should report JSON results from WMI queries specified in `config.json` to stdout, and any error messages to stderr.
 
-* -c | --configFile <file>  Config file to use (default: `config.json`)
-* -i | --pollInt <nnn>      Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
-* -n | --compName <name>    Name of computer that you want to poll (default: local host)
-* -v | --verbose <nnn>      Verbose logging mode (default: 0, 1 or more enables Verbose)
+* `-c | --configFile [file]`: Config file to use (default: `config.json`)
+* `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
+* `-n | --compName [name]`: Name of computer that you want to poll (default: local host)
+* `-v | --verbose [nnn]`: Verbose logging mode (default: 0, 1 or more enables Verbose)
 
 ### Configuration
 
@@ -27,22 +27,33 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 
 ```javascript
 {
-	"counterlist": [{
+	"counterlist": [
+		{
 			"provider": "provider_name",
 			"category": "category_name",
 			"instance": "(optional) instance_name",
-			"counters": [{
-                "counter": "counter_name"
-            }]
+			"counters": [
+				{
+            		"counter": "*|counter_name"
+        		},
+        		{
+        			"counter": "another_counter_name"
+        		}
+            ]
 		},
 		{
 			"query": "the_whole_WMI_Query",
 			"eventname": "(optional, default: 'WMIQueryResult') insights_event_name",
 			"querytype": "(optional, default: 'wmi_query') wmi_query|wmi_eventlistener",
-			"(optional) counters": [{
-                "counter": "counter_name|counter_class.counter_name",
-                "attrname": "(optional) attribute_name_in_insights_event"
-            }]
+			"(optional) counters": [
+				{
+            		"counter": "counter_name|counter_class.counter_name",
+            		"attrname": "(optional) attribute_name_in_insights_event"
+        		},
+        		{
+        			"counter": "another_counter_name"
+        		}
+        	]
 		}
 	]
 }
