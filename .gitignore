@@ -36,3 +36,5 @@ perfmon-infra-plugin/obj/**
 packages/**
 .vs/**
 
+
+*.db
