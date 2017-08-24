@@ -1,0 +1,6 @@
+integration_name: newrelic-infra-perfmon-plugin
+instances:
+   - name: newrelic-infra-perfmon-plugin-metrics
+     command: metrics
+     labels:
+        environment: production

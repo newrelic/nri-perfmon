@@ -175,3 +175,34 @@ If you run this, you'll see all of the instances and the `Name` property is the 
 ```powershell
 Get-CimInstance "Win32_PerfFormattedData_PerfOS_Processor"
 ```
+
+### Integrating into Infrastructure (Windows Agent)
+The pre-reqs for the Infrastructure agent call for a definition and config file (aside from the executable). Below are examples:
+
+### `definition.yml` format:
+```javascript
+name: newrelic-infra-perfmon-plugin
+description: Reads PerfMon counters and WMI queries, reports to Insights.
+os: windows
+
+source:
+  - command:
+     - .\newrelic-infra-perfmon-plugin.exe
+    prefix: integration/newrelic-infra-perfmon-plugin
+    interval: 15
+```
+
+### `config.yml` format:
+```javascript
+integration_name: newrelic-infra-perfmon-plugin
+instances:
+   - name: newrelic-infra-perfmon-plugin-metrics
+     command: metrics
+     labels:
+        environment: production
+```
+The executable and definition files produced by the plugin should be placed under `/newrelic-infra/custom-integrations`
+The config file should be placed under `/newrelic-infra/integrations.d/`
+
+### NOTE
+I also had to place the 2 external dependencies and their config files under `/newrelic-infra/custom-integrations` - basically all contents within the `/bin/Release` folder.
