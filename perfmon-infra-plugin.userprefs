@@ -1,0 +1,16 @@
+﻿<Properties StartupConfiguration="{F461207C-425C-4E39-8B99-C276C00FF3D6}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="perfmon-infra-plugin/Plugin.cs">
+    <Files>
+      <File FileName="perfmon-infra-plugin/App.config" Line="1" Column="1" />
+      <File FileName="perfmon-infra-plugin/config.json" Line="42" Column="8" />
+      <File FileName="perfmon-infra-plugin/Plugin.cs" Line="422" Column="35" />
+      <File FileName="perfmon-infra-plugin/Program.cs" Line="7" Column="17" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

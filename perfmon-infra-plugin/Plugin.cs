@@ -118,7 +118,7 @@ namespace newrelic_infra_perfmon_plugin
         public static string WMIEvent = "wmi_eventlistener";
         public static string DefaultEvent = "WMIQueryResult";
         public static string DefaultNamespace = "root\\cimv2";
-        public static string UseOwnName = "derp";
+        public static string UseOwnName = "Keagan";
 
         string Name { get; set; }
         List<PerfmonQuery> PerfmonQueries { get; set; }
