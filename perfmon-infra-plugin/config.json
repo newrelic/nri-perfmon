@@ -34,6 +34,23 @@
       "eventname": "Win32_PnPEntity"
     },
     {
+      "query": "SELECT * FROM Win32_Fan",
+      "eventname": "Win32_Fan"
+    },
+    {
+      "query": "SELECT * FROM Win32_Battery",
+      "eventname": "Win32_Battery"
+    },
+    { 
+      "query": "SELECT * FROM W32_Processor",
+      "eventname": "W32_Processor"
+    },
+    { 
+      "querynamespace": "root\\WMI",
+      "query": "SELECT * FROM MSAcpi_ThermalZoneTemperature",
+      "eventname": "CPUTemperature"
+    },
+    {
       "query": "select Name, BytesinJournalQueue, BytesinQueue, MessagesinJournalQueue, MessagesinQueue from Win32_PerfFormattedData_msmq_MSMQQueue",
       "eventname": "MSMQQueue"
     },
