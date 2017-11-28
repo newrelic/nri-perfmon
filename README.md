@@ -5,6 +5,8 @@ Windows Perfmon/WMI Plugin for New Relic Infrastructure
 
 This is an executable that provides Windows Perfmon/WMI query & event results to stdout, in a form that is consumable by New Relic Infrastructure when run as a plugin to it.
 
+### [Download The Latest Release HERE](https://source.datanerd.us/FIT/perfmon-infra-plugin/releases/latest)
+
 ### Requirements
 
 * .NET >= 3.5
@@ -18,6 +20,16 @@ If run at command line without anything, the executible should report JSON resul
 * `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
 * `-n | --compName [name]`: Name of computer that you want to poll (default: local host)
 * `-v | --verbose [nnn]`: Verbose logging mode (default: 0, 1 or more enables Verbose)
+
+### Installation and Integration into Infrastructure Agent
+
+The Infrastructure agent calls for the following file structure:
+
+* The entire plugin folder should reside under `/newrelic-infra/custom-integrations`.
+* `newrelic-infra-perfmon-plugin-definition.yml` should be placed under `/newrelic-infra/custom-integrations` (ALONGSIDE of the plugin's folder)
+* `newrelic-infra-perfmon-plugin-config.yml` should be placed under `/newrelic-infra/integrations.d/`
+
+Once the file structure is laid out, follow the steps specified below for [Configuration](#configuration) in order to capture the counters you need.
 
 ### Configuration
 
@@ -175,34 +187,3 @@ If you run this, you'll see all of the instances and the `Name` property is the 
 ```powershell
 Get-CimInstance "Win32_PerfFormattedData_PerfOS_Processor"
 ```
-
-### Integrating into Infrastructure (Windows Agent)
-The pre-reqs for the Infrastructure agent call for a definition and config file (aside from the executable). Below are examples:
-
-### `definition.yml` format:
-```javascript
-name: newrelic-infra-perfmon-plugin
-description: Reads PerfMon counters and WMI queries, reports to Insights.
-os: windows
-
-source:
-  - command:
-     - .\newrelic-infra-perfmon-plugin.exe
-    prefix: integration/newrelic-infra-perfmon-plugin
-    interval: 15
-```
-
-### `config.yml` format:
-```javascript
-integration_name: newrelic-infra-perfmon-plugin
-instances:
-   - name: newrelic-infra-perfmon-plugin-metrics
-     command: metrics
-     labels:
-        environment: production
-```
-The executable and definition files produced by the plugin should be placed under `/newrelic-infra/custom-integrations`
-The config file should be placed under `/newrelic-infra/integrations.d/`
-
-### NOTE
-I also had to place the 2 external dependencies and their config files under `/newrelic-infra/custom-integrations` - basically all contents within the `/bin/Release` folder.

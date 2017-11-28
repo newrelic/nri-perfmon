@@ -38,3 +38,8 @@ packages/**
 
 
 *.db
+
+perfmon-infra-plugin/Properties/**
+perfmon-infra-plugin/Settings.cs
+
+*.pdf
