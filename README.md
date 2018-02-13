@@ -23,11 +23,11 @@ If run at command line without anything, the executible should report JSON resul
 
 ### Installation and Integration into Infrastructure Agent
 
-The Infrastructure agent calls for the following file structure:
+Once you've unzipped the plugin, the Infrastructure agent calls for the following file structure:
 
-* The entire plugin folder should reside under `/newrelic-infra/custom-integrations`.
-* `newrelic-infra-perfmon-plugin-definition.yml` should be placed under `/newrelic-infra/custom-integrations` (ALONGSIDE of the plugin's folder)
-* `newrelic-infra-perfmon-plugin-config.yml` should be placed under `/newrelic-infra/integrations.d/`
+* The plugin folder (`newrelic-infra-perfmon-plugin` in the zip) resides under `/newrelic-infra/custom-integrations`.
+* `newrelic-infra-perfmon-plugin-definition.yml` resides under `/newrelic-infra/custom-integrations` (ALONG SIDE of the `newrelic-infra-perfmon-plugin` folder)
+* `newrelic-infra-perfmon-plugin-config.yml` resides under `/newrelic-infra/integrations.d/`
 
 Once the file structure is laid out, follow the steps specified below for [Configuration](#configuration) in order to capture the counters you need.
 
@@ -82,7 +82,7 @@ The "provider, category, (optional) instance" form of the counter is for buildin
 Notes:
   * The `instance` property is optional. If you leave it out, all instances will be polled automatically.
   * You must have at least one `counter` specified in `counters`. You can use wildcard ('*') as the value to get all counters for that class.
-  * If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage: 
+  * If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage:
 ```javascript
 {
 	"provider": "PerfCounter",

@@ -15,7 +15,8 @@ namespace newrelic_infra_perfmon_plugin
         {
             var pollingIntervalFloor = 10000;
             var defaultCompName = "ThisComputer";
-            var defaultConfigFile = "config.json";
+            var defaultConfigFilePath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            var defaultConfigFile = defaultConfigFilePath + "\\config.json";
 
             // create a generic parser for the ApplicationArguments type
             var parser = new FluentCommandLineParser<Options>();
