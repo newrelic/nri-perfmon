@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("perfmon-infra-plugin")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("On-host integration for New Relic Infrastructure, reads PerfMon counters and WMI queries.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("New Relic Expert Services")]
 [assembly: AssemblyProduct("perfmon-infra-plugin")]
-[assembly: AssemblyCopyright("Copyright © 2017 New Relic, Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2018 New Relic, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
