@@ -1,0 +1,6 @@
+integration_name: perfmon-infra-plugin
+instances:
+   - name: perfmon-infra-plugin-metrics
+     command: metrics
+     labels:
+        environment: production

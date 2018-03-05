@@ -1,9 +1,0 @@
-name: newrelic-infra-perfmon-plugin
-description: Reads PerfMon counters and WMI queries, reports to Insights.
-os: windows
-
-source:
-  - command:
-     - .\newrelic-infra-perfmon-plugin.exe
-    prefix: integration/newrelic-infra-perfmon-plugin
-    interval: 15

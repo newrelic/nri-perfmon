@@ -1,9 +1,9 @@
 # perfmon-infra-plugin
 
-Windows Perfmon/WMI Plugin for New Relic Infrastructure
-=======================================================
+Windows Perfmon/WMI On-Host Integration for New Relic Infrastructure
+====================================================================
 
-This is an executable that provides Windows Perfmon/WMI query & event results to stdout, in a form that is consumable by New Relic Infrastructure when run as a plugin to it.
+This is an executable that provides Windows Perfmon/WMI query & event results to stdout, in a form that is consumable by New Relic Infrastructure when run as an integration to it.
 
 ### [Download The Latest Release HERE](https://source.datanerd.us/FIT/perfmon-infra-plugin/releases/latest)
 
@@ -14,7 +14,7 @@ This is an executable that provides Windows Perfmon/WMI query & event results to
 
 ### Execution & Command-line Arguments
 
-If run at command line without anything, the executible should report JSON results from WMI queries specified in `config.json` to stdout, and any error messages to stderr.
+If run at command line without anything, the executible should report JSON results from WMI queries specified in `config.json` to stdout, and any error messages to stderr. This is useful for testing and debugging your counter/query configuration.
 
 * `-c | --configFile [file]`: Config file to use (default: `config.json`)
 * `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
@@ -25,9 +25,9 @@ If run at command line without anything, the executible should report JSON resul
 
 Once you've unzipped the plugin, the Infrastructure agent calls for the following file structure:
 
-* The plugin folder (`newrelic-infra-perfmon-plugin` in the zip) resides under `/newrelic-infra/custom-integrations`.
-* `newrelic-infra-perfmon-plugin-definition.yml` resides under `/newrelic-infra/custom-integrations` (ALONG SIDE of the `newrelic-infra-perfmon-plugin` folder)
-* `newrelic-infra-perfmon-plugin-config.yml` resides under `/newrelic-infra/integrations.d/`
+* The plugin folder (`perfmon-infra-plugin` in the zip) resides under `...\newrelic-infra\custom-integrations`.
+* `perfmon-infra-plugin-definition.yml` resides under `...\newrelic-infra\custom-integrations` (ALONG SIDE of the `perfmon-infra-plugin` folder)
+* `perfmon-infra-plugin-config.yml` resides under `...\newrelic-infra\integrations.d\`
 
 Once the file structure is laid out, follow the steps specified below for [Configuration](#configuration) in order to capture the counters you need.
 

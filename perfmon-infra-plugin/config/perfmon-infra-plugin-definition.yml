@@ -1,0 +1,9 @@
+name: perfmon-infra-plugin
+description: Reads PerfMon counters and WMI queries.
+os: windows
+
+source:
+  - command:
+    - .\perfmon-infra-plugin\perfmon-infra-plugin.exe
+    prefix: integration\perfmon-infra-plugin
+    interval: 15

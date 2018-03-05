@@ -7,8 +7,8 @@
     <ProjectGuid>{F461207C-425C-4E39-8B99-C276C00FF3D6}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>newrelic_infra_perfmon_plugin</RootNamespace>
-    <AssemblyName>newrelic-infra-perfmon-plugin</AssemblyName>
+    <RootNamespace>perfmon_infra_plugin</RootNamespace>
+    <AssemblyName>perfmon-infra-plugin</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -69,7 +69,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>newrelic_infra_perfmon_plugin.Program</StartupObject>
+    <StartupObject>perfmon_infra_plugin.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -92,6 +92,7 @@
   <ItemGroup>
     <Reference Include="FluentCommandLineParser, Version=1.4.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentCommandLineParser.1.4.3\lib\net35\FluentCommandLineParser.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net35\Newtonsoft.Json.dll</HintPath>
@@ -123,6 +124,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="config\config-hwonly.json" />
+    <None Include="config\config-mssql.json" />
+    <None Include="config\config.json" />
+    <None Include="config\perfmon-infra-plugin-config.yml" />
+    <None Include="config\perfmon-infra-plugin-definition.yml" />
+    <None Include="config\sample-insights-dashboard.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -143,6 +150,24 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>set RELEASE_DIR="$(TargetDir)\$(ProjectName)-release"
+set RELEASE_SUBDIR="%25RELEASE_DIR%25\$(ProjectName)"
+set CONFIG_DIR="$(ProjectDir)\config"
+
+if exist "%25RELEASE_DIR%25" del /s /q "%25RELEASE_DIR%25"
+if not exist "%25RELEASE_DIR%25" mkdir "%25RELEASE_DIR%25"
+if exist "%25RELEASE_SUBDIR%25"  del /s /q "%25RELEASE_SUBDIR%25"
+if not exist "%25RELEASE_SUBDIR%25" mkdir "%25RELEASE_SUBDIR%25"
+
+copy "%25CONFIG_DIR%25\*.yml" "%25RELEASE_DIR%25"
+copy "%25CONFIG_DIR%25\config.json" "%25RELEASE_SUBDIR%25"
+copy "$(TargetDir)\FluentCommandLineParser.dll" "%25RELEASE_SUBDIR%25"
+copy "$(TargetDir)\perfmon-infra-plugin.exe" "%25RELEASE_SUBDIR%25"
+copy "$(TargetDir)\Newtonsoft.Json.dll" "%25RELEASE_SUBDIR%25"
+
+powershell -Command "Compress-Archive -Force -Path %25RELEASE_DIR%25\* -DestinationPath %25RELEASE_DIR%25"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
