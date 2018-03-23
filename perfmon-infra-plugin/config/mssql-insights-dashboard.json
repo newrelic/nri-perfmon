@@ -1,0 +1,156 @@
+{
+  "dashboard": {
+    "title": "MSSQL Performance",
+    "icon": "paper-plane",
+    "created_at": "2018-03-22T20:13:12Z",
+    "updated_at": "2018-03-22T20:37:46Z",
+    "visibility": "all",
+    "editable": "editable_by_all",
+    "ui_url": "https://insights.newrelic.com/accounts/1482036/dashboards/530922",
+    "api_url": "https://api.newrelic.com/v2/dashboards/530922",
+    "owner_email": "kpeet@newrelic.com",
+    "metadata": {
+      "version": 1
+    },
+    "widgets": [
+      {
+        "visualization": "line_chart",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 1,
+          "column": 1
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerAccessMethods SELECT average(FullScansPersec) as 'Full Scans/sec', average(IndexSearchesPersec) as 'Index Searches/sec', average(PageSplitsPersec) as 'Page Splits/sec' since 1 day ago TIMESERIES 1 hour"
+          }
+        ],
+        "presentation": {
+          "title": "Access Methods - Counters",
+          "notes": "Page splits - Represents how fragmented your tables are"
+        }
+      },
+      {
+        "visualization": "gauge",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 1,
+          "column": 2
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerBufferManager SELECT average(Buffercachehitratio) as 'Buffer Cache Hit Ratio' since 1 day ago"
+          }
+        ],
+        "presentation": {
+          "title": "Average Buffer Cache Hit Ratio",
+          "notes": "",
+          "threshold": {
+            "red": 100
+          }
+        }
+      },
+      {
+        "visualization": "line_chart",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 1,
+          "column": 3
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerBufferManager SELECT average(PagereadsPersec) as 'Page Reads/sec', average(PagewritesPersec) as 'Page Writes/sec' since 1 day ago TIMESERIES 1 hour"
+          }
+        ],
+        "presentation": {
+          "title": "Page Reads vs Writes",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "attribute_sheet",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 2,
+          "column": 1
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerLocks SELECT average(AverageWaitTimems) as 'Avg Wait Time (ms)', average(NumberofDeadlocksPersec) as 'Avg # Deadlocks/sec', average(LockRequestsPersec) as 'Avg # Lock Requests/sec', average(LockWaitsPersec) as 'Avg # Lock Waits/sec' since 1 day ago"
+          }
+        ],
+        "presentation": {
+          "title": "Lock Information",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "line_chart",
+        "layout": {
+          "width": 2,
+          "height": 1,
+          "row": 2,
+          "column": 2
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerMemoryManager SELECT latest(FreeMemoryKB)*0.001 as 'Free Memory (mb)', latest(TargetServerMemoryKB)*0.001 as 'Target Server Memory (mb)', latest(TotalServerMemoryKB)*0.001 as 'Total Server Memory (mb)' TIMESERIES AUTO"
+          }
+        ],
+        "presentation": {
+          "title": "Memory Counters",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "attribute_sheet",
+        "layout": {
+          "width": 2,
+          "height": 1,
+          "row": 3,
+          "column": 1
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerSQLStatistics SELECT average(BatchRequestsPersec) as 'Avg Batch Requests/sec', average(SQLCompilationsPersec) as 'Avg SQL Compilations/sec', average(SQLReCompilationsPersec) as 'Avg SQL Recompilations/sec' since 1 day ago"
+          }
+        ],
+        "presentation": {
+          "title": "Is My Server Optimized?",
+          "notes": "Batch requests - represents how busy a SQL server is.\n\nPage Compiliations/Recompilations - Incremented when SQL Server has to compile or re-compile query plans."
+        }
+      },
+      {
+        "visualization": "billboard",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 3,
+          "column": 3
+        },
+        "account_id": 1482036,
+        "data": [
+          {
+            "nrql": "FROM SQLServerTransactions SELECT average(FreeSpaceintempdbKB)*0.001 as 'Free Space in Temp DB (mb)' since 1 day ago"
+          }
+        ],
+        "presentation": {
+          "title": "Temp DB Utilization",
+          "notes": null,
+          "threshold": {}
+        }
+      }
+    ],
+    "filter": null
+  }
+}
