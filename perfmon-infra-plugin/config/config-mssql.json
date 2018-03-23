@@ -1,0 +1,110 @@
+{
+  "counterlist": [
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerTransactions",
+      "counters": [
+        {
+          "counter": "FreeSpaceintempdbKB"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerBufferManager",
+      "counters": [
+        {
+          "counter": "Databasepages"
+        },
+        {
+          "counter": "PagereadsPersec"
+        },
+        {
+          "counter": "PagewritesPersec"
+        },
+        {
+          "counter": "Buffercachehitratio"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerAccessMethods",
+      "counters": [
+        {
+          "counter": "FullScansPersec"
+        },
+        {
+          "counter": "IndexSearchesPersec"
+        },
+        {
+          "counter": "PageSplitsPersec"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerMemoryManager",
+      "counters": [
+        {
+          "counter": "TargetServerMemoryKB"
+        },
+        {
+          "counter": "TotalServerMemoryKB"
+        },
+        {
+          "counter": "LogPoolMemoryKB"
+        },
+        {
+          "counter": "FreeMemoryKB"
+        },
+        {
+          "counter": "LockMemoryKB"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLServer",
+      "category": "SQLServerLocks",
+      "instance": "_Total",
+      "counters": [
+        {
+          "counter": "AverageWaitTimems"
+        },
+        {
+          "counter": "LockRequestsPersec"
+        },
+        {
+          "counter": "NumberofDeadlocksPersec"
+        },
+        {
+          "counter": "LockWaitsPersec"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerSQLStatistics",
+      "counters": [
+        {
+          "counter": "BatchRequestsPersec"
+        },
+        {
+          "counter": "SQLCompilationsPersec"
+        },
+        {
+          "counter": "SQLReCompilationsPersec"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerSQLErrors",
+      "counters": [
+        {
+          "counter": "ErrorsPersec"
+        },
+      ]
+    },
+  ]
+}
