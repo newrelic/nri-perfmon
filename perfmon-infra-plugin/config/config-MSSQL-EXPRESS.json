@@ -1,0 +1,86 @@
+{
+  "counterlist": [
+    {
+      "provider": "MSSQLSQLEXPRESS",
+      "category": "MSSQLSQLEXPRESSTransactions",
+      "counters": [
+        {
+          "counter": "FreeSpaceintempdbKB"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSQLEXPRESS",
+      "category": "MSSQLSQLEXPRESSBufferManager",
+      "counters": [
+        {
+          "counter": "Databasepages"
+        },
+        {
+          "counter": "PagereadsPersec"
+        },
+        {
+          "counter": "PagewritesPersec"
+        },
+        {
+          "counter": "Buffercachehitratio"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSQLEXPRESS",
+      "category": "MSSQLSQLEXPRESSAccessMethods",
+      "counters": [
+        {
+          "counter": "FullScansPersec"
+        },
+        {
+          "counter": "IndexSearchesPersec"
+        },
+        {
+          "counter": "PageSplitsPersec"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSQLEXPRESS",
+      "category": "MSSQLSQLEXPRESSMemoryManager",
+      "counters": [
+        {
+          "counter": "TargetServerMemoryKB"
+        },
+        {
+          "counter": "TotalServerMemoryKB"
+        },
+        {
+          "counter": "LogPoolMemoryKB"
+        },
+        {
+          "counter": "FreeMemoryKB"
+        },
+        {
+          "counter": "LockMemoryKB"
+        }
+      ]
+    },
+    {
+      "provider": "MSSQLSQLEXPRESS",
+      "category": "MSSQLSQLEXPRESSLocks",
+      "instance": "_Total",
+      "counters": [
+        {
+          "counter": "AverageWaitTimems"
+        },
+        {
+          "counter": "LockRequestsPersec"
+        },
+        {
+          "counter": "NumberofDeadlocksPersec"
+        },
+        {
+          "counter": "LockWaitsPersec"
+        }
+      ]
+    },
+  ]
+}
