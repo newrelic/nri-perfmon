@@ -1,0 +1,266 @@
+{
+  "counterlist": [
+    {
+      "query": "select Name, BytesinJournalQueue, BytesinQueue, MessagesinJournalQueue, MessagesinQueue from Win32_PerfFormattedData_msmq_MSMQQueue",
+      "eventname": "MSMQQueue"
+    },
+    {
+      "query": "select Name, IncomingMessagesPersec, IncomingMulticastSessions, IPSessions, MSMQIncomingMessages, MSMQOutgoingMessages, OutgoingHTTPSessions, OutgoingMessagesPersec, OutgoingMulticastSessions, Sessions, Totalbytesinallqueues, Totalmessagesinallqueues from Win32_PerfFormattedData_msmq_MSMQService",
+      "eventname": "MSMQService"
+    },
+    {
+      "query": "select Name, IncomingBytes, IncomingBytesPersec, IncomingMessages, IncomingMessagesPersec, OutgoingBytes, OutgoingBytesPersec, OutgoingMessages, OutgoingMessagesPersec from Win32_PerfFormattedData_msmq_MSMQSession",
+      "eventname": "MSMQSession"
+    },
+    {
+      "provider": "ASPNET",
+      "category": "ASPNETApplications",
+      "instance": "__total__",
+      "counters": [
+        {
+          "counter": "ErrorsTotal"
+        },
+        {
+          "counter": "RequestsPerSec"
+        }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRExceptions",
+      "instance": "_Global_",
+      "counters": [
+        {
+          "counter": "NumberofExcepsThrown"
+        },
+        {
+          "counter": "NumberofExcepsThrownPersec"
+        },
+        {
+          "counter": "NumberofFiltersPersec"
+        },
+        {
+          "counter": "NumberofFinallysPersec"
+        },
+        {
+          "counter": "ThrowToCatchDepthPersec"
+        }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRInterop",
+      "instance": "_Global_",
+      "counters": [
+        {
+          "counter": "NumberofCCWs"
+        },
+        {
+          "counter": "Numberofmarshalling"
+        },
+        {
+          "counter": "NumberofStubs"
+        },
+        {
+          "counter": "NumberofTLBexportsPersec"
+        },
+        {
+          "counter": "NumberofTLBimportsPersec"
+        }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRJit",
+      "instance": "_Global_",
+      "counters": [
+        {
+          "counter": "ILBytesJittedPersec"
+        },
+        {
+          "counter": "NumberofILBytesJitted"
+        },
+        {
+          "counter": "NumberofMethodsJitted"
+        },
+        {
+          "counter": "PercentTimeinJit"
+        },
+        {
+          "counter": "TotalNumberofILBytesJitted"
+        }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRLoading",
+      "instance": "_Global_",
+      "counters": [
+        {
+          "counter": "AssemblySearchLength"
+        },
+        {
+          "counter": "BytesinLoaderHeap"
+        },
+        {
+          "counter": "Currentappdomains"
+        },
+        {
+          "counter": "CurrentAssemblies"
+        },
+        {
+          "counter": "CurrentClassesLoaded"
+        },
+        {
+          "counter": "PercentTimeLoading"
+        },
+        {
+          "counter": "TotalAppdomains"
+        },
+        {
+          "counter": "Totalappdomainsunloaded"
+        },
+        {
+          "counter": "TotalAssemblies"
+        },
+        {
+          "counter": "TotalClassesLoaded"
+        },
+        {
+          "counter": "TotalNumberofLoadFailures"
+        }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRMemory",
+      "instance": "w3wp",
+      "counters": [
+        {
+          "counter": "AllocatedBytesPersec"
+        },
+        {
+          "counter": "Gen0heapsize"
+        },
+        {
+          "counter": "Gen1heapsize"
+        },
+        {
+          "counter": "Gen2heapsize"
+        },
+        {
+          "counter": "LargeObjectHeapsize"
+        },
+        {
+          "counter": "NumberBytesinallHeaps"
+        },
+        {
+          "counter": "NumberInducedGC"
+        },
+        {
+          "counter": "NumberTotalcommittedBytes"
+        },
+        {
+          "counter": "NumberTotalreservedBytes"
+        },
+        {
+          "counter": "AllocatedBytesPersec"
+        },
+        {
+          "counter": "NumberGen0Collections"
+        },
+        {
+          "counter": "NumberGen1Collections"
+        },
+        {
+          "counter": "NumberGen2Collections"
+        },
+        {
+          "counter": "PercentTimeinGC"
+        }
+      ]
+    },
+    {
+      "provider": "aspnetstate",
+      "category": "ASPNETStateService",
+      "counters": [
+        {
+          "counter": "StateServerSessionsAbandoned"
+        },
+        {
+          "counter": "StateServerSessionsActive"
+        },
+        {
+          "counter": "StateServerSessionsTimedOut"
+        },
+        {
+          "counter": "StateServerSessionsTotal"
+        }
+      ]
+    },
+    {
+      "provider": "ASPNET",
+      "category": "ASPNET",
+      "counters": [
+        {
+          "counter": "ApplicationRestarts"
+        },
+        {
+          "counter": "ApplicationsRunning"
+        },
+        {
+          "counter": "ErrorEventsRaised"
+        },
+        {
+          "counter": "InfrastructureErrorEventsRaised"
+        },
+        {
+          "counter": "RequestErrorEventsRaised"
+        },
+        {
+          "counter": "RequestExecutionTime"
+        },
+        {
+          "counter": "RequestsCurrent"
+        },
+        {
+          "counter": "RequestsQueued"
+        },
+        {
+          "counter": "RequestsRejected"
+        },
+        {
+          "counter": "RequestWaitTime"
+        },
+        {
+          "counter": "WorkerProcessesRunning"
+        },
+        {
+          "counter": "WorkerProcessRestarts"
+        },
+        {
+          "counter": "RequestWaitTime"
+        }
+      ]
+    },
+    {
+      "provider": "W3SVC",
+      "category": "WebService",
+      "instance": "_Total",
+      "counters": [
+        {
+          "counter": "BytesReceivedPersec"
+        },
+        {
+          "counter": "BytesSentPersec"
+        },
+        {
+          "counter": "ConnectionAttemptsPersec"
+        },
+        {
+          "counter": "CurrentConnections"
+        }
+      ]
+    }
+  ]
+}
