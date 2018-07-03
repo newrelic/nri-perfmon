@@ -1,4 +1,7 @@
-integration_name: perfmon-infra-plugin
+#
+# New Relic Infrastructure DirWatcher Integration
+#
+integration_name: com.newrelic.perfmon
 instances:
    - name: perfmon-infra-plugin-metrics
      command: metrics
