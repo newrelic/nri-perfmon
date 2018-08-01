@@ -1,0 +1,440 @@
+{                                                         
+    "counterlist": [{                                     
+        "provider": "PerfOS",                             
+        "category": "System",                             
+        "counters": [{                                    
+            "counter": "ContextSwitchesPersec"            
+          },                                              
+          {                                               
+            "counter": "SystemUpTime"                     
+          },                                              
+          {                                               
+            "counter": "SystemCallsPersec"                
+          },                                              
+          {                                               
+            "counter": "ExceptionDispatchesPersec"        
+          },                                              
+          {                                               
+            "counter": "ProcessorQueueLength"             
+          },                                              
+          {                                               
+            "counter": "ExceptionDispatchesPersec"        
+          }                                               
+        ]                                                 
+      },                                                  
+     {                                                    
+         "provider": "MSSQLSSP01",                        
+         "category": "MSSQLSSP01WorkloadGroupStats",      
+         "Instance": "Default",                           
+         "counters": [{                                   
+             "counter": "Activerequests"                  
+           }                                              
+                                                          
+        ]                                                 
+     },                                                   
+     {                                                    
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01SQLStatistics",            
+        "Instance": "Default",                            
+        "counters": [{                                    
+            "counter": "BatchRequestsPersec"              
+          },                                              
+          {                                               
+              "counter": "GuidedplanexecutionsPersec"     
+          },                                              
+          {                                               
+              "counter": "SQLAttentionrate"               
+          },                                              
+          {                                               
+              "counter": "SQLCompilationsPersec"          
+          }                                               
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01PlanCache",                
+        "Instance": "_Total",                             
+        "counters": [{                                    
+            "counter": "CacheHitRatio"                    
+          }                                               
+                                                          
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01MemoryNode",               
+        "Instance": "000",                                
+        "counters": [{                                    
+            "counter": "StolenNodeMemoryKB"               
+          }                                               
+                                                          
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01MemoryNode",               
+        "Instance": "001",                                
+        "counters": [{                                    
+            "counter": "StolenNodeMemoryKB"               
+          }                                               
+                                                          
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01MemoryNode",               
+        "Instance": "002",                                
+        "counters": [{                                    
+            "counter": "StolenNodeMemoryKB"               
+          }                                               
+                                                          
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01MemoryNode",               
+        "Instance": "003",                                
+        "counters": [{                                    
+            "counter": "StolenNodeMemoryKB"               
+          }                                               
+                                                          
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01MemoryManager",            
+        "counters": [{                                    
+            "counter": "ConnectionMemoryKB"               
+          },                                              
+          {                                               
+            "counter": "MemoryGrantsOutstanding"          
+          },                                              
+          {                                               
+              "counter": "MemoryGrantsPending"            
+          },                                              
+          {                                               
+              "counter": "LogPoolMemoryKB"                
+          },                                              
+          {                                               
+              "counter": "FreeMemoryKB"                   
+          },                                              
+          {                                               
+              "counter": "LockOwnerBlocks"                
+          },                                              
+          {                                               
+              "counter": "LockBlocks"                     
+          }                                               
+       ]                                                  
+    },                                                    
+    {                                                     
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01AccessMethods",            
+        "counters": [{                                    
+            "counter": "PageSplitsPersec"                 
+          },                                              
+          {                                               
+            "counter": "PageDeallocationsPersec"          
+          },                                              
+          {                                               
+              "counter": "PagesAllocatedPersec"           
+          },                                              
+          {                                               
+              "counter": "PagescompressedPersec"          
+          },                                              
+          {                                               
+              "counter": "LobSSProviderDestroyCount"      
+          },                                              
+          {                                               
+              "counter": "IndexSearchesPersec"            
+          },                                              
+          {                                               
+              "counter": "FullScansPersec"                
+          },                                              
+          {                                               
+              "counter": "WorkfilesCreatedPersec"         
+          },                                              
+          {                                               
+              "counter": "AUcleanupsPersec"               
+          },                                              
+          {                                               
+              "counter": "AUcleanupbatchesPersec"         
+          },                                              
+          {                                               
+              "counter": "LobSSProviderCreateCount"       
+          },                                              
+          {                                               
+              "counter": "FreeSpaceScansPersec"           
+          },                                              
+          {                                               
+              "counter": "ForwardedRecordsPersec"         
+          },                                              
+          {                                               
+              "counter": "PagecompressionattemptsPersec"  
+          }                                               
+       ]                                                  
+    },                                                    
+      {                                                   
+        "provider": "PerfOS",                             
+        "category": "Processor",                          
+        "instance": "_Total",                             
+        "counters": [{                                    
+            "counter": "InterruptsPersec"                 
+          },                                              
+          {                                               
+            "counter": "PercentDPCTime"                   
+          },                                              
+          {                                               
+            "counter": "PercentProcessorTime"             
+          },                                              
+          {                                               
+            "counter": "PercentDPCTime"                   
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "PerfProc",                           
+        "category": "Process",                            
+        "instance": "sqlservr",                           
+        "counters": [{                                    
+            "counter": "ThreadCount"                      
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "PerfOS",                             
+        "category": "System",                             
+        "counters": [{                                    
+            "counter": "ProcessorQueueLength"             
+          },                                              
+          {                                               
+              "counter": "Threads"                        
+          },                                              
+          {                                               
+              "counter": "ContextSwitchesPersec"          
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "PerfDisk",                           
+        "category": "PhysicalDisk",                       
+        "counters": [{                                    
+            "counter": "DiskReadsPersec"                  
+          },                                              
+          {                                               
+              "counter": "AvgDisksecPerRead"              
+          },                                              
+          {                                               
+              "counter": "DiskWritesPersec"               
+          },                                              
+          {                                               
+              "counter": "CurrentDiskQueueLength"         
+          },                                              
+          {                                               
+              "counter": "SplitIOPerSec"                  
+          },                                              
+          {                                               
+              "counter": "AvgDisksecPerWrite"             
+          },                                              
+          {                                               
+              "counter": "DiskBytesPersec"                
+          },                                              
+          {                                               
+              "counter": "DiskTransfersPersec"            
+          },                                              
+          {                                               
+              "counter": "AvgDisksecPerTransfer"          
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01WaitStatistics",           
+        "instance": "Waits in progress",                  
+        "counters": [{                                    
+            "counter": "Waitfortheworker"                 
+          },                                              
+          {                                               
+              "counter": "Pagelatchwaits"                 
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01WaitStatistics",           
+        "instance": "Waits started per second",           
+        "counters": [{                                    
+            "counter": "Waitfortheworker"                 
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01WaitStatistics",           
+        "instance": "Average wait time (ms)",             
+        "counters": [{                                    
+            "counter": "Pagelatchwaits"                   
+          },                                              
+          {                                               
+              "counter": "Lockwaits"                      
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01Transactions",             
+        "counters": [{                                    
+            "counter": "NonSnapshotVersionTransactions"   
+          },                                              
+          {                                               
+              "counter": "Transactions"                   
+          },                                              
+          {                                               
+              "counter": "LongestTransactionRunningTime"  
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01Locks",                    
+        "instance": "_Total",                             
+        "counters": [{                                    
+            "counter": "LockTimeoutsPersec"               
+          },                                              
+          {                                               
+              "counter": "LockWaitTimems"                 
+          },                                              
+          {                                               
+              "counter": "AverageWaitTimems"              
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01Latches",                  
+        "counters": [{                                    
+            "counter": "AverageLatchWaitTimems"           
+          },                                              
+          {                                               
+              "counter": "TotalLatchWaitTimems"           
+          },                                              
+          {                                               
+              "counter": "LatchWaitsPersec"               
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01GeneralStatistics",        
+        "counters": [{                                    
+            "counter": "UserConnections"                  
+          },                                              
+          {                                               
+              "counter": "ConnectionResetPersec"          
+          },                                              
+          {                                               
+              "counter": "LoginsPersec"                   
+          },                                              
+          {                                               
+              "counter": "LogoutsPersec"                  
+          },                                              
+          {                                               
+              "counter": "Processesblocked"               
+          },                                              
+          {                                               
+              "counter": "Transactions"                   
+          },                                              
+          {                                               
+              "counter": "LogicalConnections"             
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01Databases",                
+        "instance": "_Total",                             
+        "counters": [{                                    
+            "counter": "TransactionsPersec"               
+          },                                              
+          {                                               
+              "counter": "LogPoolCacheMissesPersec"       
+          },                                              
+          {                                               
+              "counter": "XTPControllerLogProcessedPersec"
+          },                                              
+          {                                               
+              "counter": "LogPoolReqBehindTruncPersec"    
+          },                                              
+          {                                               
+              "counter": "BulkCopyRowsPersec"             
+          },                                              
+          {                                               
+              "counter": "ActiveTransactions"             
+          },                                              
+          {                                               
+              "counter": "LogBytesFlushedPersec"          
+          },                                              
+          {                                               
+              "counter": "LogPoolLogScanPushesPersec"     
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01AvailabilityReplica",      
+        "counters": [{                                    
+            "counter": "BytesReceivedfromReplicaPersec"   
+          },                                              
+          {                                               
+              "counter": "BytesSenttoReplicaPersec"       
+          },                                              
+          {                                               
+              "counter": "BytesSenttoTransportPersec"     
+          },                                              
+          {                                               
+              "counter": "FlowControlPersec"              
+          },                                              
+          {                                               
+              "counter": "FlowControlTimemsPersec"        
+          },                                              
+          {                                               
+              "counter": "ReceivesfromReplicaPersec"      
+          },                                              
+          {                                               
+              "counter": "ResentMessagesPersec"           
+          },                                              
+          {                                               
+              "counter": "SendstoReplicaPersec"           
+          },                                              
+          {                                               
+              "counter": "SendstoTransportPersec"         
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "MSSQLSSP01",                         
+        "category": "MSSQLSSP01SQLErrors",                
+        "counters": [{                                    
+            "counter": "ErrorsPersec"                     
+          }                                               
+        ]                                                 
+      },                                                  
+      {                                                   
+        "provider": "Tcpip",                              
+        "category": "NetworkInterface",                   
+        "counters": [{                                    
+            "counter": "BytesReceivedPersec"              
+          },                                              
+          {                                               
+            "counter": "BytesSentPersec"                  
+          },                                              
+          {                                               
+            "counter": "BytesTotalPersec"                 
+          },                                              
+          {                                               
+            "counter": "CurrentBandwidth"                 
+          }                                               
+        ]                                                 
+      }                                                   
+    ]                                                     
+  }                                                       
+                                                          
