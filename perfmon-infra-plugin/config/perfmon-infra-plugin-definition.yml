@@ -1,9 +1,13 @@
-name: perfmon-infra-plugin
-description: Reads PerfMon counters and WMI queries.
+#
+# New Relic Infrastructure Perfmon Integration
+#
+name: com.newrelic.perfmon
+description: Perfmon On-Host Integration
+protocol_version: 1
 os: windows
-
-source:
-  - command:
-    - .\perfmon-infra-plugin\perfmon-infra-plugin.exe
-    prefix: integration\perfmon-infra-plugin
+commands:
+  metrics:
+    command:
+      - .\perfmon-infra-plugin\perfmon-infra-plugin.exe
+    prefix: integration/perfmon-infra-plugin
     interval: 15

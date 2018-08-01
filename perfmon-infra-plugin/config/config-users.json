@@ -1,0 +1,37 @@
+{
+	"counterlist": [{
+			"eventname": "Users_LogonEvent",
+			"query": "SELECT * FROM __InstanceCreationEvent WITHIN 15 WHERE TargetInstance ISA 'Win32_LoggedOnUser'",
+			"querytype": "wmi_eventlistener",
+			"counters": [{
+				"attrname": "userDomainAndName",
+				"counter": "TargetInstance.Antecedent"
+			}, {
+				"attrname": "userLogonID",
+				"counter": "TargetInstance.Dependent"
+			}]
+		},
+		{
+			"eventname": "Users_LoggedOnUser",
+			"query": "SELECT * FROM Win32_LoggedOnUser",
+			"counters": [{
+				"attrname": "userDomainAndName",
+				"counter": "Antecedent"
+			}, {
+				"attrname": "userLogonID",
+				"counter": "Dependent"
+			}]
+		},
+		{
+			"eventname": "Users_GroupUser",
+			"query": "Select * from Win32_GroupUser",
+			"counters": [{
+				"attrname": "userDomainAndName",
+				"counter": "PartComponent"
+			}, {
+				"attrname": "userDomainAndGroup",
+				"counter": "GroupComponent"
+			}]
+		}
+	]
+}
