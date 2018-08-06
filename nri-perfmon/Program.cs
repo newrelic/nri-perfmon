@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using System.IO;
 using Fclp;
 
-namespace perfmon_infra_plugin
+namespace NewRelic
 {
     class Program
     {

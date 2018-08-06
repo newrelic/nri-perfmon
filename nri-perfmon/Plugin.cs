@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json;
 
-namespace perfmon_infra_plugin
+namespace NewRelic
 {
     // Config file classes (Config > Counterlist > Counter)
 
