@@ -1,0 +1,14 @@
+[
+  {
+    "architecture": "386",
+    "framework": "Perfmon",
+    "os": "windows",
+    "product": "Infrastructure"
+  },
+  {
+    "architecture": "amd64",
+    "framework": "Perfmon",
+    "os": "windows",
+    "product": "Plugins"
+  }
+]

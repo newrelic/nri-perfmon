@@ -290,7 +290,7 @@ namespace NewRelic
                                 {
                                     metricNames.Add(metricName, 1);
                                 }
-                                Debug(string.Format("{0}/{1}: {2} {3}", Name, metricName, value));
+                                Debug(string.Format("{0}/{1}: {2}", Name, metricName, value));
                                 Metrics.Add(metricName, value);
 
                             }

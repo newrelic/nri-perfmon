@@ -120,15 +120,23 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="install\install-windows.ps1" />
+    <None Include="install\install.config" />
+    <None Include="config\config-dotnet.json" />
+    <None Include="config\config-hardware-monitoring.json" />
     <None Include="config\config-hwonly.json" />
+    <None Include="config\config-mssql-express.json" />
+    <None Include="config\config-mssql-simphonypos.json" />
     <None Include="config\config-mssql.json" />
+    <None Include="config\config-user-monitoring.json" />
     <None Include="config\config.json" />
     <None Include="config\nri-perfmon-config.yml" />
     <None Include="config\nri-perfmon-definition.yml" />
+    <None Include="config\sample-dashboard-mssql.json" />
+    <None Include="config\sample-dashboard-pos.json" />
     <None Include="config\sample-insights-dashboard.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -137,38 +145,37 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>set RELEASE_DIR="$(TargetDir)\$(ProjectName)-release"
-set RELEASE_SUBDIR="%25RELEASE_DIR%25\$(ProjectName)"
+    <PostBuildEvent>set RELEASE_DIR="$(TargetDir)\$(ProjectName)-release-$(PlatformName)"
 set CONFIG_DIR="$(ProjectDir)\config"
+set INSTALL_DIR="$(ProjectDir)\install"
 
 if exist "%25RELEASE_DIR%25" del /s /q "%25RELEASE_DIR%25"
 if not exist "%25RELEASE_DIR%25" mkdir "%25RELEASE_DIR%25"
-if exist "%25RELEASE_SUBDIR%25"  del /s /q "%25RELEASE_SUBDIR%25"
-if not exist "%25RELEASE_SUBDIR%25" mkdir "%25RELEASE_SUBDIR%25"
 
 copy "%25CONFIG_DIR%25\*.yml" "%25RELEASE_DIR%25"
-copy "%25CONFIG_DIR%25\config.json" "%25RELEASE_SUBDIR%25"
-copy "$(TargetDir)\FluentCommandLineParser.dll" "%25RELEASE_SUBDIR%25"
-copy "$(TargetDir)\nri-perfmon.exe" "%25RELEASE_SUBDIR%25"
-copy "$(TargetDir)\Newtonsoft.Json.dll" "%25RELEASE_SUBDIR%25"
+copy "%25CONFIG_DIR%25\config.json" "%25RELEASE_DIR%25"
+copy "%25INSTALL_DIR%25\*.*" "%25RELEASE_DIR%25"
+copy "$(TargetDir)\FluentCommandLineParser.dll" "%25RELEASE_DIR%25"
+copy "$(TargetDir)\nri-perfmon.exe" "%25RELEASE_DIR%25"
+copy "$(TargetDir)\Newtonsoft.Json.dll" "%25RELEASE_DIR%25"
 
 powershell -Command "Compress-Archive -Force -Path %25RELEASE_DIR%25\* -DestinationPath %25RELEASE_DIR%25"</PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
