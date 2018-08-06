@@ -1,11 +1,11 @@
-# perfmon-infra-plugin
+# nri-perfmon
 
 Windows Perfmon/WMI On-Host Integration for New Relic Infrastructure
 ====================================================================
 
 This is an executable that provides Windows Perfmon/WMI query & event results to stdout, in a form that is consumable by New Relic Infrastructure when run as an integration to it.
 
-### [Download The Latest Release HERE](https://source.datanerd.us/FIT/perfmon-infra-plugin/releases/latest)
+### [Download The Latest Release HERE](https://github.com/newrelic/nri-perfmon/releases/latest)
 
 ### Requirements
 
