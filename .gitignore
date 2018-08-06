@@ -31,16 +31,16 @@
 # Debug files
 *.dSYM/
 
-perfmon-infra-plugin/bin/**
-perfmon-infra-plugin/obj/**
+nri-perfmon/bin/**
+nri-perfmon/obj/**
 packages/**
 .vs/**
 
 
 *.db
 
-perfmon-infra-plugin/Properties/**
-perfmon-infra-plugin/Settings.cs
+nri-perfmon/Properties/**
+nri-perfmon/Settings.cs
 
 *.pdf
 **/.DS_Store

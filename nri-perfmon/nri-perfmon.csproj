@@ -7,8 +7,8 @@
     <ProjectGuid>{F461207C-425C-4E39-8B99-C276C00FF3D6}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>perfmon_infra_plugin</RootNamespace>
-    <AssemblyName>perfmon-infra-plugin</AssemblyName>
+    <RootNamespace>NewRelic</RootNamespace>
+    <AssemblyName>nri-perfmon</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -69,7 +69,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>perfmon_infra_plugin.Program</StartupObject>
+    <StartupObject>NewRelic.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -127,8 +127,8 @@
     <None Include="config\config-hwonly.json" />
     <None Include="config\config-mssql.json" />
     <None Include="config\config.json" />
-    <None Include="config\perfmon-infra-plugin-config.yml" />
-    <None Include="config\perfmon-infra-plugin-definition.yml" />
+    <None Include="config\nri-perfmon-config.yml" />
+    <None Include="config\nri-perfmon-definition.yml" />
     <None Include="config\sample-insights-dashboard.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -163,7 +163,7 @@ if not exist "%25RELEASE_SUBDIR%25" mkdir "%25RELEASE_SUBDIR%25"
 copy "%25CONFIG_DIR%25\*.yml" "%25RELEASE_DIR%25"
 copy "%25CONFIG_DIR%25\config.json" "%25RELEASE_SUBDIR%25"
 copy "$(TargetDir)\FluentCommandLineParser.dll" "%25RELEASE_SUBDIR%25"
-copy "$(TargetDir)\perfmon-infra-plugin.exe" "%25RELEASE_SUBDIR%25"
+copy "$(TargetDir)\nri-perfmon.exe" "%25RELEASE_SUBDIR%25"
 copy "$(TargetDir)\Newtonsoft.Json.dll" "%25RELEASE_SUBDIR%25"
 
 powershell -Command "Compress-Archive -Force -Path %25RELEASE_DIR%25\* -DestinationPath %25RELEASE_DIR%25"</PostBuildEvent>

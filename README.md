@@ -21,15 +21,21 @@ If run at command line without anything, the executible should report JSON resul
 * `-n | --compName [name]`: Name of computer that you want to poll (default: local host)
 * `-v | --verbose [nnn]`: Verbose logging mode (default: 0, 1 or more enables Verbose)
 
-### Installation and Integration into Infrastructure Agent
+### Installation
 
-Once you've unzipped the plugin, the Infrastructure agent calls for the following file structure:
+#### Option 1: Installer
+1. Unzip nri-perfmon to a temporary location on the server
+2. Run Powershell in "Run As Administrator" mode
+3. In Powershell, change to the directory where you unzipped nri-perfmon.
+4. Run `install-windows.ps1`, which will place the files in their proper locations and restart the Infra Agent.
 
-* The plugin folder (`perfmon-infra-plugin` in the zip) resides under `...\newrelic-infra\custom-integrations`.
-* `perfmon-infra-plugin-definition.yml` resides under `...\newrelic-infra\custom-integrations` (ALONG SIDE of the `perfmon-infra-plugin` folder)
-* `perfmon-infra-plugin-config.yml` resides under `...\newrelic-infra\integrations.d\`
-
-Once the file structure is laid out, follow the steps specified below for [Configuration](#configuration) in order to capture the counters you need.
+#### Option 2: Manual install
+1. Unzip nri-perfmon to a temporary location on the server
+2. Create `nri-perfmon` under `C:\Program Files\New Relic\newrelic-infra\custom-integrations`.
+3. Place the `nri-pefrmon.exe`, both `.dll` files and `config.json` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations\nri-perfmon`
+4. Place `nri-perfmon-definition.yml` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations` (ALONGSIDE but NOT IN the `nri-perfmon` folder)
+5. Place `nri-perfmon-config.yml` in `C:\Program Files\New Relic\newrelic-infra\integrations.d\`
+6. Restart the Infra Agent
 
 ### Configuration
 
@@ -81,7 +87,7 @@ The "provider, category, (optional) instance" form of the counter is for buildin
 
 Notes:
   * The `instance` property is optional. If you leave it out, all instances will be polled automatically.
-  * You must have at least one `counter` specified in `counters`. You can use wildcard ('*') as the value to get all counters for that class.
+  * You must have at least one `counter` specified in `counters`. You can use wildcard ('\*') as the value to get all counters for that class.
   * If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage:
 ```javascript
 {

@@ -1,9 +1,9 @@
 #
-# New Relic Infrastructure DirWatcher Integration
+# New Relic Infrastructure Perfmon On-Host Integration
 #
 integration_name: com.newrelic.perfmon
 instances:
-   - name: perfmon-infra-plugin-metrics
+   - name: nri-perfmon-metrics
      command: metrics
      labels:
         environment: production

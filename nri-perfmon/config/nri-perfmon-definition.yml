@@ -8,6 +8,6 @@ os: windows
 commands:
   metrics:
     command:
-      - .\perfmon-infra-plugin\perfmon-infra-plugin.exe
-    prefix: integration/perfmon-infra-plugin
+      - .\nri-perfmon\nri-perfmon.exe
+    prefix: integration/nri-perfmon
     interval: 15
