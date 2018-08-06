@@ -9,8 +9,9 @@ This is an executable that provides Windows Perfmon/WMI query & event results to
 
 ### Requirements
 
-* .NET >= 3.5
+* .NET 3.5 or greater (including all 4.x installations)
 * New Relic account
+* New Relic Infrastructure Agent installed on a Windows server
 
 ### Execution & Command-line Arguments
 
