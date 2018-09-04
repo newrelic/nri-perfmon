@@ -36,11 +36,6 @@ nri-perfmon/obj/**
 packages/**
 .vs/**
 
-
 *.db
-
-nri-perfmon/Properties/**
-nri-perfmon/Settings.cs
-
 *.pdf
 **/.DS_Store
