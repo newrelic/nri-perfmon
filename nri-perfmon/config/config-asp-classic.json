@@ -1,0 +1,12 @@
+{
+  "counterlist": [
+    {
+      "eventname": "ASPClassic_RawData",
+      "query": "SELECT DebuggingRequests, EngineFlushNotifications, ErrorsDuringScriptRuntime, ErrorsFromASPPreprocessor, ErrorsFromScriptCompilers, ErrorsPerSec, InMemoryTemplateCacheHitRate, InMemoryTemplateCacheHitRate_Base, InMemoryTemplatesCached, RequestBytesInTotal, RequestBytesOutTotal, RequestExecutionTime, RequestsDisconnected, RequestsExecuting, RequestsFailedTotal, RequestsNotAuthorized, RequestsNotFound, RequestsPerSec, RequestsQueued, RequestsRejected, RequestsSucceeded, RequestsTimedOut, RequestsTotal, RequestWaitTime, ScriptEngineCacheHitRate, ScriptEngineCacheHitRate_Base, ScriptEnginesCached, SessionDuration, SessionsCurrent, SessionsTimedOut, SessionsTotal, TemplateCacheHitRate, TemplateCacheHitRate_Base, TemplateNotifications, TemplatesCached, TransactionsAborted, TransactionsCommitted, TransactionsPending, TransactionsPerSec, TransactionsTotal FROM Win32_PerfRawData_ASP_ActiveServerPages"
+    },
+    {
+      "eventname": "ASPClassic_FormattedData",
+      "query": "SELECT DebuggingRequests, ErrorsDuringScriptRuntime, ErrorsFromASPPreprocessor, ErrorsFromScriptCompilers, ErrorsPerSec, InMemoryTemplateCacheHitRate, InMemoryTemplatesCached, RequestBytesInTotal, RequestBytesOutTotal, RequestExecutionTime, RequestsDisconnected, RequestsExecuting, RequestsFailedTotal, RequestsNotAuthorized, RequestsNotFound, RequestsPerSec, RequestsQueued, RequestsRejected, RequestsSucceeded, RequestsTimedOut, RequestsTotal, RequestWaitTime, ScriptEnginesCached, SessionDuration, SessionsCurrent, SessionsTimedOut, SessionsTotal, TemplateCacheHitRate, TemplateNotifications, TemplatesCached, TransactionsAborted, TransactionsCommitted, TransactionsPending, TransactionsPerSec, TransactionsTotal FROM Win32_PerfFormattedData_ASP_ActiveServerPages"
+    }
+  ]
+}
