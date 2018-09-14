@@ -1,0 +1,39 @@
+{
+	"counterlist": [{
+			"query": "select FreeAndZeroPageListBytes from Win32_PerfFormattedData_PerfOS_Memory",
+			"eventname": "Perfmon_Memory",
+			"counters": [{
+				"attrname": "system.memory.freepage",
+				"counter": "FreeAndZeroPageListBytes"
+			}]
+		},
+		{
+			"query": "select Capacity, FreeSpace, from Win32_Volume",
+			"eventname": "Perfmon_Volume",
+			"counters": [{
+				"attrname": "wmi.disk.freespacebytes",
+				"counter": "FreeSpace"
+			}, {
+				"attrname": "wmi.disk.capacitybytes",
+				"counter": "Capacity"
+			}]
+		},
+		{
+			"query": "select AvgDiskSecPerRead, AvgDiskSecPerWrite, AvgDiskSecPerTransfer, AvgDiskQueueLength from Win32_PerfRawData_PerfDisk_PhysicalDisk",
+			"eventname": "Perfmon_PhysicalDisk",
+			"counters": [{
+				"attrname": "system.io.latency.read",
+				"counter": "AvgDiskSecPerRead"
+			}, {
+				"attrname": "system.io.latency.write",
+				"counter": "AvgDiskSecPerWrite"
+			}, {
+				"attrname": "system.io.latency.transfer",
+				"counter": "AvgDiskSecPerTransfer"
+			}, {
+				"attrname": "system.io.latency.diskqueuelength",
+				"counter": "AvgDiskQueueLength"
+			}]
+		}
+	]
+}
