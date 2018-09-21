@@ -13,13 +13,13 @@ New Relic has open-sourced this integration to enable monitoring of this technol
 
 ### Requirements
 
-* .NET 3.5 or greater (including all 4.x installations)
+* .NET Framework 3.5 or greater (including all 4.x installations)
 * New Relic account
 * New Relic Infrastructure Agent installed on a Windows server
 
 ### Execution & Command-line Arguments
 
-If run at command line without anything, the executible should report JSON results from WMI queries specified in `config.json` to stdout, and any error messages to stderr. This is useful for testing and debugging your counter/query configuration.
+If run at command line without anything, the executable should report JSON results from WMI queries specified in `config.json` to stdout, and any error messages to stderr. This is useful for testing and debugging your counter/query configuration.
 
 * `-c | --configFile [file]`: Config file to use (default: `config.json`)
 * `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
