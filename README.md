@@ -91,7 +91,9 @@ The "provider, category, (optional) instance" form of the counter is for buildin
   * Uses "WMIQueryResult" Insights event type.
 
 Notes:
-  * The `instance` property is optional. If you leave it out, all instances will be polled automatically.
+  * The `instance` property is optional and should *only* be used if you want to show a specific instance.
+		* If left out, all instances will be polled automatically.
+	  * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
   * You must have at least one `counter` specified in `counters`. You can use wildcard ('\*') as the value to get all counters for that class.
   * If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage:
 ```javascript

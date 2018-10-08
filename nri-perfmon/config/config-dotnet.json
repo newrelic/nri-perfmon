@@ -15,7 +15,6 @@
     {
       "provider": "ASPNET",
       "category": "ASPNETApplications",
-      "instance": "__total__",
       "counters": [
         {
           "counter": "ErrorsTotal"
@@ -28,7 +27,6 @@
     {
       "provider": "NETFramework",
       "category": "NETCLRExceptions",
-      "instance": "_Global_",
       "counters": [
         {
           "counter": "NumberofExcepsThrown"
@@ -50,7 +48,6 @@
     {
       "provider": "NETFramework",
       "category": "NETCLRInterop",
-      "instance": "_Global_",
       "counters": [
         {
           "counter": "NumberofCCWs"
@@ -72,7 +69,6 @@
     {
       "provider": "NETFramework",
       "category": "NETCLRJit",
-      "instance": "_Global_",
       "counters": [
         {
           "counter": "ILBytesJittedPersec"
@@ -94,7 +90,6 @@
     {
       "provider": "NETFramework",
       "category": "NETCLRLoading",
-      "instance": "_Global_",
       "counters": [
         {
           "counter": "AssemblySearchLength"
@@ -134,7 +129,6 @@
     {
       "provider": "NETFramework",
       "category": "NETCLRMemory",
-      "instance": "w3wp",
       "counters": [
         {
           "counter": "AllocatedBytesPersec"
@@ -246,7 +240,6 @@
     {
       "provider": "W3SVC",
       "category": "WebService",
-      "instance": "_Total",
       "counters": [
         {
           "counter": "BytesReceivedPersec"
