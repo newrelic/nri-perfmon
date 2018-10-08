@@ -114,7 +114,7 @@ For more complex queries, use the "query, eventname, (optional) querytype, (opti
   * If you leave out `counters`, all returned counters for that query will be reported as simple name/value pairs and will be named with their original counter name.
   * `attrname` property in `counters` is optional. If used, that counter name will be renamed in the Insights event to the value set here. If left out, the attribute in Insights will be named with the original name of that counter.
   * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
-* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attriute of the event.
+* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
 	  
 #### Tips for finding/building new simple entries for `counterlist`
 
