@@ -1,0 +1,305 @@
+{
+  "counterlist": [
+    {
+      "provider": "BizTalkMessageBoxGeneralCounters",
+      "category": "BizTalkMessageBoxGeneralCounters",
+      "counters": [{ "counter": "*" }]
+    },
+    {
+      "provider": "BizTalkMessageBoxHostCounters",
+      "category": "BizTalkMessageBoxHostCounters",
+      "counters": [{ "counter": "*" }]
+    },
+    {
+      "provider": "BizTalkTDDS",
+      "category": "BizTalkTDDS",
+      "counters": [{ "counter": "*" }]
+    },
+    {
+      "provider": "BizTalkWindowsSharePointServicesAdapter",
+      "category": "BizTalkWindowsSharePointServicesAdapter",
+      "counters": [{ "counter": "*" }]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkFILEReceiveAdapter",
+      "counters": [
+        { "counter": "Bytesreceived" },
+        { "counter": "BytesreceivedPerSec" },
+        { "counter": "Deleteretries" },
+        { "counter": "Lockfailures" },
+        { "counter": "LockfailuresPersec" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" },
+        { "counter": "Timetobuildbatch" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkFILESendAdapter",
+      "counters": [
+        { "counter": "Bytessent" },
+        { "counter": "BytessentPerSec" },
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkFTPReceiveAdapter",
+      "counters": [
+        { "counter": "Bytesreceived" },
+        { "counter": "BytesreceivedPerSec" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkFTPSendAdapter",
+      "counters": [
+        { "counter": "Bytessent" },
+        { "counter": "BytessentPerSec" },
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkHTTPReceiveAdapter",
+      "counters": [
+        { "counter": "Memoryqueuesize" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" },
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" },
+        { "counter": "Timetoaddmessagetobatch" },
+        { "counter": "Timetobuildbatch" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkHTTPSendAdapter",
+      "counters": [
+        { "counter": "Memoryqueuesize" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" },
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkMessageAgent",
+      "counters": [
+        { "counter": "Activeinstancecount" },
+        { "counter": "Databasesession" },
+        { "counter": "Databasesessionthreshold" },
+        { "counter": "Databasesize" },
+        { "counter": "Highdatabasesession" },
+        { "counter": "Highdatabasesize" },
+        { "counter": "Highinprocessmessagecount" },
+        { "counter": "Highmessagedeliveryrate" },
+        { "counter": "Highmessagepublishingrate" },
+        { "counter": "Highprocessmemory" },
+        { "counter": "Highsystemmemory" },
+        { "counter": "Highthreadcount" },
+        { "counter": "Inprocessmessagecount" },
+        { "counter": "Inprocessmessagecountthreshold" },
+        { "counter": "Messagedeliverydelayms" },
+        { "counter": "Messagedeliveryincomingrate" },
+        { "counter": "Messagedeliveryoutgoingrate" },
+        { "counter": "Messagedeliverythrottlingstate" },
+        { "counter": "Messagedeliverythrottlingstateduration" },
+        { "counter": "Messagedeliverythrottlinguseroverride" },
+        { "counter": "Messagepublishingdelayms" },
+        { "counter": "Messagepublishingincomingrate" },
+        { "counter": "Messagepublishingoutgoingrate" },
+        { "counter": "Messagepublishingthrottlingstate" },
+        { "counter": "Messagepublishingthrottlingstateduration" },
+        { "counter": "Messagepublishingthrottlinguseroverride" },
+        { "counter": "PhysicalmemoryusageMB" },
+        { "counter": "ProcessmemoryusageMB" },
+        { "counter": "ProcessmemoryusagethresholdMB" },
+        { "counter": "ServiceclassID" },
+        { "counter": "Threadcount" },
+        { "counter": "Threadcountthreshold" },
+        { "counter": "Totalbatchescommitted" },
+        { "counter": "Totalmessagesdelivered" },
+        { "counter": "Totalmessagespublished" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkMessaging",
+      "counters": [
+        { "counter": "Activereceivelocations" },
+        { "counter": "Activereceivethreads" },
+        { "counter": "Activesendmessages" },
+        { "counter": "Activesendthreads" },
+        { "counter": "Documentsprocessed" },
+        { "counter": "DocumentsprocessedPerSec" },
+        { "counter": "Documentsreceived" },
+        { "counter": "DocumentsreceivedPerSec" },
+        { "counter": "Documentsresubmitted" },
+        { "counter": "DocumentssubmittedPerBatch" },
+        { "counter": "Documentssuspended" },
+        { "counter": "DocumentssuspendedPerSec" },
+        { "counter": "DocumentstransmittedPerBatch" },
+        { "counter": "IDProcess" },
+        { "counter": "Pendingreceivebatches" },
+        { "counter": "Pendingtransmittedmessages" },
+        { "counter": "RequestPerResponsetimeouts" },
+        { "counter": "Throttledreceivebatches" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkMessagingLatency",
+      "counters": [
+        { "counter": "InboundLatencysec" },
+        { "counter": "OutboundAdapterLatencysec" },
+        { "counter": "OutboundLatencysec" },
+        { "counter": "RequestResponseLatencysec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkMSMQReceiveAdapter",
+      "counters": [
+        { "counter": "Bytesreceived" },
+        { "counter": "BytesreceivedPerSec" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkMSMQSendAdapter",
+      "counters": [
+        { "counter": "Bytessent" },
+        { "counter": "BytessentPerSec" },
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkPOP3ReceiveAdapter",
+      "counters": [
+        { "counter": "Activesessions" },
+        { "counter": "Bytesreceived" },
+        { "counter": "BytesreceivedPerSec" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSFTPReceiveAdapter",
+      "counters": [
+        { "counter": "Bytesreceived" },
+        { "counter": "BytesreceivedPerSec" },
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSFTPSendAdapter",
+      "counters": [
+        { "counter": "Bytessent" },
+        { "counter": "BytessentPerSec" },
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSMTPSendAdapter",
+      "counters": [
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSOAPReceiveAdapter",
+      "counters": [
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSOAPSendAdapter",
+      "counters": [
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSQLReceiveAdapter",
+      "counters": [
+        { "counter": "Messagesreceived" },
+        { "counter": "MessagesreceivedPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "BizTalkSQLSendAdapter",
+      "counters": [
+        { "counter": "Messagessent" },
+        { "counter": "MessagessentPerSec" }
+      ]
+    },
+    {
+      "provider": "BTSSvc30",
+      "category": "XLANGPersOrchestrations",
+      "counters": [
+        { "counter": "Activeapplicationdomains" },
+        { "counter": "Averagebatchfactor" },
+        { "counter": "Databasetransactions" },
+        { "counter": "DatabasetransactionsPersec" },
+        { "counter": "Dehydratableorchestrations" },
+        { "counter": "Dehydratingorchestrations" },
+        { "counter": "Dehydrationcycleinprogress" },
+        { "counter": "Dehydrationcycles" },
+        { "counter": "Dehydrationthreshold" },
+        { "counter": "Idleorchestrations" },
+        { "counter": "Megabytesallocatedprivatememory" },
+        { "counter": "Megabytesallocatedvirtualmemory" },
+        { "counter": "MessageBoxdatabasesconnectionfailures" },
+        { "counter": "OnlineMessageBoxdatabases" },
+        { "counter": "Orchestrationscompleted" },
+        { "counter": "OrchestrationscompletedPersec" },
+        { "counter": "Orchestrationscreated" },
+        { "counter": "OrchestrationscreatedPersec" },
+        { "counter": "Orchestrationsdehydrated" },
+        { "counter": "OrchestrationsdehydratedPersec" },
+        { "counter": "Orchestrationsdiscarded" },
+        { "counter": "OrchestrationsdiscardedPersec" },
+        { "counter": "Orchestrationsrehydrated" },
+        { "counter": "OrchestrationsrehydratedPersec" },
+        { "counter": "Orchestrationsresidentinmemory" },
+        { "counter": "Orchestrationsscheduledfordehydration" },
+        { "counter": "Orchestrationssuspended" },
+        { "counter": "OrchestrationssuspendedPersec" },
+        { "counter": "Pendingmessages" },
+        { "counter": "Pendingworkitems" },
+        { "counter": "Percentusedphysicalmemory" },
+        { "counter": "Persistencepoints" },
+        { "counter": "PersistencepointsPersec" },
+        { "counter": "Runnableorchestrations" },
+        { "counter": "Runningorchestrations" },
+        { "counter": "Transactionalscopesaborted" },
+        { "counter": "TransactionalscopesabortedPersec" },
+        { "counter": "Transactionalscopescommitted" },
+        { "counter": "TransactionalscopescommittedPersec" },
+        { "counter": "Transactionalscopescompensated" },
+        { "counter": "TransactionalscopescompensatedPersec" }
+      ]
+    }
+  ]
+}
