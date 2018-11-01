@@ -84,18 +84,16 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 
 #### Simple Queries & Performance Counters
 
-The "provider, category, (optional) instance" form of the counter is for building simple queries, with the following limititions:
+* The "provider, category, (optional) instance" form of the counter is for building simple queries, with the following limititions:
   * Uses the default namespace ("root/cimv2")
   * Limited to Select statements against classes with the name `Win32_PerfFormattedData_{provider}_{category}`
   * No custom names for individual attributes
   * Uses "WMIQueryResult" Insights event type.
-
-Notes:
-  * The `instance` property is optional and should *only* be used if you want to show a specific instance.
-		* If left out, all instances will be polled automatically.
-	  * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
-  * You must have at least one `counter` specified in `counters`. You can use wildcard ('\*') as the value to get all counters for that class.
-  * If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage:
+* The `instance` property is optional and should *only* be used if you want to show a specific instance.
+  * If left out, all instances will be polled automatically.
+  * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
+* You must have at least one `counter` specified in `counters`. You can use wildcard ('\*') as the value to get all counters for that class.
+* If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage:
 ```javascript
 {
 	"provider": "PerfCounter",
@@ -109,13 +107,15 @@ Notes:
 #### Complex Queries & Event Listeners
 
 For more complex queries, use the "query, eventname, (optional) querytype, (optional) counters" form.
+
 * `querytype` should only be used if you're going to run an event listener instead of a typical WMI Query (set to `wmi_eventlistener`) Note: This listener will operate as a separate thread, so that it doesn't impede other queries from running.
 * `eventtype` is optional and will set that query's result events in Insights to anything specified here.
 * `counters` is optional here, used to specify counters to extract from the query. In particular, use this when you want to either set a custom attribute name, or retrieve a sub-property from a counter object. Otherwise, you can specify counters in the query itself (i.e. "`Select Name, Description, DeviceID from Win32_PNPEntity`).
   * If you leave out `counters`, all returned counters for that query will be reported as simple name/value pairs and will be named with their original counter name.
   * `attrname` property in `counters` is optional. If used, that counter name will be renamed in the Insights event to the value set here. If left out, the attribute in Insights will be named with the original name of that counter.
-  * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`.
-
+  * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
+* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
+	  
 #### Tips for finding/building new simple entries for `counterlist`
 
 First, to get a list of all counter categories:
