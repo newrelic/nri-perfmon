@@ -60,14 +60,15 @@ namespace NewRelic
 
     class PerfmonQuery
     {
-        public PerfmonQuery(string query, string ename, string querytype, string querynamespace, List<Counter> members) 
+        public PerfmonQuery(string query, string ename, string querytype, string querynamespace, List<Counter> members)
         {
             metricName = ename;
             queryType = querytype;
             counterOrQuery = query;
             queryNamespace = querynamespace ?? PerfmonPlugin.DefaultNamespace;
-            if (members != null) {
-                foreach(var member in members)
+            if (members != null)
+            {
+                foreach (var member in members)
                 {
                     queryMembers.Add(member.counter, member.attrname);
                 }
@@ -127,12 +128,12 @@ namespace NewRelic
         Output output = new Output();
         int PollingInterval;
         bool IsDebug = false;
-        
+
         public PerfmonPlugin(Options options, Counterlist counter)
         {
             Initialize(options);
             AddCounter(counter, 0);
-            if(counter.querytype.Equals(WMIEvent))
+            if (counter.querytype.Equals(WMIEvent))
             {
                 PollingInterval = 0;
             }
@@ -149,7 +150,8 @@ namespace NewRelic
             }
         }
 
-        private void Initialize(Options options) {
+        private void Initialize(Options options)
+        {
             PerfmonQueries = new List<PerfmonQuery>();
             Name = options.ComputerName;
             PollingInterval = options.PollingInterval;
@@ -165,15 +167,17 @@ namespace NewRelic
             output.inventory = new Dictionary<string, string>();
         }
 
-        public void AddCounter(Counterlist aCounter, int whichCounter) {
+        public void AddCounter(Counterlist aCounter, int whichCounter)
+        {
             if (!String.IsNullOrEmpty(aCounter.query))
             {
                 if (aCounter.counters != null)
                 {
-                    foreach (var testCounter in aCounter.counters) {
+                    foreach (var testCounter in aCounter.counters)
+                    {
                         if (String.IsNullOrEmpty(testCounter.counter))
                         {
-                            
+
                             Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'counter' in 'counters'. Please review and compare to template.", whichCounter);
                             return;
                         }
@@ -210,15 +214,21 @@ namespace NewRelic
                     {
                         Console.Error.WriteLine("plugin.json contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
                         continue;
-                    } else {
-                        if(String.IsNullOrEmpty(countersStr)) {
+                    }
+                    else
+                    {
+                        if (String.IsNullOrEmpty(countersStr))
+                        {
                             countersStr = aSubCounter.counter;
-                        } else {
+                        }
+                        else
+                        {
                             countersStr += (", " + aSubCounter.counter);
                         }
                     }
                 }
-                if(!String.IsNullOrEmpty(countersStr)) {
+                if (!String.IsNullOrEmpty(countersStr))
+                {
                     PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, countersStr, instanceName));
                 }
             }
@@ -228,7 +238,8 @@ namespace NewRelic
             }
         }
 
-        public void RunThread() {
+        public void RunThread()
+        {
             TimeSpan pollingIntervalTS = TimeSpan.FromMilliseconds(PollingInterval);
             if (pollingIntervalTS.TotalMilliseconds == 0)
             {
@@ -267,7 +278,7 @@ namespace NewRelic
             var metricNames = new Dictionary<string, int>();
 
             // Working backwards so we can safely delete queries that fail because of invalid classes.
-            for(int i = PerfmonQueries.Count-1; i>=0; i--)
+            for (int i = PerfmonQueries.Count - 1; i >= 0; i--)
             {
                 var thisQuery = PerfmonQueries[i];
                 try
@@ -339,8 +350,8 @@ namespace NewRelic
                                     continue;
                                 }
                             }
-                        } 
-                            else if (thisQuery.queryType.Equals(WMIEvent)) 
+                        }
+                        else if (thisQuery.queryType.Equals(WMIEvent))
                         {
                             Debug("Running Event Listener: " + thisQuery.counterOrQuery);
                             var watcher = new ManagementEventWatcher(Scope,
@@ -353,7 +364,7 @@ namespace NewRelic
                 catch (ManagementException e)
                 {
                     Console.Error.WriteLine("Exception occurred in polling. {0}: {1}", e.Message, (string)thisQuery.counterOrQuery);
-                    if(e.Message.ToLower().Contains("invalid class") || e.Message.ToLower().Contains("not supported")) 
+                    if (e.Message.ToLower().Contains("invalid class") || e.Message.ToLower().Contains("not supported"))
                     {
                         Console.Error.WriteLine("Query Removed: {0}", thisQuery.counterOrQuery);
                         PerfmonQueries.RemoveAt(i);
@@ -379,7 +390,8 @@ namespace NewRelic
                     if (member.Value.Equals(PerfmonPlugin.UseOwnName))
                     {
                         label = member.Key;
-                    } else
+                    }
+                    else
                     {
                         label = member.Value;
                     }
@@ -390,27 +402,27 @@ namespace NewRelic
                         var memberprops = ((ManagementBaseObject)properties[splitmem[0]]);
                         if (splitmem.Length == 2)
                         {
-                            propsOut.Add(label,
-                                memberprops.Properties[splitmem[1]].Value);
-                        } else
+                            GetValueParsed(propsOut, label, memberprops.Properties[splitmem[1]]);
+                        }
+                        else
                         {
                             foreach (var memberprop in memberprops.Properties)
                             {
-                                propsOut.Add(memberprop.Name, memberprop.Value);
+                                GetValueParsed(propsOut, memberprop.Name, memberprop);
                             }
                         }
                     }
                     else
                     {
-                        propsOut.Add(label, properties.Properties[member.Key].Value);
+                        GetValueParsed(propsOut, label, properties.Properties[member.Key]);
                     }
                 }
-            } 
+            }
             else
             {
                 foreach (PropertyData prop in properties.Properties)
                 {
-                    propsOut.Add(prop.Name, prop.Value);
+                    GetValueParsed(propsOut, prop.Name, prop);
                 }
             }
 
@@ -425,7 +437,7 @@ namespace NewRelic
             }
             if (output.metrics.Count > 0)
             {
-                if(IsDebug)
+                if (IsDebug)
                 {
                     Console.Error.WriteLine("Output: ");
                     Console.Error.Write(JsonConvert.SerializeObject(output, Formatting.Indented) + "\n");
@@ -441,6 +453,41 @@ namespace NewRelic
             if (this.IsDebug)
             {
                 Console.Error.WriteLine("Thread-" + Thread.CurrentThread.ManagedThreadId + " : " + output);
+            }
+        }
+
+        private void GetValueParsed(Dictionary<string, Object> propsOut, String propName, PropertyData prop)
+        {
+            if (prop.Value != null)
+            {
+                Debug("Parsing: " + propName + ", propValue: " + prop.Value.ToString() + " CimType: " + prop.Type.ToString());
+                switch (prop.Type)
+                {
+                    case CimType.Boolean:
+                        propsOut.Add(propName, prop.Value.ToString());
+                        break;
+                    case CimType.DateTime:
+                        try
+                        {
+                            DateTime dateToParse = DateTime.ParseExact(prop.Value.ToString(), "yyyyMMddHHmmss.ffffff-000", System.Globalization.CultureInfo.InvariantCulture);
+                            propsOut.Add(propName, (long)(dateToParse - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds);
+                        }
+                        catch (FormatException fe)
+                        {
+                            Debug("Could not parse: " + propName + ", propValue: " + prop.Value.ToString() + ", of CimType: " + prop.Type.ToString());
+                            Debug("Parsing Exception: " + fe.ToString());
+                        }
+                        break;
+                    case CimType.String:
+                        if (((String)prop.Value).Length > 0)
+                        {
+                            propsOut.Add(propName, prop.Value);
+                        }
+                        break;
+                    default:
+                        propsOut.Add(propName, prop.Value);
+                        break;
+                }
             }
         }
     }
