@@ -1,0 +1,50 @@
+{
+  "counterlist": [
+    {
+      "eventname": "WindowsLogEvent",
+      "query": "SELECT * FROM __InstanceCreationEvent WHERE TargetInstance ISA 'Win32_NTLogEvent'",
+      "querytype": "wmi_eventlistener",
+      "counters": [
+        {
+          "counter": "TargetInstance.Category"
+        },
+        {
+          "counter": "TargetInstance.CategoryString"
+        },
+        {
+          "counter": "TargetInstance.EventCode"
+        },
+        {
+          "counter": "TargetInstance.EventIdentifier"
+        },
+        {
+          "counter": "TargetInstance.EventType"
+        },
+        {
+          "counter": "TargetInstance.Logfile"
+        },
+        {
+          "counter": "TargetInstance.Message"
+        },
+        {
+          "counter": "TargetInstance.RecordNumber"
+        },
+        {
+          "counter": "TargetInstance.SourceName"
+        },
+        {
+          "counter": "TargetInstance.TimeGenerated"
+        },
+        {
+          "counter": "TargetInstance.TimeWritten"
+        },
+        {
+          "counter": "TargetInstance.Type"
+        },
+        {
+          "counter": "TargetInstance.User"
+        }
+      ]
+    }
+  ]
+}
