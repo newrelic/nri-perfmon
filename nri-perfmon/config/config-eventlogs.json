@@ -6,43 +6,56 @@
       "querytype": "wmi_eventlistener",
       "counters": [
         {
-          "counter": "TargetInstance.Category"
+          "counter": "TargetInstance.Category",
+          "attrname": "EventLog.Category"
         },
         {
-          "counter": "TargetInstance.CategoryString"
+          "counter": "TargetInstance.CategoryString",
+          "attrname": "EventLog.CategoryString"
         },
         {
-          "counter": "TargetInstance.EventCode"
+          "counter": "TargetInstance.EventCode",
+          "attrname": "EventLog.EventCode"
         },
         {
-          "counter": "TargetInstance.EventIdentifier"
+          "counter": "TargetInstance.EventIdentifier",
+          "attrname": "EventLog.EventIdentifier"
         },
         {
-          "counter": "TargetInstance.EventType"
+          "counter": "TargetInstance.EventType",
+          "attrname": "EventLog.EventType"
         },
         {
-          "counter": "TargetInstance.Logfile"
+          "counter": "TargetInstance.Logfile",
+          "attrname": "EventLog.Logfile"
         },
         {
-          "counter": "TargetInstance.Message"
+          "counter": "TargetInstance.Message",
+          "attrname": "EventLog.Message"
         },
         {
-          "counter": "TargetInstance.RecordNumber"
+          "counter": "TargetInstance.RecordNumber",
+          "attrname": "EventLog.RecordNumber"
         },
         {
-          "counter": "TargetInstance.SourceName"
+          "counter": "TargetInstance.SourceName",
+          "attrname": "EventLog.SourceName"
         },
         {
-          "counter": "TargetInstance.TimeGenerated"
+          "counter": "TargetInstance.TimeGenerated",
+          "attrname": "EventLog.TimeGenerated"
         },
         {
-          "counter": "TargetInstance.TimeWritten"
+          "counter": "TargetInstance.TimeWritten",
+          "attrname": "EventLog.TimeWritten"
         },
         {
-          "counter": "TargetInstance.Type"
+          "counter": "TargetInstance.Type",
+          "attrname": "EventLog.Type"
         },
         {
-          "counter": "TargetInstance.User"
+          "counter": "TargetInstance.User",
+          "attrname": "EventLog.User"
         }
       ]
     }
