@@ -1,0 +1,48 @@
+{
+  "counterlist": [
+    {
+      "query": "select ActiveConnectionCount, ActiveUserCount from Win32_PerfFormattedData_MSExchange",
+      "eventname": "MSExchange"
+    },
+    {
+      "query": "select CurrentRequests, PingCommandsPending, SyncCommandsPending, RequestsPerSec from Win32_PerfFormattedData_MSExchangeActiveSync_MSExchangeActiveSync",
+      "eventname": "MSExchangeActiveSync"
+    },
+    {
+      "query": "select CurrentConnections from Win32_PerfFormattedData_MSExchangeImap4_MSExchangeImap4",
+      "eventname": "MSExchangeImap4"
+    },
+    {
+      "query": "select ActiveConnectionCount, ClientRPCsFailedServerTooBusy, RPCRequests, RPCAveragedLatency, UserCount from Win32_PerfFormattedData_MSExchangeIS_MSExchangeIS",
+      "eventname": "MSExchangeIS"
+    },
+    {
+      "query": "select ActiveClientLogons, MessagesQueuedForSubmission, MessagesSentPersec, MessagesDeliveredPersec, MessagesSubmittedPersec, RPCAverageLatency from Win32_PerfFormattedData_MSExchangeIS_MSExchangeISMailbox",
+      "eventname": "MSExchangeISMailbox"
+    },
+    {
+      "query": "select FailedSubmissionsPerSecond from Win32_PerfFormattedData_MSExchangeMailSubmission_MSExchangeMailSubmission",
+      "eventname": "MSExchangeMailSubmission"
+    },
+    {
+      "query": "select CurrentUniqueUsers, AverageResponseTime, AverageSearchTime from Win32_PerfFormattedData_MSExchangeOWA_MSExchangeOWA",
+      "eventname": "MSExchangeOWA"
+    },
+    {
+      "query": "select ConnectionsCurrent from Win32_PerfFormattedData_MSExchangePop3_MSExchangePop3",
+      "eventname": "MSExchangePop3"
+    },
+    {
+      "query": "select ActiveMailboxDeliveryQueueLength, ActiveNonSmtpDeliveryQueueLength, ActiveRemoteDeliveryQueueLength, AggregateDeliveryQueueLengthAllQueues, ItemsQueuedforDeliveryPerSecond, LargestDeliveryQueueLength, MessagesQueuedForDelivery, RetryMailboxDeliveryQueueLength, RetryNonSmtpDeliveryQueueLength, RetryRemoteDeliveryQueueLength, SubmissionQueueLength, UnreachableQueueLength from Win32_PerfFormattedData_MSExchangeTransportQueues_MSExchangeTransportQueues",
+      "eventname": "MSExchangeTransportQueues"
+    },
+    {
+      "query": "select ConnectionsCurrent, ConnectionsTotal, MessagesReceivedPerSec from Win32_PerfFormattedData_MSExchangeTransportSMTPReceive_MSExchangeTransportSmtpReceive",
+      "eventname": "MSExchangeTransportSmtpReceive"
+    },
+    {
+      "query": "select ConnectionsCurrent, ConnectionsTotal, MessagesSentPerSec from Win32_PerfFormattedData_MSExchangeTransportSmtpSend_MSExchangeTransportSmtpSend",
+      "eventname": "MSExchangeTransportSmtpSend"
+    }
+  ]
+}
