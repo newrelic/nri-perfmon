@@ -12,7 +12,7 @@
     ]
   }, 
   "icon": "money", 
-  "title": "Starbucks POS Hardware", 
+  "title": "Example POS Hardware", 
   "widgets": [
     {
       "column": 1, 
