@@ -42,7 +42,33 @@ If run at command line without anything, the executable should report JSON resul
 5. Place `nri-perfmon-config.yml` in `C:\Program Files\New Relic\newrelic-infra\integrations.d\`
 6. Restart the Infra Agent
 
-### Configuration
+### Configuration - Command-Line Arguments
+
+To use any of the [Command-Line Arguments listed above](https://github.com/newrelic/nri-perfmon#execution--command-line-arguments), edit `nri-perfmon-definition.yml` and add them as argument lines, like so:
+
+```yaml
+#
+# New Relic Infrastructure Perfmon Integration
+#
+name: com.newrelic.perfmon
+description: Perfmon On-Host Integration
+protocol_version: 1
+os: windows
+commands:
+  metrics:
+    command:
+      - .\nri-perfmon\nri-perfmon.exe
+      - -i 12345
+      - -c custom_config.json
+      - -n MyCompName
+      - -v 1
+    prefix: integration/nri-perfmon
+    interval: 15
+```
+
+**NOTE** the `interval:` field at the bottom does need ot be there with a number, but it does not change the polling interval. To do that, add the `-i <interval>` field to your `command` arguments.
+
+### Configuration - Counters
 
 Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET applications. If you would like to collect your own counters, customize the `counterlist` in `config.json` following the structure found there. Here is an excerpt describing the format:
 
@@ -115,7 +141,7 @@ For more complex queries, use the "query, eventname, (optional) querytype, (opti
   * `attrname` property in `counters` is optional. If used, that counter name will be renamed in the Insights event to the value set here. If left out, the attribute in Insights will be named with the original name of that counter.
   * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
 * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
-	  
+
 #### Tips for finding/building new simple entries for `counterlist`
 
 First, to get a list of all counter categories:
