@@ -66,7 +66,7 @@ commands:
     interval: 15
 ```
 
-**NOTE** the `interval:` field at the bottom does need ot be there with a number, but it does not change the polling interval. To do that, add the `-i <interval>` field to your `command` arguments.
+**NOTE** the `interval:` field at the bottom does need to be there with a number, but it does not change the polling interval. To do that, add the `-i <interval>` field to your `command` arguments.
 
 ### Configuration - Counters
 
