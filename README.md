@@ -37,7 +37,7 @@ If run at command line without anything, the executable should report JSON resul
 #### Option 2: Manual install
 1. Unzip nri-perfmon to a temporary location on the server
 2. Create `nri-perfmon` under `C:\Program Files\New Relic\newrelic-infra\custom-integrations`.
-3. Place the `nri-pefrmon.exe`, both `.dll` files and `config.json` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations\nri-perfmon`
+3. Place the `nri-pefrmon.exe`, `nri-perfmon.exe.config`, both `.dll` files and `config.json` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations\nri-perfmon`
 4. Place `nri-perfmon-definition.yml` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations` (ALONGSIDE but NOT IN the `nri-perfmon` folder)
 5. Place `nri-perfmon-config.yml` in `C:\Program Files\New Relic\newrelic-infra\integrations.d\`
 6. Restart the Infra Agent
