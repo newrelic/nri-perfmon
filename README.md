@@ -81,35 +81,35 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 
 ```json
 {
-	"counterlist": [
-		{
-			"provider": "provider_name|PerfCounter",
-			"category": "category_name",
-			"instance": "(optional) instance_name",
-			"counters": [
-    	    {
-          		"counter": "*|counter_name"
-      		},
-      		{
-      			"counter": "another_counter_name"
-      		}
-          ]
-		},
-		{
-			"query": "the_whole_WMI_Query",
-			"eventname": "(optional, default: 'WMIQueryResult') insights_event_name",
-			"querytype": "(optional, default: 'wmi_query') wmi_query|wmi_eventlistener",
-			"(optional) counters": [
-          {
-          		"counter": "counter_name|counter_class.counter_name",
-          		"attrname": "(optional) attribute_name_in_insights_event"
-      		},
-      		{
-      			"counter": "another_counter_name"
-      		}
+  "counterlist": [
+    {
+      "provider": "provider_name|PerfCounter",
+      "category": "category_name",
+      "instance": "(optional) instance_name",
+      "counters": [
+        {
+          "counter": "*|counter_name"
+        },
+        {
+          "counter": "another_counter_name"
+        }
       ]
-		}
-	]
+    },
+    {
+      "query": "the_whole_WMI_Query",
+      "eventname": "(optional, default: 'WMIQueryResult') insights_event_name",
+      "querytype": "(optional, default: 'wmi_query') wmi_query|wmi_eventlistener",
+      "(optional) counters": [
+        {
+          "counter": "counter_name|counter_class.counter_name",
+          "attrname": "(optional) attribute_name_in_insights_event"
+        },
+        {
+          "counter": "another_counter_name"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -130,15 +130,17 @@ Example of usage:
 {
   "provider": "ASPNET",
   "category": "ASPNETApplications",
-  "counters": [{
+  "counters": [
+    {
       "counter": "RequestsTotal"
-  }]
+    }
+  ]
 }
 ```
 
 #### Performance Counters
 
-If you specify the `provider` as `PerfCounter`, it will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find.
+If you specify the `provider` as `PerfCounter`, it will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find [Click here for a good how-to on using Performance Monitor.](https://techcommunity.microsoft.com/t5/Ask-The-Performance-Team/Windows-Performance-Monitor-Overview/ba-p/375481)
 
 * No custom names for individual attributes
 * Uses the category name as the Insights event type.
@@ -150,11 +152,13 @@ If you specify the `provider` as `PerfCounter`, it will retrieve the Windows Per
 Example of usage:
 ```json
 {
-	"provider": "PerfCounter",
-	"category": "ASP.NET Apps v4.0.30319",
-	"counters": [{
-		"counter": "Requests Total"
-	}]
+  "provider": "PerfCounter",
+  "category": "ASP.NET Apps v4.0.30319",
+  "counters": [
+    {
+      "counter": "Requests Total"
+    }
+  ]
 }
 ```
 
