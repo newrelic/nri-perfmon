@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Management;
 using System.Diagnostics;
 using System.Threading;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace NewRelic
@@ -79,38 +80,63 @@ namespace NewRelic
         {
             queryNamespace = PerfmonPlugin.DefaultNamespace;
             queryType = PerfmonPlugin.WMIQuery;
-            if (String.Equals(pname, "PerfCounter"))
+            try
             {
-                if (String.IsNullOrEmpty(iname))
+                if (String.Equals(pname, "PerfCounter"))
                 {
-                    metricName = string.Format("{0}/{1}", caname, coname);
-                    counterOrQuery = new PerformanceCounter(caname, coname);
+                    if (String.IsNullOrEmpty(iname))
+                    {
+                        metricName = string.Format("{0}", coname);
+                        counterOrQuery = new PerformanceCounter(caname, coname);
+                    }
+                    else
+                    {
+                        instanceName = iname;
+                        metricName = string.Format("{0}", coname);
+                        counterOrQuery = new PerformanceCounter(caname, coname, iname);
+                    }
                 }
                 else
                 {
-                    metricName = string.Format("{0}({2})/{1}", caname, coname, iname);
-                    counterOrQuery = new PerformanceCounter(caname, coname, iname);
+                    metricName = string.Format("{0}", caname);
+                    if (String.IsNullOrEmpty(iname))
+                    {
+                        counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2}", coname, pname, caname);
+                    }
+                    else
+                    {
+                        counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2} Where Name Like '{3}'", coname, pname, caname, iname);
+                    }
                 }
             }
-            else
+            catch (InvalidOperationException ioe)
             {
-                metricName = string.Format("{0}", caname);
-                if (String.IsNullOrEmpty(iname))
+                if (String.IsNullOrEmpty(instanceName))
                 {
-                    counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2}", coname, pname, caname);
+                    Console.Error.WriteLine(ioe.Message);
                 }
                 else
                 {
-                    counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2} Where Name Like '{3}'", coname, pname, caname, iname);
+                    Console.Error.WriteLine("For instance " + instanceName + ", " + ioe.Message);
                 }
+                counterOrQuery = null;
             }
         }
 
         public object counterOrQuery { get; private set; }
         public string metricName { get; private set; }
+        public string instanceName { get; private set; }
         public string queryType { get; private set; }
         public Dictionary<string, string> queryMembers { get; private set; } = new Dictionary<string, string>();
         public string queryNamespace { get; private set; }
+    }
+
+    public class PerfCounter
+    {
+        public string category;
+        public string instance;
+        public string counter;
+        public Object value;
     }
 
     public class PerfmonPlugin
@@ -120,11 +146,12 @@ namespace NewRelic
         public static string DefaultEvent = "WMIQueryResult";
         public static string DefaultNamespace = "root\\cimv2";
         public static string UseOwnName = "derp";
+        public static string EventTypeAttr = "event_type";
+        public String fileName = "";
 
         string Name { get; set; }
         List<PerfmonQuery> PerfmonQueries { get; set; }
         ManagementScope Scope { get; set; }
-        Dictionary<string, Object> Metrics = new Dictionary<string, Object>();
         Output output = new Output();
         int PollingInterval;
         bool IsDebug = false;
@@ -132,6 +159,7 @@ namespace NewRelic
         public PerfmonPlugin(Options options, Counterlist counter)
         {
             Initialize(options);
+            fileName = options.ConfigFile;
             AddCounter(counter, 0);
             if (counter.querytype.Equals(WMIEvent))
             {
@@ -178,7 +206,7 @@ namespace NewRelic
                         if (String.IsNullOrEmpty(testCounter.counter))
                         {
 
-                            Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'counter' in 'counters'. Please review and compare to template.", whichCounter);
+                            Console.Error.WriteLine(fileName + " contains malformed counter: counterlist[{0}] missing 'counter' in 'counters'. Please review and compare to template.", whichCounter);
                             return;
                         }
                     }
@@ -193,7 +221,7 @@ namespace NewRelic
 
             if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
             {
-                Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'provider' or 'category'. Please review and compare to template.", whichCounter);
+                Console.Error.WriteLine(fileName + " contains malformed counter: counterlist[{0}] missing 'provider' or 'category'. Please review and compare to template.", whichCounter);
                 return;
             }
 
@@ -205,36 +233,82 @@ namespace NewRelic
 
             if (aCounter.counters != null)
             {
-                int whichSubCounter = -1;
-                string countersStr = "";
-                foreach (var aSubCounter in aCounter.counters)
+                if (String.Equals(aCounter.provider, "PerfCounter"))
                 {
-                    whichSubCounter++;
-                    if (String.IsNullOrEmpty(aSubCounter.counter))
+                    AddPerfCounters(whichCounter, aCounter.provider, aCounter.category, aCounter.counters, instanceName);
+                }
+                else
+                {
+                    int whichSubCounter = -1;
+                    string countersStr = "";
+                    foreach (var aSubCounter in aCounter.counters)
                     {
-                        Console.Error.WriteLine("plugin.json contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
-                        continue;
-                    }
-                    else
-                    {
-                        if (String.IsNullOrEmpty(countersStr))
+                        whichSubCounter++;
+                        if (String.IsNullOrEmpty(aSubCounter.counter))
                         {
-                            countersStr = aSubCounter.counter;
+                            Console.Error.WriteLine(fileName + " contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
+                            continue;
                         }
                         else
                         {
-                            countersStr += (", " + aSubCounter.counter);
+                            if (String.IsNullOrEmpty(countersStr))
+                            {
+                                countersStr = aSubCounter.counter;
+                            }
+                            else
+                            {
+                                countersStr += (", " + aSubCounter.counter);
+                            }
                         }
                     }
-                }
-                if (!String.IsNullOrEmpty(countersStr))
-                {
-                    PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, countersStr, instanceName));
+                    if (!String.IsNullOrEmpty(countersStr))
+                    {
+                        PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, countersStr, instanceName));
+                    }
                 }
             }
             else
             {
-                Console.Error.WriteLine("plugin.json contains malformed counter: counterlist[{0}] missing 'counters'. Please review and compare to template.", whichCounter);
+                Console.Error.WriteLine(fileName + " contains malformed counter: counterlist[{0}] missing 'counters'. Please review and compare to template.", whichCounter);
+            }
+        }
+
+        public void AddPerfCounters(int whichCounter, String aProvider, String aCategory, List<Counter> aCounters, String aInstance)
+        {
+            var instanceArr = new String[] { aInstance };
+            PerformanceCounterCategory thisCategory = new PerformanceCounterCategory(aCategory);
+
+            if (String.IsNullOrEmpty(aInstance))
+            {
+                instanceArr = thisCategory.GetInstanceNames();
+            }
+
+            foreach (var thisInstance in instanceArr)
+            {
+                int whichSubCounter = -1;
+                foreach (var aCounter in aCounters)
+                {
+                    whichSubCounter++;
+                    var aSubCounter = aCounter.counter;
+                    if (String.IsNullOrEmpty(aSubCounter))
+                    {
+                        Console.Error.WriteLine(fileName + " contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
+                        continue;
+                    }
+                    if (String.Equals(aSubCounter, "*"))
+                    {
+                        var allCounters = thisCategory.GetCounters(thisInstance);
+                        foreach (var thisCounter in allCounters)
+                        {
+                            PerfmonQueries.Add(new PerfmonQuery(aProvider, aCategory, thisCounter.CounterName, thisInstance));
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        PerfmonQueries.Add(new PerfmonQuery(aProvider, aCategory, aSubCounter, thisInstance));
+                    }
+                }
             }
         }
 
@@ -274,8 +348,7 @@ namespace NewRelic
 
         public void PollCycle()
         {
-            Metrics.Add("event_type", PerfmonPlugin.DefaultEvent);
-            var metricNames = new Dictionary<string, int>();
+            var perfCounterList = new List<PerfCounter>();
 
             // Working backwards so we can safely delete queries that fail because of invalid classes.
             for (int i = PerfmonQueries.Count - 1; i >= 0; i--)
@@ -283,27 +356,29 @@ namespace NewRelic
                 var thisQuery = PerfmonQueries[i];
                 try
                 {
+                    if (thisQuery.counterOrQuery is null)
+                    {
+                        continue;
+                    }
+
                     if (thisQuery.counterOrQuery is PerformanceCounter)
                     {
                         try
                         {
-                            Debug("Collecting Perf Counter: " + ((PerformanceCounter)thisQuery.counterOrQuery).ToString());
+                            var thisPerfCounter = (PerformanceCounter)thisQuery.counterOrQuery;
+                            Debug("Collecting Perf Counter: " + thisPerfCounter.ToString());
+                            var perfCounterOut = new PerfCounter();
 
-                            float value = ((PerformanceCounter)thisQuery.counterOrQuery).NextValue();
+                            perfCounterOut.category = thisPerfCounter.CategoryName.Replace(' ','_');
+                            perfCounterOut.instance = thisPerfCounter.InstanceName;
+                            float value = thisPerfCounter.NextValue();
                             string metricName = thisQuery.metricName;
                             if (!float.IsNaN(value))
                             {
-                                if (metricNames.ContainsKey(metricName))
-                                {
-                                    metricName = metricName + "#" + metricNames[metricName]++;
-                                }
-                                else
-                                {
-                                    metricNames.Add(metricName, 1);
-                                }
                                 Debug(string.Format("{0}/{1}: {2}", Name, metricName, value));
-                                Metrics.Add(metricName, value);
-
+                                perfCounterOut.counter = metricName;
+                                perfCounterOut.value = value;
+                                perfCounterList.Add(perfCounterOut);
                             }
                         }
                         catch (Exception e)
@@ -375,13 +450,52 @@ namespace NewRelic
                     Console.Error.WriteLine("Exception occurred in processing results. {0}\r\n{1}", e.Message, e.StackTrace);
                 }
             }
-            ReportAll();
+
+            if(perfCounterList.Count > 0)
+            {
+                var organizedPerfCounters = from counter in perfCounterList group counter by new
+                    {
+                        counter.category,
+                        counter.instance
+                    }
+                    into op select new
+                    {
+                        Model = op.Key,
+                        Data = op
+                    };
+
+                foreach (var grouping in organizedPerfCounters)
+                {
+                    var countersOut = new Dictionary<string, Object>();
+                    countersOut.Add(EventTypeAttr, grouping.Model.category);
+                    countersOut.Add("name", grouping.Model.instance);
+                    foreach (var item in grouping.Data)
+                    {
+                        countersOut.Add(item.counter.Replace(" ", ""), item.value);
+                    }
+                    if(countersOut.Count > 2)
+                    {
+                        output.metrics.Add(countersOut);
+                    }
+                }
+            }
+
+            if (output.metrics.Count > 0)
+            {
+                if (IsDebug)
+                {
+                    Console.Error.WriteLine("Output: ");
+                    Console.Error.Write(JsonConvert.SerializeObject(output, Formatting.Indented) + "\n");
+                }
+                Console.Out.Write(JsonConvert.SerializeObject(output, Formatting.None) + "\n");
+            }
+            output.metrics.Clear();
         }
 
         private void RecordMetricMap(PerfmonQuery thisQuery, ManagementBaseObject properties)
         {
             Dictionary<string, Object> propsOut = new Dictionary<string, Object>();
-            propsOut.Add("event_type", thisQuery.metricName);
+            propsOut.Add(EventTypeAttr, thisQuery.metricName);
             if (thisQuery.queryMembers.Count > 0)
             {
                 foreach (var member in thisQuery.queryMembers)
@@ -399,16 +513,16 @@ namespace NewRelic
                     var splitmem = member.Key.Trim().Split('.');
                     if (properties[splitmem[0]] is ManagementBaseObject)
                     {
-                        var memberprops = ((ManagementBaseObject)properties[splitmem[0]]);
+                        var memberProps = ((ManagementBaseObject)properties[splitmem[0]]);
                         if (splitmem.Length == 2)
                         {
-                            GetValueParsed(propsOut, label, memberprops.Properties[splitmem[1]]);
+                            GetValueParsed(propsOut, label, memberProps.Properties[splitmem[1]]);
                         }
                         else
                         {
-                            foreach (var memberprop in memberprops.Properties)
+                            foreach (var memberProp in memberProps.Properties)
                             {
-                                GetValueParsed(propsOut, memberprop.Name, memberprop);
+                                GetValueParsed(propsOut, memberProp.Name, memberProp);
                             }
                         }
                     }
@@ -427,25 +541,6 @@ namespace NewRelic
             }
 
             output.metrics.Add(propsOut);
-        }
-
-        private void ReportAll()
-        {
-            if (Metrics.Count > 1)
-            {
-                output.metrics.Add(Metrics);
-            }
-            if (output.metrics.Count > 0)
-            {
-                if (IsDebug)
-                {
-                    Console.Error.WriteLine("Output: ");
-                    Console.Error.Write(JsonConvert.SerializeObject(output, Formatting.Indented) + "\n");
-                }
-                Console.Out.Write(JsonConvert.SerializeObject(output, Formatting.None) + "\n");
-            }
-            Metrics.Clear();
-            output.metrics.Clear();
         }
 
         private void Debug(string output)

@@ -59,13 +59,13 @@ namespace NewRelic
 
             options.ComputerName = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? options.ComputerName;
             options.ConfigFile = Environment.GetEnvironmentVariable("CONFIGFILE") ?? options.ConfigFile;
-            
+
             // All of the possibilities for polling interval figured here...
             string env_PollingInterval = Environment.GetEnvironmentVariable("POLLINGINTERVAL");
             int pollingInterval = pollingIntervalFloor;
             if(!String.IsNullOrEmpty(env_PollingInterval)) {
-                pollingInterval = Int32.Parse(env_PollingInterval);         
-            } else { 
+                pollingInterval = Int32.Parse(env_PollingInterval);
+            } else {
                 pollingInterval = options.PollingInterval;
             }
             if (pollingInterval < pollingIntervalFloor) {
@@ -93,7 +93,7 @@ namespace NewRelic
 
             if (counterlist == null || counterlist.Count == 0)
             {
-                throw new Exception("'counterlist' is empty. Do you have a 'config/plugin.json' file?");
+                throw new Exception("'counterlist' is empty. Please verify " + options.ConfigFile + " is in the expected format (see README).");
             }
             List<Counterlist> mainCounters = new List<Counterlist>();
             List<Thread> eventThreads = new List<Thread>();
@@ -112,7 +112,7 @@ namespace NewRelic
                     mainCounters.Add(thisCounter);
                 }
             }
-               
+
             if (mainCounters.Count > 0)
             {
                 // Console.Out.WriteLine("Running main counter list.");
