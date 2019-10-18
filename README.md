@@ -74,58 +74,81 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 
 #### `config.json` Format
 
-```javascript
+```json
 {
 	"counterlist": [
 		{
-			"provider": "provider_name",
+			"provider": "provider_name|PerfCounter",
 			"category": "category_name",
 			"instance": "(optional) instance_name",
 			"counters": [
-				{
-            		"counter": "*|counter_name"
-        		},
-        		{
-        			"counter": "another_counter_name"
-        		}
-            ]
+    	    {
+          		"counter": "*|counter_name"
+      		},
+      		{
+      			"counter": "another_counter_name"
+      		}
+          ]
 		},
 		{
 			"query": "the_whole_WMI_Query",
 			"eventname": "(optional, default: 'WMIQueryResult') insights_event_name",
 			"querytype": "(optional, default: 'wmi_query') wmi_query|wmi_eventlistener",
 			"(optional) counters": [
-				{
-            		"counter": "counter_name|counter_class.counter_name",
-            		"attrname": "(optional) attribute_name_in_insights_event"
-        		},
-        		{
-        			"counter": "another_counter_name"
-        		}
-        	]
+          {
+          		"counter": "counter_name|counter_class.counter_name",
+          		"attrname": "(optional) attribute_name_in_insights_event"
+      		},
+      		{
+      			"counter": "another_counter_name"
+      		}
+      ]
 		}
 	]
 }
 ```
 
-#### Simple Queries & Performance Counters
+#### Simple Queries
 
-* The "provider, category, (optional) instance" form of the counter is for building simple queries, with the following limititions:
-  * Uses the default namespace ("root/cimv2")
+* The "`provider`, `category`, (optional) `instance`" form of the counter is for building simple queries, with the following limitations:
+  * Uses the default namespace (`root/cimv2`)
   * Limited to Select statements against classes with the name `Win32_PerfFormattedData_{provider}_{category}`
   * No custom names for individual attributes
-  * Uses "WMIQueryResult" Insights event type.
+  * Uses the category name as the Insights event type.
 * The `instance` property is optional and should *only* be used if you want to show a specific instance.
   * If left out, all instances will be polled automatically.
   * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
 * You must have at least one `counter` specified in `counters`. You can use wildcard ('\*') as the value to get all counters for that class.
-* If you specify the `provider` as `PerfCounter`, the plugin will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find. Example of usage:
-```javascript
+
+Example of usage:
+```json
+{
+  "provider": "ASPNET",
+  "category": "ASPNETApplications",
+  "counters": [{
+      "counter": "RequestsTotal"
+  }]
+}
+```
+
+#### Performance Counters
+
+If you specify the `provider` as `PerfCounter`, it will retrieve the Windows Performance Counter instead of running a WMI query. This can be useful if WMI is returning "all 0's" in a query or the appropriate Performance Counter is easier to find.
+
+* No custom names for individual attributes
+* Uses the category name as the Insights event type.
+* The `instance` property is optional and should *only* be used if you want to show a specific instance.
+  * If left out, all instances will be polled automatically.
+  * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
+* You must have at least one `counter` specified in `counters`. You can use wildcard ('\*') as the value to get all counters for that class.
+
+Example of usage:
+```json
 {
 	"provider": "PerfCounter",
-	"category": "ASP.NET v4.0.30319",
+	"category": "ASP.NET Apps v4.0.30319",
 	"counters": [{
-		"counter": "Requests Current"
+		"counter": "Requests Total"
 	}]
 }
 ```
@@ -198,7 +221,7 @@ PSComputerName        :
 
 Putting that all together, you would add the following under `counterlist`:
 
-```javascript
+```json
 {
 	"provider": "MSSQLSQLEXPRESS",
 	"category": "MSSQLSQLEXPRESSBufferManager",
@@ -210,7 +233,7 @@ Putting that all together, you would add the following under `counterlist`:
 
 Optionally, you can include an `instance` property. You can see the following in the template.
 
-```javascript
+```json
 {
 	"provider": "PerfOS",
 	"category": "Processor",
