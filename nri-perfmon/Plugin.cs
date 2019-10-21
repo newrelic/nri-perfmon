@@ -369,7 +369,7 @@ namespace NewRelic
                             Debug("Collecting Perf Counter: " + thisPerfCounter.ToString());
                             var perfCounterOut = new PerfCounter();
 
-                            perfCounterOut.category = thisPerfCounter.CategoryName.Replace(' ','_');
+                            perfCounterOut.category = thisPerfCounter.CategoryName.Replace(' ', '_').Replace('.', '_');
                             perfCounterOut.instance = thisPerfCounter.InstanceName;
                             float value = thisPerfCounter.NextValue();
                             string metricName = thisQuery.metricName;
