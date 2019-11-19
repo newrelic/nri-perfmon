@@ -14,7 +14,7 @@ namespace NewRelic
     public class Counter
     {
         public string counter { get; set; }
-        public string attrname { get; set; } = PerfmonPlugin.UseOwnName;
+        public string attrname { get; set; } = PerfmonPlugin.UseCounterName;
     }
 
     public class Counterlist
@@ -42,7 +42,7 @@ namespace NewRelic
         public string ConfigFile { get; set; }
         public int PollingInterval { get; set; }
         public string ComputerName { get; set; }
-        public int Verbose { get; set; }
+        public bool Verbose { get; set; }
     }
 
     // Output format
@@ -113,11 +113,11 @@ namespace NewRelic
             {
                 if (String.IsNullOrEmpty(instanceName))
                 {
-                    Console.Error.WriteLine(ioe.Message);
+                    Log.WriteLog(ioe.Message + "\nSkipping monitoring of " + caname + "/" + coname, Log.LogLevel.WARN);
                 }
                 else
                 {
-                    Console.Error.WriteLine("For instance " + instanceName + ", " + ioe.Message);
+                    Log.WriteLog("For instance " + instanceName + ", " + ioe.Message + "\nSkipping monitoring of " + caname + "/" + coname, Log.LogLevel.WARN);
                 }
                 counterOrQuery = null;
             }
@@ -145,7 +145,7 @@ namespace NewRelic
         public static string WMIEvent = "wmi_eventlistener";
         public static string DefaultEvent = "WMIQueryResult";
         public static string DefaultNamespace = "root\\cimv2";
-        public static string UseOwnName = "derp";
+        public static string UseCounterName = "using_counter_name";
         public static string EventTypeAttr = "event_type";
         public String fileName = "";
 
@@ -154,7 +154,6 @@ namespace NewRelic
         ManagementScope Scope { get; set; }
         Output output = new Output();
         int PollingInterval;
-        bool IsDebug = false;
 
         public PerfmonPlugin(Options options, Counterlist counter)
         {
@@ -183,10 +182,6 @@ namespace NewRelic
             PerfmonQueries = new List<PerfmonQuery>();
             Name = options.ComputerName;
             PollingInterval = options.PollingInterval;
-            if (options.Verbose > 0)
-            {
-                IsDebug = true;
-            }
             output.name = Name;
             output.protocol_version = "1";
             output.integration_version = "0.1.0";
@@ -205,8 +200,7 @@ namespace NewRelic
                     {
                         if (String.IsNullOrEmpty(testCounter.counter))
                         {
-
-                            Console.Error.WriteLine(fileName + " contains malformed counter: counterlist[{0}] missing 'counter' in 'counters'. Please review and compare to template.", whichCounter);
+                            Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counter' in 'counters'. Please review and compare to template.", fileName, whichCounter), Log.LogLevel.ERROR);
                             return;
                         }
                     }
@@ -221,7 +215,7 @@ namespace NewRelic
 
             if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
             {
-                Console.Error.WriteLine(fileName + " contains malformed counter: counterlist[{0}] missing 'provider' or 'category'. Please review and compare to template.", whichCounter);
+                Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'provider' or 'category'. Please review and compare to template.", fileName, whichCounter), Log.LogLevel.ERROR);
                 return;
             }
 
@@ -246,7 +240,8 @@ namespace NewRelic
                         whichSubCounter++;
                         if (String.IsNullOrEmpty(aSubCounter.counter))
                         {
-                            Console.Error.WriteLine(fileName + " contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
+                            Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", fileName, whichCounter, whichSubCounter),
+                                Log.LogLevel.ERROR);
                             continue;
                         }
                         else
@@ -269,18 +264,26 @@ namespace NewRelic
             }
             else
             {
-                Console.Error.WriteLine(fileName + " contains malformed counter: counterlist[{0}] missing 'counters'. Please review and compare to template.", whichCounter);
+                Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counters'. Please review and compare to template.", fileName, whichCounter), Log.LogLevel.ERROR);
             }
         }
 
         public void AddPerfCounters(int whichCounter, String aProvider, String aCategory, List<Counter> aCounters, String aInstance)
         {
             var instanceArr = new String[] { aInstance };
-            PerformanceCounterCategory thisCategory = new PerformanceCounterCategory(aCategory);
-
-            if (String.IsNullOrEmpty(aInstance))
+            PerformanceCounterCategory thisCategory = null;
+            try
             {
-                instanceArr = thisCategory.GetInstanceNames();
+                thisCategory = new PerformanceCounterCategory(aCategory);
+                if (String.IsNullOrEmpty(aInstance))
+                {
+                    instanceArr = thisCategory.GetInstanceNames();
+                }
+            }
+            catch (InvalidOperationException ioe)
+            {
+                Log.WriteLog(String.Format("{0}\nSkipping monitoring of {1}/{2}", ioe.Message, aProvider, aCategory), Log.LogLevel.WARN);
+                return;
             }
 
             foreach (var thisInstance in instanceArr)
@@ -292,7 +295,8 @@ namespace NewRelic
                     var aSubCounter = aCounter.counter;
                     if (String.IsNullOrEmpty(aSubCounter))
                     {
-                        Console.Error.WriteLine(fileName + " contains malformed counter: 'counters' in counterlist[{0}] missing 'counter' in element {1}. Please review and compare to template.", whichCounter, whichSubCounter);
+                        Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", fileName, whichCounter, whichSubCounter),
+                            Log.LogLevel.ERROR);
                         continue;
                     }
                     if (String.Equals(aSubCounter, "*"))
@@ -317,7 +321,7 @@ namespace NewRelic
             TimeSpan pollingIntervalTS = TimeSpan.FromMilliseconds(PollingInterval);
             if (pollingIntervalTS.TotalMilliseconds == 0)
             {
-                Debug("Running in constant polling mode.");
+                Log.WriteLog("Running in listener mode (no polling interval).", Log.LogLevel.VERBOSE);
                 do
                 {
                     PollCycle();
@@ -326,19 +330,23 @@ namespace NewRelic
             }
             else
             {
-                Debug("Running with polling interval of " + pollingIntervalTS);
+                Log.WriteLog("Running with polling interval of " + pollingIntervalTS, Log.LogLevel.VERBOSE);
                 do
                 {
                     DateTime then = DateTime.Now;
                     PollCycle();
                     DateTime now = DateTime.Now;
                     TimeSpan elapsedTime = now.Subtract(then);
+                    Log.WriteLog("Polling time: " + elapsedTime.ToString(), Log.LogLevel.VERBOSE);
                     if (pollingIntervalTS.TotalMilliseconds > elapsedTime.TotalMilliseconds)
                     {
-                        Thread.Sleep(pollingIntervalTS - elapsedTime);
+                        TimeSpan sleepTime = pollingIntervalTS - elapsedTime;
+                        Log.WriteLog("Sleeping for: " + sleepTime.ToString(), Log.LogLevel.VERBOSE);
+                        Thread.Sleep(sleepTime);
                     }
                     else
                     {
+                        Log.WriteLog("Sleeping for: " + pollingIntervalTS.ToString(), Log.LogLevel.VERBOSE);
                         Thread.Sleep(pollingIntervalTS);
                     }
                 }
@@ -366,7 +374,7 @@ namespace NewRelic
                         try
                         {
                             var thisPerfCounter = (PerformanceCounter)thisQuery.counterOrQuery;
-                            Debug("Collecting Perf Counter: " + thisPerfCounter.ToString());
+                            Log.WriteLog("Collecting Perf Counter: " + thisPerfCounter.ToString(), Log.LogLevel.VERBOSE);
                             var perfCounterOut = new PerfCounter();
 
                             perfCounterOut.category = thisPerfCounter.CategoryName.Replace(' ', '_').Replace('.', '_');
@@ -375,7 +383,7 @@ namespace NewRelic
                             string metricName = thisQuery.metricName;
                             if (!float.IsNaN(value))
                             {
-                                Debug(string.Format("{0}/{1}: {2}", Name, metricName, value));
+                                Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", Name, metricName, value), Log.LogLevel.VERBOSE);
                                 perfCounterOut.counter = metricName;
                                 perfCounterOut.value = value;
                                 perfCounterList.Add(perfCounterOut);
@@ -383,7 +391,7 @@ namespace NewRelic
                         }
                         catch (Exception e)
                         {
-                            Console.Error.WriteLine("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace);
+                            Log.WriteLog(String.Format("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace), Log.LogLevel.ERROR);
                         }
                     }
                     else if (thisQuery.counterOrQuery is string)
@@ -393,29 +401,29 @@ namespace NewRelic
                             string scopeString = "\\\\" + Name + "\\" + thisQuery.queryNamespace;
                             if (Scope == null)
                             {
-                                Debug("Setting up scope: " + scopeString);
+                                Log.WriteLog("Setting up scope: " + scopeString, Log.LogLevel.VERBOSE);
                                 Scope = new ManagementScope(scopeString);
                             }
                             else if (Scope != null && !Scope.Path.ToString().Equals(scopeString))
                             {
-                                Debug("Updating Scope Path from " + Scope.Path + " to " + scopeString);
+                                Log.WriteLog("Updating Scope Path from " + Scope.Path + " to " + scopeString, Log.LogLevel.VERBOSE);
                                 Scope = new ManagementScope(scopeString);
                             }
 
                             if (!Scope.IsConnected)
                             {
-                                Debug("Connecting to scope: " + scopeString);
+                                Log.WriteLog("Connecting to scope: " + scopeString, Log.LogLevel.VERBOSE);
                                 Scope.Connect();
                             }
                         }
                         catch (Exception e)
                         {
-                            Console.Error.WriteLine("Unable to connect to \"{0}\". {1}", Name, e.Message);
+                            Log.WriteLog(String.Format("Unable to connect to \"{0}\". {1}", Name, e.Message), Log.LogLevel.ERROR);
                             continue;
                         }
                         if (thisQuery.queryType.Equals(WMIQuery))
                         {
-                            Debug("Running Query: " + (string)thisQuery.counterOrQuery);
+                            Log.WriteLog("Running Query: " + (string)thisQuery.counterOrQuery, Log.LogLevel.VERBOSE);
                             var queryResults = (new ManagementObjectSearcher(Scope,
                                 new ObjectQuery((string)thisQuery.counterOrQuery))).Get();
                             foreach (ManagementObject result in queryResults)
@@ -428,7 +436,7 @@ namespace NewRelic
                         }
                         else if (thisQuery.queryType.Equals(WMIEvent))
                         {
-                            Debug("Running Event Listener: " + thisQuery.counterOrQuery);
+                            Log.WriteLog("Running Event Listener: " + thisQuery.counterOrQuery, Log.LogLevel.VERBOSE);
                             var watcher = new ManagementEventWatcher(Scope,
                                 new EventQuery((string)thisQuery.counterOrQuery)).WaitForNextEvent();
                             RecordMetricMap(thisQuery, watcher);
@@ -438,16 +446,16 @@ namespace NewRelic
                 }
                 catch (ManagementException e)
                 {
-                    Console.Error.WriteLine("Exception occurred in polling. {0}: {1}", e.Message, (string)thisQuery.counterOrQuery);
+                    Log.WriteLog(String.Format("Exception occurred in polling. {0}: {1}", e.Message, (string)thisQuery.counterOrQuery), Log.LogLevel.ERROR);
                     if (e.Message.ToLower().Contains("invalid class") || e.Message.ToLower().Contains("not supported"))
                     {
-                        Console.Error.WriteLine("Query Removed: {0}", thisQuery.counterOrQuery);
+                        Log.WriteLog(String.Format("Query Removed: {0}", thisQuery.counterOrQuery), Log.LogLevel.WARN);
                         PerfmonQueries.RemoveAt(i);
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.Error.WriteLine("Exception occurred in processing results. {0}\r\n{1}", e.Message, e.StackTrace);
+                    Log.WriteLog(String.Format("Exception occurred in processing results. {0}\r\n{1}", e.Message, e.StackTrace), Log.LogLevel.ERROR);
                 }
             }
 
@@ -482,14 +490,9 @@ namespace NewRelic
 
             if (output.metrics.Count > 0)
             {
-                if (IsDebug)
-                {
-                    Console.Error.WriteLine("Output: ");
-                    Console.Error.Write(JsonConvert.SerializeObject(output, Formatting.Indented) + "\n");
-                }
-                Console.Out.Write(JsonConvert.SerializeObject(output, Formatting.None) + "\n");
+                Log.WriteLog("Metric output", output, Log.LogLevel.CONSOLE);
+                output.metrics.Clear();
             }
-            output.metrics.Clear();
         }
 
         private void RecordMetricMap(PerfmonQuery thisQuery, ManagementBaseObject properties)
@@ -501,7 +504,7 @@ namespace NewRelic
                 foreach (var member in thisQuery.queryMembers)
                 {
                     string label;
-                    if (member.Value.Equals(PerfmonPlugin.UseOwnName))
+                    if (member.Value.Equals(PerfmonPlugin.UseCounterName))
                     {
                         label = member.Key;
                     }
@@ -541,21 +544,13 @@ namespace NewRelic
             }
 
             output.metrics.Add(propsOut);
-        }
-
-        private void Debug(string output)
-        {
-            if (this.IsDebug)
-            {
-                Console.Error.WriteLine("Thread-" + Thread.CurrentThread.ManagedThreadId + " : " + output);
-            }
-        }
+        }        
 
         private void GetValueParsed(Dictionary<string, Object> propsOut, String propName, PropertyData prop)
         {
             if (prop.Value != null)
             {
-                Debug("Parsing: " + propName + ", propValue: " + prop.Value.ToString() + " CimType: " + prop.Type.ToString());
+                Log.WriteLog(String.Format("Parsing: {0}, propValue: {1}, of CimType: {2}", propName, prop.Value.ToString(), prop.Type.ToString()), Log.LogLevel.VERBOSE);
                 switch (prop.Type)
                 {
                     case CimType.Boolean:
@@ -569,8 +564,8 @@ namespace NewRelic
                         }
                         catch (FormatException fe)
                         {
-                            Debug("Could not parse: " + propName + ", propValue: " + prop.Value.ToString() + ", of CimType: " + prop.Type.ToString());
-                            Debug("Parsing Exception: " + fe.ToString());
+                            Log.WriteLog(String.Format("Could not parse: {0}, propValue: {1}, of CimType: {2}", propName, prop.Value.ToString(), prop.Type.ToString()), Log.LogLevel.VERBOSE);
+                            Log.WriteLog("Parsing Exception: " + fe.ToString(), Log.LogLevel.VERBOSE);
                         }
                         break;
                     case CimType.String:
