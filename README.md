@@ -87,8 +87,8 @@ Verbose Logging Mode is meant for testing your [Counters](#configuration---count
 	* **Insights will not show any data from this Integration when running it in Verbose Logging Mode.**
 
 Also, because stderr messages arent picked up by the NRI Agent in Windows, it is best to use this mode at command line, like so:
-```batch
-C:\Program Files\New Relic\newrelic-infra\custom-integrations> nri-perfmon\nri-perfmon.exe -v true
+```powershell
+PS C:\Program Files\New Relic\newrelic-infra\custom-integrations> nri-perfmon\nri-perfmon.exe -v true
 ```
 
 ### Configuration - Counters
