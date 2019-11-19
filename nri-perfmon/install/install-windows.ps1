@@ -55,6 +55,17 @@ if ($inst_vars.ContainsKey("OS_SPECIFIC_CONFIGS") -and $inst_vars.Item("OS_SPECI
 Write-Host " ...finished.  "
 
 Write-Host "`n---------------------------------------"
+Write-Host " Creating Event Log Source... "
+Write-Host "-----------------------------------------`n"
+
+if(![System.Diagnostics.EventLog]::SourceExists($integration_name)) {
+	Write-Host "Creating log event type: $integration_name" 
+	[System.Diagnostics.EventLog]::CreateEventSource($integration_name, "Application")
+} else {
+	Write-Host "Log event type $integration_name already exists" 
+}
+
+Write-Host "`n---------------------------------------"
 Write-Host " Restarting New Relic Infrastructure agent... "
 Write-Host "-----------------------------------------`n"
 $serviceName = 'newrelic-infra'
