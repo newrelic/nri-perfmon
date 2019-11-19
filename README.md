@@ -79,7 +79,7 @@ commands:
 
 #### Verbose Logging Mode
 
-Verbose Logging Mode is meant for testing your [Counters](#configuration--counters) and seeing if and how they will appear in Insights. With Verbose Logging Mode enabled, the following occurs:
+Verbose Logging Mode is meant for testing your [Counters](#configuration---counters) and seeing if and how they will appear in Insights. With Verbose Logging Mode enabled, the following occurs:
 * All log messages are written to stderr
 * Metrics are pretty-printed to stderr
 * No messages will appear in Event Logs
