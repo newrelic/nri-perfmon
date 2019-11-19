@@ -24,7 +24,7 @@ If run at command line without anything, the executable should report JSON resul
 * `-c | --configFile [file]`: Config file to use (default: `config.json`)
 * `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
 * `-n | --compName [name]`: Name of computer that you want to poll (default: local host)
-* `-v | --verbose [nnn]`: Verbose logging mode (default: 0, 1 or more enables Verbose)
+* `-v | --verbose [true|false]`: Verbose & pretty-print mode (default: false)
 
 ### Installation
 
@@ -49,7 +49,7 @@ If run at command line without anything, the executable should report JSON resul
 
 ### Configuration - Command-Line Arguments
 
-To use any of the [Command-Line Arguments listed above](https://github.com/newrelic/nri-perfmon#execution--command-line-arguments), edit `nri-perfmon-definition.yml` and add them as argument lines, like so:
+To use any of the [Command-Line Arguments listed above](#execution--command-line-arguments), edit `nri-perfmon-definition.yml` and add them as argument lines, like so:
 
 ```yaml
 #
@@ -63,15 +63,33 @@ commands:
   metrics:
     command:
       - .\nri-perfmon\nri-perfmon.exe
-      - -i 12345
-      - -c custom_config.json
-      - -n MyCompName
-      - -v 1
+      - -i
+      - 60000
+      - -c
+      - custom_config.json
+      - -n
+      - MyCompName
+      - -v
+      - true
     prefix: integration/nri-perfmon
     interval: 15
 ```
 
-**NOTE** the `interval:` field at the bottom does need to be there with a number, but it does not change the polling interval. To do that, add the `-i <interval>` field to your `command` arguments.
+**NOTE** the `interval:` field at the bottom does need to be there with a number, but it does not change the polling interval. To do that, add `-i` and `<interval_(ms)>` as consecutive lines to your `command` arguments.
+
+#### Verbose Logging Mode
+
+Verbose Logging Mode is meant for testing your [Counters](#configuration--counters) and seeing if and how they will appear in Insights. With Verbose Logging Mode enabled, the following occurs:
+* All log messages are written to stderr
+* Metrics are pretty-printed to stderr
+* No messages will appear in Event Logs
+* No metrics are written to stdout
+	* **Insights will not show any data from this Integration when running it in Verbose Logging Mode.**
+
+Also, because stderr messages arent picked up by the NRI Agent in Windows, it is best to use this mode at command line, like so:
+```batch
+	C:\Program Files\New Relic\newrelic-infra\custom-integrations> nri-perfmon\nri-perfmon.exe -v true
+```
 
 ### Configuration - Counters
 
