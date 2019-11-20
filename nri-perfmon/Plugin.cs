@@ -5,60 +5,9 @@ using System.Management;
 using System.Diagnostics;
 using System.Threading;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace NewRelic
 {
-    // Config file classes (Config > Counterlist > Counter)
-
-    public class Counter
-    {
-        public string counter { get; set; }
-        public string attrname { get; set; } = PerfmonPlugin.UseCounterName;
-    }
-
-    public class Counterlist
-    {
-        public string provider { get; set; }
-        public string category { get; set; }
-        public string instance { get; set; }
-        public List<Counter> counters { get; set; }
-        public string query { get; set; }
-        public string eventname { get; set; } = PerfmonPlugin.DefaultEvent;
-        public string querytype { get; set; } = PerfmonPlugin.WMIQuery;
-        public string querynamespace { get; set; } = PerfmonPlugin.DefaultNamespace;
-    }
-
-    public class Config
-    {
-        public string name { get; set; }
-        public List<Counterlist> counterlist { get; set; }
-    }
-
-    // Plugin options
-
-    public class Options
-    {
-        public string ConfigFile { get; set; }
-        public int PollingInterval { get; set; }
-        public string ComputerName { get; set; }
-        public bool Verbose { get; set; }
-    }
-
-    // Output format
-
-    public class Output
-    {
-        public string name { get; set; }
-        public string protocol_version { get; set; }
-        public string integration_version { get; set; }
-        public List<Dictionary<string, Object>> events { get; set; }
-        public Dictionary<string, string> inventory { get; set; }
-        public List<Dictionary<string, Object>> metrics { get; set; }
-    }
-
-    // The rest
-
     class PerfmonQuery
     {
         public PerfmonQuery(string query, string ename, string querytype, string querynamespace, List<Counter> members)
@@ -131,7 +80,7 @@ namespace NewRelic
         public string queryNamespace { get; private set; }
     }
 
-    public class PerfCounter
+    class PerfCounter
     {
         public string category;
         public string instance;

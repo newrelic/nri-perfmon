@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using Newtonsoft.Json;
 using System.IO;
@@ -8,59 +7,6 @@ using Fclp;
 
 namespace NewRelic
 {
-    static class Log
-    {
-        private static EventLog ELog = new EventLog("Application")
-        {
-            Source = "nri-perfmon"
-        };
-        public static bool Verbose;
-
-        public static void WriteLog(string message, Log.LogLevel loglevel)
-        {
-            if (Log.Verbose)
-            {
-                Console.Error.WriteLine("Thread-" + (object)Thread.CurrentThread.ManagedThreadId + " : " + message);
-            }
-            else
-            {
-                if (loglevel == Log.LogLevel.VERBOSE)
-                {
-                    return;
-                }
-                if (loglevel == Log.LogLevel.CONSOLE)
-                {
-                    Console.Out.WriteLine(message);
-                }
-                else
-                {
-                    Log.ELog.WriteEntry(message, (EventLogEntryType)loglevel);
-                }
-            }
-        }
-
-        public static void WriteLog(string message, object toSerialize, Log.LogLevel loglevel)
-        {
-            if (loglevel == Log.LogLevel.CONSOLE && !Log.Verbose)
-            {
-                Log.WriteLog(JsonConvert.SerializeObject(toSerialize, Formatting.None), loglevel);
-            }
-            else
-            {
-                Log.WriteLog(message + ":\n" + JsonConvert.SerializeObject(toSerialize, Formatting.Indented), loglevel);
-            }
-        }
-
-        public enum LogLevel
-        {
-            ERROR = 1,
-            WARN = 2,
-            INFO = 4,
-            VERBOSE = 8,
-            CONSOLE = 16
-        }
-    }
-
     class Program
     {
         static void Main(string[] args)
@@ -129,6 +75,8 @@ namespace NewRelic
             }
             options.PollingInterval = pollingInterval;
 
+            Log.WriteLog("nri-perfmon starting with options", (object)options, Log.LogLevel.INFO);
+
             List<Counterlist> counterlist = null;
             try
             {
@@ -168,7 +116,6 @@ namespace NewRelic
 
             if (mainCounters.Count > 0)
             {
-                Log.WriteLog("nri-perfmon starting with options", (object)options, Log.LogLevel.INFO);
                 Log.WriteLog("nri-perfmon counters", (object)mainCounters, Log.LogLevel.VERBOSE);
                 PerfmonPlugin thisPlugin = new PerfmonPlugin(options, mainCounters);
                 thisPlugin.RunThread();
