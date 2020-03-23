@@ -5,6 +5,7 @@ using System.Management;
 using System.Diagnostics;
 using System.Threading;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NewRelic
 {
@@ -326,16 +327,28 @@ namespace NewRelic
                             Log.WriteLog("Collecting Perf Counter: " + thisPerfCounter.ToString(), Log.LogLevel.VERBOSE);
                             var perfCounterOut = new PerfCounter();
 
-                            perfCounterOut.category = thisPerfCounter.CategoryName.Replace(' ', '_').Replace('.', '_');
+                            perfCounterOut.category = Regex.Replace(thisPerfCounter.CategoryName, @"[^\d\w:_]", "_");
                             perfCounterOut.instance = thisPerfCounter.InstanceName;
                             float value = thisPerfCounter.NextValue();
                             string metricName = thisQuery.metricName;
                             if (!float.IsNaN(value))
                             {
-                                Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", Name, metricName, value), Log.LogLevel.VERBOSE);
+                                metricName = metricName.Replace(" ", "").Replace('-', '_').Replace("%", "Percent");
+                                int whereIsPer = metricName.IndexOf('/');
+                                if (whereIsPer > -1)
+                                {
+                                    if (metricName.Length > whereIsPer + 1)
+                                    {
+                                        String capChar = metricName.Substring(whereIsPer + 1, 1).ToUpper();
+                                        metricName = metricName.Remove(whereIsPer + 1, 1).Insert(whereIsPer + 1, capChar);
+                                    }
+                                    metricName = metricName.Remove(whereIsPer, 1).Insert(whereIsPer, "Per");
+                                }
+
                                 perfCounterOut.counter = metricName;
                                 perfCounterOut.value = value;
                                 perfCounterList.Add(perfCounterOut);
+                                Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", Name, perfCounterOut.counter, value), Log.LogLevel.VERBOSE);
                             }
                         }
                         catch (Exception e)
@@ -428,7 +441,7 @@ namespace NewRelic
                     countersOut.Add("name", grouping.Model.instance);
                     foreach (var item in grouping.Data)
                     {
-                        countersOut.Add(item.counter.Replace(" ", ""), item.value);
+                        countersOut.Add(item.counter, item.value);
                     }
                     if(countersOut.Count > 2)
                     {

@@ -1,6 +1,6 @@
 {
   "counterlist": [
-	{
+  {
       "provider": "APPPOOLCountersProvider",
       "category": "APPPOOLWAS",
       "counters": [
@@ -41,6 +41,7 @@
     {
       "provider": "ASPNET",
       "category": "ASPNETApplications",
+      "instance": "*",
       "counters": [
         { "counter": "ErrorsTotal" },
         { "counter": "RequestsPerSec" }
@@ -194,6 +195,10 @@
         { "counter": "ConnectionAttemptsPersec" },
         { "counter": "CurrentConnections" }
       ]
+    },
+    {
+      "eventname": "W3WP_Process",
+      "query": "select Name, ElapsedTime, HandleCount, IDProcess, IODataBytesPersec, IODataOperationsPersec, IOOtherBytesPersec, IOOtherOperationsPersec, IOReadBytesPersec, IOReadOperationsPersec, IOWriteBytesPersec, IOWriteOperationsPersec, PageFaultsPersec, PageFileBytes, PageFileBytesPeak, PercentPrivilegedTime, PercentProcessorTime, PercentUserTime, PoolNonpagedBytes, PoolPagedBytes, PrivateBytes, ThreadCount, VirtualBytes, WorkingSet, WorkingSetPrivate from Win32_PerfFormattedData_PerfProc_Process where name like 'w3wp%'"
     }
   ]
 }
