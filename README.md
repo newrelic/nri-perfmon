@@ -38,7 +38,7 @@ If run at command line without anything, the executable should report JSON resul
 1. Unzip nri-perfmon to a temporary location on the server
 2. Create `nri-perfmon` under `C:\Program Files\New Relic\newrelic-infra\custom-integrations`.
 3. Place the following files in `C:\Program Files\New Relic\newrelic-infra\custom-integrations\nri-perfmon`:
-	* `nri-pefrmon.exe`
+	* `nri-perfmon.exe`
 	* `nri-perfmon.exe.config`
 	* `config.json`
 	* `Newtonsoft.Json.dll`
