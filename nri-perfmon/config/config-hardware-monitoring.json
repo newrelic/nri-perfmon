@@ -1,53 +1,39 @@
 {
   "counterlist": [
     {
-      "eventname": "InstanceOperationEvent", 
-      "query": "SELECT * FROM __InstanceOperationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_PnPEntity'", 
+      "eventname": "InstanceOperationEvent",
+      "query": "SELECT * FROM __InstanceOperationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_PnPEntity'",
       "querytype": "wmi_eventlistener",
       "counters": [
-        {
-          "attrname": "operationClass", 
-          "counter": "__CLASS"
-        }, 
-        {
-          "counter": "targetInstance.Manufacturer"
-        }, 
-        {
-          "counter": "targetInstance.DeviceID"
-        }, 
-        {
-          "counter": "targetInstance.Description"
-        }, 
-        {
-          "counter": "targetInstance.Name"
-        }, 
-        {
-          "counter": "targetInstance.Service"
-        }, 
-        {
-          "counter": "targetInstance.Status"
-        }
+        { "attrname": "operationClass",
+          "counter": "__CLASS" },
+        { "counter": "targetInstance.Manufacturer" },
+        { "counter": "targetInstance.DeviceID" },
+        { "counter": "targetInstance.Description" },
+        { "counter": "targetInstance.Name" },
+        { "counter": "targetInstance.Service" },
+        { "counter": "targetInstance.Status" }
       ]
-    }, 
+    },
     {
-      "eventname": "Win32_PnPEntity", 
+      "eventname": "Win32_PnPEntity",
       "query": "Select Name,DeviceID,Description,Manufacturer,Service,Status from Win32_PnPEntity WHERE NOT DeviceID LIKE 'PCI%' AND NOT DeviceID LIKE 'ROOT%' AND NOT DeviceID LIKE 'ACPI%'"
-    }, 
+    },
     {
-      "eventname": "Win32_Fan", 
+      "eventname": "Win32_Fan",
       "query": "SELECT * FROM Win32_Fan"
-    }, 
+    },
     {
-      "eventname": "Win32_Battery", 
+      "eventname": "Win32_Battery",
       "query": "SELECT * FROM Win32_Battery"
-    }, 
+    },
     {
-      "eventname": "W32_Processor", 
+      "eventname": "W32_Processor",
       "query": "SELECT * FROM W32_Processor"
-    }, 
+    },
     {
-      "eventname": "CPUTemperature", 
-      "query": "SELECT * FROM MSAcpi_ThermalZoneTemperature", 
+      "eventname": "CPUTemperature",
+      "query": "SELECT * FROM MSAcpi_ThermalZoneTemperature",
       "querynamespace": "root\\WMI"
     }
   ]

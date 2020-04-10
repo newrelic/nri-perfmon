@@ -2,108 +2,66 @@
   "counterlist": [
     {
       "provider": "MSSQLSERVER",
-      "category": "SQLServerTransactions",
+      "category": "SQLServerAccessMethods",
       "counters": [
-        {
-          "counter": "FreeSpaceintempdbKB"
-        }
+        { "counter": "FullScansPersec" },
+        { "counter": "IndexSearchesPersec" },
+        { "counter": "PageSplitsPersec" }
       ]
     },
     {
       "provider": "MSSQLSERVER",
       "category": "SQLServerBufferManager",
       "counters": [
-        {
-          "counter": "Databasepages"
-        },
-        {
-          "counter": "PagereadsPersec"
-        },
-        {
-          "counter": "PagewritesPersec"
-        },
-        {
-          "counter": "Buffercachehitratio"
-        }
-      ]
-    },
-    {
-      "provider": "MSSQLSERVER",
-      "category": "SQLServerAccessMethods",
-      "counters": [
-        {
-          "counter": "FullScansPersec"
-        },
-        {
-          "counter": "IndexSearchesPersec"
-        },
-        {
-          "counter": "PageSplitsPersec"
-        }
-      ]
-    },
-    {
-      "provider": "MSSQLSERVER",
-      "category": "SQLServerMemoryManager",
-      "counters": [
-        {
-          "counter": "TargetServerMemoryKB"
-        },
-        {
-          "counter": "TotalServerMemoryKB"
-        },
-        {
-          "counter": "LogPoolMemoryKB"
-        },
-        {
-          "counter": "FreeMemoryKB"
-        },
-        {
-          "counter": "LockMemoryKB"
-        }
+        { "counter": "Databasepages" },
+        { "counter": "PagereadsPersec" },
+        { "counter": "PagewritesPersec" },
+        { "counter": "Buffercachehitratio" }
       ]
     },
     {
       "provider": "MSSQLServer",
       "category": "SQLServerLocks",
       "counters": [
-        {
-          "counter": "AverageWaitTimems"
-        },
-        {
-          "counter": "LockRequestsPersec"
-        },
-        {
-          "counter": "NumberofDeadlocksPersec"
-        },
-        {
-          "counter": "LockWaitsPersec"
-        }
+        { "counter": "AverageWaitTimems" },
+        { "counter": "LockRequestsPersec" },
+        { "counter": "NumberofDeadlocksPersec" },
+        { "counter": "LockWaitsPersec" }
       ]
     },
     {
       "provider": "MSSQLSERVER",
-      "category": "SQLServerSQLStatistics",
+      "category": "SQLServerMemoryManager",
       "counters": [
-        {
-          "counter": "BatchRequestsPersec"
-        },
-        {
-          "counter": "SQLCompilationsPersec"
-        },
-        {
-          "counter": "SQLReCompilationsPersec"
-        }
+        { "counter": "TargetServerMemoryKB" },
+        { "counter": "TotalServerMemoryKB" },
+        { "counter": "LogPoolMemoryKB" },
+        { "counter": "FreeMemoryKB" },
+        { "counter": "LockMemoryKB" }
       ]
     },
     {
       "provider": "MSSQLSERVER",
       "category": "SQLServerSQLErrors",
       "counters": [
-        {
-          "counter": "ErrorsPersec"
-        },
+        { "counter": "ErrorsPersec" }
       ]
     },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerSQLStatistics",
+      "counters": [
+        { "counter": "BatchRequestsPersec" },
+        { "counter": "SQLCompilationsPersec" },
+        { "counter": "SQLReCompilationsPersec" }
+      ]
+    },
+    {
+      "provider": "MSSQLSERVER",
+      "category": "SQLServerTransactions",
+      "counters": [
+        { "counter": "FreeSpaceintempdbKB" }
+      ]
+    }
   ]
 }

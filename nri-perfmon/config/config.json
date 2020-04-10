@@ -1,6 +1,6 @@
 {
   "counterlist": [
-  {
+    {
       "provider": "APPPOOLCountersProvider",
       "category": "APPPOOLWAS",
       "counters": [
@@ -96,6 +96,20 @@
         { "counter": "OutgoingBytesPersec" },
         { "counter": "OutgoingMessages" },
         { "counter": "OutgoingMessagesPersec" }
+      ]
+    },
+    {
+      "provider": "NETDataProviderforOracle",
+      "category": "NETDataProviderforOracle",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "NETDataProviderforSqlServer",
+      "category": "NETDataProviderforSqlServer",
+      "counters": [
+        { "counter": "*" }
       ]
     },
     {

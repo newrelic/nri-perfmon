@@ -1,5 +1,6 @@
 {
-	"counterlist": [{
+	"counterlist": [
+		{
 			"query": "select FreeAndZeroPageListBytes from Win32_PerfFormattedData_PerfOS_Memory",
 			"eventname": "Perfmon_Memory",
 			"counters": [{
