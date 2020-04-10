@@ -4,61 +4,33 @@
       "provider": "SQLSERVERAGENT",
       "category": "SQLAgentJobs",
       "counters": [
-        {
-          "counter": "Activejobs"
-        },
-        {
-          "counter": "Failedjobs"
-        },
-        {
-          "counter": "JobsactivatedPerminute"
-        },
-        {
-          "counter": "Jobsuccessrate"
-        },
-        {
-          "counter": "Queuedjobs"
-        },
-        {
-          "counter": "Successfuljobs"
-        }
-        
+        { "counter": "Activejobs" },
+        { "counter": "Failedjobs" },
+        { "counter": "JobsactivatedPerminute" },
+        { "counter": "Jobsuccessrate" },
+        { "counter": "Queuedjobs" },
+        { "counter": "Successfuljobs" }
+
       ]
     },
     {
       "provider": "SQLSERVERAGENT",
       "category": "SQLAgentJobSteps",
       "counters": [
-        {
-          "counter": "Activesteps"
-        },
-        {
-          "counter": "Queuedsteps"
-        },
-        {
-          "counter": "Totalstepretries"
-        }
+        { "counter": "Activesteps" },
+        { "counter": "Queuedsteps" },
+        { "counter": "Totalstepretries" }
       ]
     },
     {
       "provider": "SQLSERVERAGENT",
       "category": "SQLAgentSystemJobs",
       "counters": [
-        {
-          "counter": "Activesystemjobs"
-        },
-        {
-          "counter": "Failedsystemjobs"
-        },
-        {
-          "counter": "Queuedsystemjobs"
-        },
-        {
-          "counter": "Successfulsystemjobs"
-        },
-        {
-          "counter": "SystemJobsactivatedPerminute"
-        }
+        { "counter": "Activesystemjobs" },
+        { "counter": "Failedsystemjobs" },
+        { "counter": "Queuedsystemjobs" },
+        { "counter": "Successfulsystemjobs" },
+        { "counter": "SystemJobsactivatedPerminute" }
       ]
     }
   ]
