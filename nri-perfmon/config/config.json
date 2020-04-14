@@ -20,41 +20,10 @@
       ]
     },
     {
-      "provider": "ASPNET",
-      "category": "ASPNET",
+      "provider": "PerfCounter",
+      "category": "ASP.NET Applications",
       "counters": [
-        { "counter": "ApplicationRestarts" },
-        { "counter": "ApplicationsRunning" },
-        { "counter": "ErrorEventsRaised" },
-        { "counter": "InfrastructureErrorEventsRaised" },
-        { "counter": "RequestErrorEventsRaised" },
-        { "counter": "RequestExecutionTime" },
-        { "counter": "RequestsCurrent" },
-        { "counter": "RequestsQueued" },
-        { "counter": "RequestsRejected" },
-        { "counter": "RequestWaitTime" },
-        { "counter": "WorkerProcessesRunning" },
-        { "counter": "WorkerProcessRestarts" },
-        { "counter": "RequestWaitTime" }
-      ]
-    },
-    {
-      "provider": "ASPNET",
-      "category": "ASPNETApplications",
-      "instance": "*",
-      "counters": [
-        { "counter": "ErrorsTotal" },
-        { "counter": "RequestsPerSec" }
-      ]
-    },
-    {
-      "provider": "ASPNETSTATE",
-      "category": "ASPNETStateService",
-      "counters": [
-        { "counter": "StateServerSessionsAbandoned" },
-        { "counter": "StateServerSessionsActive" },
-        { "counter": "StateServerSessionsTimedOut" },
-        { "counter": "StateServerSessionsTotal" }
+        { "counter": "*" }
       ]
     },
     {

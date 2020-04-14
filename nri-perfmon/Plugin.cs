@@ -1,62 +1,148 @@
 
 using System;
 using System.Collections.Generic;
-using System.Management;
 using System.Diagnostics;
-using System.Threading;
 using System.Linq;
+using System.Management;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace NewRelic
 {
-    class PerfmonQuery
+
+    class PerfCounter
     {
-        public PerfmonQuery(string query, string ename, string querytype, string querynamespace, List<Counter> members)
+        public string category { get; private set; }
+        public string instance { get; private set; }
+        public List<string> counters { get; private set; }
+
+        public Dictionary<string, PerformanceCounter> PerformanceCounters { get; private set; }
+
+        public PerfCounter(string cname, List<string> cos, string iname)
         {
-            metricName = ename;
-            queryType = querytype;
-            counterOrQuery = query;
-            queryNamespace = querynamespace ?? PerfmonPlugin.DefaultNamespace;
-            if (members != null)
+            PerformanceCounters = new Dictionary<string, PerformanceCounter>();
+            category = cname;
+            instance = iname;
+            counters = cos;
+        }
+
+        private string calcHashCode(string uno, string dos, string tres)
+        {
+            return uno + dos + tres;
+        }
+
+        public void PopulatePerformanceCounters()
+        {
+            var instanceArr = new String[] { instance };
+            PerformanceCounterCategory thisCategory = null;
+            try
             {
-                foreach (var member in members)
+                thisCategory = new PerformanceCounterCategory(category);
+                if (String.IsNullOrEmpty(instance))
                 {
-                    queryMembers.Add(member.counter, member.attrname);
+                    instanceArr = thisCategory.GetInstanceNames();
+                }
+            }
+            catch (InvalidOperationException ioe)
+            {
+                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}", ioe.Message, category), Log.LogLevel.WARN);
+                return;
+            }
+
+            foreach (var thisInstance in instanceArr)
+            {
+                foreach (var counter in counters)
+                {
+                    if (String.Equals(counter, "*"))
+                    {
+                        var allCounters = thisCategory.GetCounters(thisInstance);
+                        foreach (var thisCounter in allCounters)
+                        {
+                            string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
+                            if (!PerformanceCounters.ContainsKey(pcKey))
+                            {
+                                PerformanceCounters.Add(pcKey, new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        string pcKey = calcHashCode(category, counter, thisInstance);
+                        if (!PerformanceCounters.ContainsKey(pcKey))
+                        {
+                            PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public class PerfCounterOut
+    {
+        public string category { get; private set; }
+        public string instance { get; private set; }
+        public string counter { get; private set; }
+        public Object value { get; private set; }
+
+        public PerfCounterOut(string cname, string co, string iname, Object val)
+        {
+            value = val;
+            category = Regex.Replace(cname, @"[^\d\w:_]", "_");
+            instance = iname;
+            counter = co.Replace(" ", "").Replace('-', '_').Replace("%", "Percent");
+            int whereIsPer = counter.IndexOf('/');
+            if (whereIsPer > -1)
+            {
+                if (counter.Length > whereIsPer + 1)
+                {
+                    String capChar = counter.Substring(whereIsPer + 1, 1).ToUpper();
+                    counter = counter.Remove(whereIsPer + 1, 1).Insert(whereIsPer + 1, capChar);
+                }
+                counter = counter.Remove(whereIsPer, 1).Insert(whereIsPer, "Per");
+            }
+        }
+    }
+
+    class WMIQuery
+    {
+        public string eventName { get; private set; }
+        public string instanceName { get; private set; }
+        public string queryNamespace { get; private set; }
+        public Dictionary<string, string> membersToRename { get; private set; }
+        public string queryString { get; private set; }
+        public string queryType { get; private set; }
+
+        public WMIQuery(string qstr, string ename, string qtype, string qns, List<Counter> rmembers)
+        {
+            eventName = ename;
+            queryType = qtype;
+            queryString = qstr;
+            queryNamespace = qns ?? PerfmonPlugin.DefaultNamespace;
+            if (rmembers != null)
+            {
+                membersToRename = new Dictionary<string, string>();
+                foreach (var member in rmembers)
+                {
+                    membersToRename.Add(member.counter, member.attrname);
                 }
             }
         }
 
-        public PerfmonQuery(string pname, string caname, string coname, string iname)
+        public WMIQuery(string pname, string caname, string coname, string iname)
         {
             queryNamespace = PerfmonPlugin.DefaultNamespace;
             queryType = PerfmonPlugin.WMIQuery;
             try
             {
-                if (String.Equals(pname, "PerfCounter"))
+                eventName = string.Format("{0}", caname);
+                if (String.IsNullOrEmpty(iname))
                 {
-                    if (String.IsNullOrEmpty(iname))
-                    {
-                        metricName = string.Format("{0}", coname);
-                        counterOrQuery = new PerformanceCounter(caname, coname);
-                    }
-                    else
-                    {
-                        instanceName = iname;
-                        metricName = string.Format("{0}", coname);
-                        counterOrQuery = new PerformanceCounter(caname, coname, iname);
-                    }
+                    queryString = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2}", coname, pname, caname);
                 }
                 else
                 {
-                    metricName = string.Format("{0}", caname);
-                    if (String.IsNullOrEmpty(iname))
-                    {
-                        counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2}", coname, pname, caname);
-                    }
-                    else
-                    {
-                        counterOrQuery = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2} Where Name Like '{3}'", coname, pname, caname, iname);
-                    }
+                    queryString = string.Format("Select Name, {0} from Win32_PerfFormattedData_{1}_{2} Where Name Like '{3}'", coname, pname, caname, iname);
                 }
             }
             catch (InvalidOperationException ioe)
@@ -69,24 +155,9 @@ namespace NewRelic
                 {
                     Log.WriteLog("For instance " + instanceName + ", " + ioe.Message + "\nSkipping monitoring of " + caname + "/" + coname, Log.LogLevel.WARN);
                 }
-                counterOrQuery = null;
+                queryString = null;
             }
         }
-
-        public object counterOrQuery { get; private set; }
-        public string metricName { get; private set; }
-        public string instanceName { get; private set; }
-        public string queryType { get; private set; }
-        public Dictionary<string, string> queryMembers { get; private set; } = new Dictionary<string, string>();
-        public string queryNamespace { get; private set; }
-    }
-
-    class PerfCounter
-    {
-        public string category;
-        public string instance;
-        public string counter;
-        public Object value;
     }
 
     public class PerfmonPlugin
@@ -97,10 +168,12 @@ namespace NewRelic
         public static string DefaultNamespace = "root\\cimv2";
         public static string UseCounterName = "using_counter_name";
         public static string EventTypeAttr = "event_type";
+        public static string PerfCounterType = "PerfCounter";
         public String fileName = "";
 
         string Name { get; set; }
-        List<PerfmonQuery> PerfmonQueries { get; set; }
+        List<WMIQuery> WMIQueries { get; set; }
+        List<PerfCounter> PerfCounters { get; set; }
         ManagementScope Scope { get; set; }
         Output output = new Output();
         int PollingInterval;
@@ -129,7 +202,8 @@ namespace NewRelic
 
         private void Initialize(Options options)
         {
-            PerfmonQueries = new List<PerfmonQuery>();
+            WMIQueries = new List<WMIQuery>();
+            PerfCounters = new List<PerfCounter>();
             Name = options.ComputerName;
             PollingInterval = options.PollingInterval;
             output.name = Name;
@@ -146,121 +220,80 @@ namespace NewRelic
             {
                 if (aCounter.counters != null)
                 {
+                    int whichOfTheseCounters = -1;
                     foreach (var testCounter in aCounter.counters)
                     {
+                        whichOfTheseCounters++;
                         if (String.IsNullOrEmpty(testCounter.counter))
                         {
-                            Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counter' in 'counters'. Please review and compare to template.", fileName, whichCounter), Log.LogLevel.ERROR);
-                            return;
-                        }
-                    }
-                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, aCounter.eventname, aCounter.querytype, aCounter.querynamespace, aCounter.counters));
-                }
-                else
-                {
-                    PerfmonQueries.Add(new PerfmonQuery(aCounter.query, aCounter.eventname, aCounter.querytype, aCounter.querynamespace, null));
-                }
-                return;
-            }
-
-            if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
-            {
-                Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'provider' or 'category'. Please review and compare to template.", fileName, whichCounter), Log.LogLevel.ERROR);
-                return;
-            }
-
-            string instanceName = string.Empty;
-            if (!String.IsNullOrEmpty(aCounter.instance) && !String.Equals(aCounter.instance, "*"))
-            {
-                instanceName = aCounter.instance.ToString();
-            }
-
-            if (aCounter.counters != null)
-            {
-                if (String.Equals(aCounter.provider, "PerfCounter"))
-                {
-                    AddPerfCounters(whichCounter, aCounter.provider, aCounter.category, aCounter.counters, instanceName);
-                }
-                else
-                {
-                    int whichSubCounter = -1;
-                    string countersStr = "";
-                    foreach (var aSubCounter in aCounter.counters)
-                    {
-                        whichSubCounter++;
-                        if (String.IsNullOrEmpty(aSubCounter.counter))
-                        {
-                            Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", fileName, whichCounter, whichSubCounter),
+                            Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", 
+                                fileName, whichCounter, whichOfTheseCounters),
                                 Log.LogLevel.ERROR);
                             continue;
                         }
+                    }
+                }
+                WMIQueries.Add(new WMIQuery(aCounter.query, aCounter.eventname, aCounter.querytype, aCounter.querynamespace, aCounter.counters));
+            }
+            else
+            {
+                if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
+                {
+                    Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'provider' or 'category'. Please review and compare to template.", 
+                        fileName, whichCounter), Log.LogLevel.ERROR);
+                    return;
+                }
+                if (aCounter.counters == null)
+                {
+                    Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counters'. Please review and compare to template.", 
+                        fileName, whichCounter), Log.LogLevel.ERROR);
+                    return;
+                }
+
+                string instanceName = string.Empty;
+                if (!String.IsNullOrEmpty(aCounter.instance) && !String.Equals(aCounter.instance, "*"))
+                {
+                    instanceName = aCounter.instance.ToString();
+                }
+
+                int whichOfTheseCounters = -1;
+                foreach (var testCounter in aCounter.counters)
+                {
+                    whichOfTheseCounters++;
+                    if (String.IsNullOrEmpty(testCounter.counter))
+                    {
+                        Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", 
+                            fileName, whichCounter, whichOfTheseCounters), Log.LogLevel.ERROR);
+                        continue;
+                    }
+                }
+
+                if (String.Equals(aCounter.provider, PerfCounterType))
+                {
+                    List<string> pcounters = new List<string>();
+                    foreach (var pCounter in aCounter.counters)
+                    {
+                        pcounters.Add(pCounter.counter);
+                    }
+                    PerfCounters.Add(new PerfCounter(aCounter.category, pcounters, instanceName));
+                }
+                else
+                {
+                    string countersStr = "";
+                    foreach (var wCounter in aCounter.counters)
+                    {
+                        if (String.IsNullOrEmpty(countersStr))
+                        {
+                            countersStr = wCounter.counter;
+                        }
                         else
                         {
-                            if (String.IsNullOrEmpty(countersStr))
-                            {
-                                countersStr = aSubCounter.counter;
-                            }
-                            else
-                            {
-                                countersStr += (", " + aSubCounter.counter);
-                            }
+                            countersStr += (", " + wCounter.counter);
                         }
                     }
                     if (!String.IsNullOrEmpty(countersStr))
                     {
-                        PerfmonQueries.Add(new PerfmonQuery(aCounter.provider, aCounter.category, countersStr, instanceName));
-                    }
-                }
-            }
-            else
-            {
-                Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counters'. Please review and compare to template.", fileName, whichCounter), Log.LogLevel.ERROR);
-            }
-        }
-
-        public void AddPerfCounters(int whichCounter, String aProvider, String aCategory, List<Counter> aCounters, String aInstance)
-        {
-            var instanceArr = new String[] { aInstance };
-            PerformanceCounterCategory thisCategory = null;
-            try
-            {
-                thisCategory = new PerformanceCounterCategory(aCategory);
-                if (String.IsNullOrEmpty(aInstance))
-                {
-                    instanceArr = thisCategory.GetInstanceNames();
-                }
-            }
-            catch (InvalidOperationException ioe)
-            {
-                Log.WriteLog(String.Format("{0}\nSkipping monitoring of {1}/{2}", ioe.Message, aProvider, aCategory), Log.LogLevel.WARN);
-                return;
-            }
-
-            foreach (var thisInstance in instanceArr)
-            {
-                int whichSubCounter = -1;
-                foreach (var aCounter in aCounters)
-                {
-                    whichSubCounter++;
-                    var aSubCounter = aCounter.counter;
-                    if (String.IsNullOrEmpty(aSubCounter))
-                    {
-                        Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", fileName, whichCounter, whichSubCounter),
-                            Log.LogLevel.ERROR);
-                        continue;
-                    }
-                    if (String.Equals(aSubCounter, "*"))
-                    {
-                        var allCounters = thisCategory.GetCounters(thisInstance);
-                        foreach (var thisCounter in allCounters)
-                        {
-                            PerfmonQueries.Add(new PerfmonQuery(aProvider, aCategory, thisCounter.CounterName, thisInstance));
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        PerfmonQueries.Add(new PerfmonQuery(aProvider, aCategory, aSubCounter, thisInstance));
+                        WMIQueries.Add(new WMIQuery(aCounter.provider, aCounter.category, countersStr, instanceName));
                     }
                 }
             }
@@ -274,7 +307,12 @@ namespace NewRelic
                 Log.WriteLog("Running in listener mode (no polling interval).", Log.LogLevel.VERBOSE);
                 do
                 {
-                    PollCycle();
+                    PollWMIQueries();
+                    if (output.metrics.Count > 0)
+                    {
+                        Log.WriteLog("Metric output", output, Log.LogLevel.CONSOLE);
+                        output.metrics.Clear();
+                    }
                 }
                 while (1 == 1);
             }
@@ -284,7 +322,19 @@ namespace NewRelic
                 do
                 {
                     DateTime then = DateTime.Now;
-                    PollCycle();
+                    if (WMIQueries.Count > 0)
+                    {
+                        PollWMIQueries();
+                    }
+                    if (PerfCounters.Count > 0)
+                    {
+                        PollPerfCounters();
+                    }
+                    if (output.metrics.Count > 0)
+                    {
+                        Log.WriteLog("Metric output", output, Log.LogLevel.CONSOLE);
+                        output.metrics.Clear();
+                    }
                     DateTime now = DateTime.Now;
                     TimeSpan elapsedTime = now.Subtract(then);
                     Log.WriteLog("Polling time: " + elapsedTime.ToString(), Log.LogLevel.VERBOSE);
@@ -304,115 +354,73 @@ namespace NewRelic
             }
         }
 
-        public void PollCycle()
+        public void PollWMIQueries()
         {
-            var perfCounterList = new List<PerfCounter>();
-
             // Working backwards so we can safely delete queries that fail because of invalid classes.
-            for (int i = PerfmonQueries.Count - 1; i >= 0; i--)
+            for (int i = WMIQueries.Count - 1; i >= 0; i--)
             {
-                var thisQuery = PerfmonQueries[i];
+                var thisQuery = WMIQueries[i];
+                if (String.IsNullOrEmpty(thisQuery.queryString))
+                {
+                    Log.WriteLog(String.Format("Null query removed"), Log.LogLevel.WARN);
+                    WMIQueries.RemoveAt(i);
+                    continue;
+                }
                 try
                 {
-                    if (thisQuery.counterOrQuery is null)
+                    string scopeString = "\\\\" + Name + "\\" + thisQuery.queryNamespace;
+                    if (Scope == null)
                     {
-                        continue;
+                        Log.WriteLog("Setting up scope: " + scopeString, Log.LogLevel.VERBOSE);
+                        Scope = new ManagementScope(scopeString);
+                    }
+                    else if (Scope != null && !Scope.Path.ToString().Equals(scopeString))
+                    {
+                        Log.WriteLog("Updating Scope Path from " + Scope.Path + " to " + scopeString, Log.LogLevel.VERBOSE);
+                        Scope = new ManagementScope(scopeString);
                     }
 
-                    if (thisQuery.counterOrQuery is PerformanceCounter)
+                    if (!Scope.IsConnected)
                     {
-                        try
+                        Log.WriteLog("Connecting to scope: " + scopeString, Log.LogLevel.VERBOSE);
+                        Scope.Connect();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.WriteLog(String.Format("Unable to connect to \"{0}\". {1}", Name, e.Message), Log.LogLevel.ERROR);
+                    continue;
+                }
+                try
+                {
+                    if (thisQuery.queryType.Equals(WMIQuery))
+                    {
+                        Log.WriteLog("Running Query: " + (string)thisQuery.queryString, Log.LogLevel.VERBOSE);
+                        var queryResults = (new ManagementObjectSearcher(Scope,
+                            new ObjectQuery((string)thisQuery.queryString))).Get();
+                        foreach (ManagementObject result in queryResults)
                         {
-                            var thisPerfCounter = (PerformanceCounter)thisQuery.counterOrQuery;
-                            Log.WriteLog("Collecting Perf Counter: " + thisPerfCounter.ToString(), Log.LogLevel.VERBOSE);
-                            var perfCounterOut = new PerfCounter();
-
-                            perfCounterOut.category = Regex.Replace(thisPerfCounter.CategoryName, @"[^\d\w:_]", "_");
-                            perfCounterOut.instance = thisPerfCounter.InstanceName;
-                            float value = thisPerfCounter.NextValue();
-                            string metricName = thisQuery.metricName;
-                            if (!float.IsNaN(value))
                             {
-                                metricName = metricName.Replace(" ", "").Replace('-', '_').Replace("%", "Percent");
-                                int whereIsPer = metricName.IndexOf('/');
-                                if (whereIsPer > -1)
-                                {
-                                    if (metricName.Length > whereIsPer + 1)
-                                    {
-                                        String capChar = metricName.Substring(whereIsPer + 1, 1).ToUpper();
-                                        metricName = metricName.Remove(whereIsPer + 1, 1).Insert(whereIsPer + 1, capChar);
-                                    }
-                                    metricName = metricName.Remove(whereIsPer, 1).Insert(whereIsPer, "Per");
-                                }
-
-                                perfCounterOut.counter = metricName;
-                                perfCounterOut.value = value;
-                                perfCounterList.Add(perfCounterOut);
-                                Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", Name, perfCounterOut.counter, value), Log.LogLevel.VERBOSE);
+                                RecordMetricMap(thisQuery, result);
+                                continue;
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            Log.WriteLog(String.Format("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace), Log.LogLevel.ERROR);
                         }
                     }
-                    else if (thisQuery.counterOrQuery is string)
+                    else if (thisQuery.queryType.Equals(WMIEvent))
                     {
-                        try
-                        {
-                            string scopeString = "\\\\" + Name + "\\" + thisQuery.queryNamespace;
-                            if (Scope == null)
-                            {
-                                Log.WriteLog("Setting up scope: " + scopeString, Log.LogLevel.VERBOSE);
-                                Scope = new ManagementScope(scopeString);
-                            }
-                            else if (Scope != null && !Scope.Path.ToString().Equals(scopeString))
-                            {
-                                Log.WriteLog("Updating Scope Path from " + Scope.Path + " to " + scopeString, Log.LogLevel.VERBOSE);
-                                Scope = new ManagementScope(scopeString);
-                            }
-
-                            if (!Scope.IsConnected)
-                            {
-                                Log.WriteLog("Connecting to scope: " + scopeString, Log.LogLevel.VERBOSE);
-                                Scope.Connect();
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Log.WriteLog(String.Format("Unable to connect to \"{0}\". {1}", Name, e.Message), Log.LogLevel.ERROR);
-                            continue;
-                        }
-                        if (thisQuery.queryType.Equals(WMIQuery))
-                        {
-                            Log.WriteLog("Running Query: " + (string)thisQuery.counterOrQuery, Log.LogLevel.VERBOSE);
-                            var queryResults = (new ManagementObjectSearcher(Scope,
-                                new ObjectQuery((string)thisQuery.counterOrQuery))).Get();
-                            foreach (ManagementObject result in queryResults)
-                            {
-                                {
-                                    RecordMetricMap(thisQuery, result);
-                                    continue;
-                                }
-                            }
-                        }
-                        else if (thisQuery.queryType.Equals(WMIEvent))
-                        {
-                            Log.WriteLog("Running Event Listener: " + thisQuery.counterOrQuery, Log.LogLevel.VERBOSE);
-                            var watcher = new ManagementEventWatcher(Scope,
-                                new EventQuery((string)thisQuery.counterOrQuery)).WaitForNextEvent();
-                            RecordMetricMap(thisQuery, watcher);
-                        }
-
+                        Log.WriteLog("Running Event Listener: " + thisQuery.queryString, Log.LogLevel.VERBOSE);
+                        var watcher = new ManagementEventWatcher(Scope,
+                            new EventQuery((string)thisQuery.queryString)).WaitForNextEvent();
+                        RecordMetricMap(thisQuery, watcher);
                     }
                 }
                 catch (ManagementException e)
                 {
-                    Log.WriteLog(String.Format("Exception occurred in polling. {0}: {1}", e.Message, (string)thisQuery.counterOrQuery), Log.LogLevel.ERROR);
+                    Log.WriteLog(String.Format("Exception occurred in polling. {0}: {1}", e.Message, (string)thisQuery.queryString), Log.LogLevel.ERROR);
                     if (e.Message.ToLower().Contains("invalid class") || e.Message.ToLower().Contains("not supported"))
                     {
-                        Log.WriteLog(String.Format("Query Removed: {0}", thisQuery.counterOrQuery), Log.LogLevel.WARN);
-                        PerfmonQueries.RemoveAt(i);
+                        Log.WriteLog(String.Format("Query Removed: {0}", thisQuery.queryString), Log.LogLevel.WARN);
+                        WMIQueries.RemoveAt(i);
                     }
                 }
                 catch (Exception e)
@@ -420,19 +428,47 @@ namespace NewRelic
                     Log.WriteLog(String.Format("Exception occurred in processing results. {0}\r\n{1}", e.Message, e.StackTrace), Log.LogLevel.ERROR);
                 }
             }
+        }
 
-            if(perfCounterList.Count > 0)
+        public void PollPerfCounters()
+        {
+            List<PerfCounterOut> outPCs = new List<PerfCounterOut>();
+            for (int i = PerfCounters.Count - 1; i >= 0; i--)
             {
-                var organizedPerfCounters = from counter in perfCounterList group counter by new
+                var thisPC = PerfCounters[i];
+                try
+                {
+                    thisPC.PopulatePerformanceCounters();
+                    foreach (var pcInPC in thisPC.PerformanceCounters.Values)
                     {
-                        counter.category,
-                        counter.instance
+                        float value = pcInPC.NextValue();
+                        if (!float.IsNaN(value))
+                        {
+                            outPCs.Add(new PerfCounterOut(pcInPC.CategoryName, pcInPC.CounterName, pcInPC.InstanceName, value));
+                            Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", pcInPC.CategoryName, pcInPC.CounterName, value), Log.LogLevel.VERBOSE);
+                        }
                     }
-                    into op select new
-                    {
-                        Model = op.Key,
-                        Data = op
-                    };
+                }
+                catch (Exception e)
+                {
+                    Log.WriteLog(String.Format("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace), Log.LogLevel.ERROR);
+                }
+            }
+
+            if (outPCs.Count > 0)
+            {
+                var organizedPerfCounters = from counter in outPCs
+                                            group counter by new
+                                            {
+                                                counter.category,
+                                                counter.instance
+                                            }
+                    into op
+                                            select new
+                                            {
+                                                Model = op.Key,
+                                                Data = op
+                                            };
 
                 foreach (var grouping in organizedPerfCounters)
                 {
@@ -443,27 +479,21 @@ namespace NewRelic
                     {
                         countersOut.Add(item.counter, item.value);
                     }
-                    if(countersOut.Count > 2)
+                    if (countersOut.Count > 2)
                     {
                         output.metrics.Add(countersOut);
                     }
                 }
             }
-
-            if (output.metrics.Count > 0)
-            {
-                Log.WriteLog("Metric output", output, Log.LogLevel.CONSOLE);
-                output.metrics.Clear();
-            }
         }
 
-        private void RecordMetricMap(PerfmonQuery thisQuery, ManagementBaseObject properties)
+        private void RecordMetricMap(WMIQuery thisQuery, ManagementBaseObject properties)
         {
             Dictionary<string, Object> propsOut = new Dictionary<string, Object>();
-            propsOut.Add(EventTypeAttr, thisQuery.metricName);
-            if (thisQuery.queryMembers.Count > 0)
+            propsOut.Add(EventTypeAttr, thisQuery.eventName);
+            if (thisQuery.membersToRename != null && thisQuery.membersToRename.Count > 0)
             {
-                foreach (var member in thisQuery.queryMembers)
+                foreach (var member in thisQuery.membersToRename)
                 {
                     string label;
                     if (member.Value.Equals(PerfmonPlugin.UseCounterName))
@@ -506,7 +536,7 @@ namespace NewRelic
             }
 
             output.metrics.Add(propsOut);
-        }        
+        }
 
         private void GetValueParsed(Dictionary<string, Object> propsOut, String propName, PropertyData prop)
         {

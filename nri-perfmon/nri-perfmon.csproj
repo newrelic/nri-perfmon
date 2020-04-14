@@ -168,6 +168,7 @@ if exist "%25RELEASE_DIR%25" del /s /q "%25RELEASE_DIR%25"
 if not exist "%25RELEASE_DIR%25" mkdir "%25RELEASE_DIR%25"
 
 copy "%25CONFIG_DIR%25\*.yml" "%25RELEASE_DIR%25"
+copy "%25CONFIG_DIR%25\config.json" "$(TargetDir)"
 copy "%25CONFIG_DIR%25\config.json" "%25RELEASE_DIR%25"
 copy "%25INSTALL_DIR%25\*.*" "%25RELEASE_DIR%25"
 copy "$(TargetDir)\FluentCommandLineParser.dll" "%25RELEASE_DIR%25"
