@@ -68,15 +68,15 @@
       ]
     },
     {
-      "provider": "NETDataProviderforOracle",
-      "category": "NETDataProviderforOracle",
+      "provider": "PerfCounter",
+      "category": ".NET Data Provider for Oracle",
       "counters": [
         { "counter": "*" }
       ]
     },
     {
-      "provider": "NETDataProviderforSqlServer",
-      "category": "NETDataProviderforSqlServer",
+      "provider": "PerfCounter",
+      "category": ".NET Data Provider for SqlServer",
       "counters": [
         { "counter": "*" }
       ]
