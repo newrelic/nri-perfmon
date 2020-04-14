@@ -101,6 +101,7 @@ namespace NewRelic
 
             foreach (var thisCounter in counterlist)
             {
+                // WMI Event Listeners and WMI Queries with special namespaces get their own thread
                 if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent) || !thisCounter.querynamespace.Equals(PerfmonPlugin.DefaultNamespace))
                 {
                     PerfmonPlugin aPlugin = new PerfmonPlugin(options, thisCounter);
