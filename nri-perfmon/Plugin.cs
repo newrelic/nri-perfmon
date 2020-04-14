@@ -53,25 +53,33 @@ namespace NewRelic
             {
                 foreach (var counter in counters)
                 {
-                    if (String.Equals(counter, "*"))
+                    try
                     {
-                        var allCounters = thisCategory.GetCounters(thisInstance);
-                        foreach (var thisCounter in allCounters)
+                        if (String.Equals(counter, "*"))
                         {
-                            string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
+                            var allCounters = thisCategory.GetCounters(thisInstance);
+                            foreach (var thisCounter in allCounters)
+                            {
+                                string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
+                                if (!PerformanceCounters.ContainsKey(pcKey))
+                                {
+                                    PerformanceCounters.Add(pcKey, new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string pcKey = calcHashCode(category, counter, thisInstance);
                             if (!PerformanceCounters.ContainsKey(pcKey))
                             {
-                                PerformanceCounters.Add(pcKey, new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true));
+                                PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
                             }
                         }
                     }
-                    else
+                    catch (InvalidOperationException ioe)
                     {
-                        string pcKey = calcHashCode(category, counter, thisInstance);
-                        if (!PerformanceCounters.ContainsKey(pcKey))
-                        {
-                            PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
-                        }
+                        Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, counter, thisInstance, category), Log.LogLevel.WARN);
+                        return;
                     }
                 }
             }
@@ -226,7 +234,7 @@ namespace NewRelic
                         whichOfTheseCounters++;
                         if (String.IsNullOrEmpty(testCounter.counter))
                         {
-                            Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", 
+                            Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.",
                                 fileName, whichCounter, whichOfTheseCounters),
                                 Log.LogLevel.ERROR);
                             continue;
@@ -239,13 +247,13 @@ namespace NewRelic
             {
                 if (String.IsNullOrEmpty(aCounter.provider) || String.IsNullOrEmpty(aCounter.category))
                 {
-                    Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'provider' or 'category'. Please review and compare to template.", 
+                    Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'provider' or 'category'. Please review and compare to template.",
                         fileName, whichCounter), Log.LogLevel.ERROR);
                     return;
                 }
                 if (aCounter.counters == null)
                 {
-                    Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counters'. Please review and compare to template.", 
+                    Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counters'. Please review and compare to template.",
                         fileName, whichCounter), Log.LogLevel.ERROR);
                     return;
                 }
@@ -262,7 +270,7 @@ namespace NewRelic
                     whichOfTheseCounters++;
                     if (String.IsNullOrEmpty(testCounter.counter))
                     {
-                        Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.", 
+                        Log.WriteLog(String.Format("{0} contains malformed counter: 'counters' in counterlist[{1}] missing 'counter' in element {2}. Please review and compare to template.",
                             fileName, whichCounter, whichOfTheseCounters), Log.LogLevel.ERROR);
                         continue;
                     }
