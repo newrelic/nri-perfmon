@@ -84,9 +84,14 @@ namespace NewRelic
                 Config properties = JsonConvert.DeserializeObject<Config>(configFileReader.ReadToEnd());
                 counterlist = properties.counterlist;
             }
-            catch (IOException)
+            catch (IOException ioe)
             {
-                Log.WriteLog(options.ConfigFile + " could not be found or opened.", Log.LogLevel.ERROR);
+                Log.WriteLog(String.Format("{0} could not be found or opened.\n {1}", options.ConfigFile, ioe.Message), Log.LogLevel.ERROR);
+                Environment.Exit(1);
+            }
+            catch (JsonReaderException jre)
+            {
+                Log.WriteLog(String.Format("{0} could not be parsed.\n {1}", options.ConfigFile, jre.Message), Log.LogLevel.ERROR);
                 Environment.Exit(1);
             }
 

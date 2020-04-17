@@ -49,16 +49,27 @@ namespace NewRelic
                 return;
             }
 
+            if (instanceArr.Length == 0)
+            {
+                Log.WriteLog(String.Format("PerfCounter {0} has no instances, skipping.", category), Log.LogLevel.VERBOSE);
+                return;
+            }
+
             foreach (var thisInstance in instanceArr)
             {
                 foreach (var counter in counters)
                 {
-                    try
+                    if (String.Equals(counter, "*"))
                     {
-                        if (String.Equals(counter, "*"))
+                        var allCounters = thisCategory.GetCounters(thisInstance);
+                        if (allCounters.Length == 0)
                         {
-                            var allCounters = thisCategory.GetCounters(thisInstance);
-                            foreach (var thisCounter in allCounters)
+                            Log.WriteLog(String.Format("PerfCounter {0}/{1} has no counters, skipping.", category, thisInstance), Log.LogLevel.VERBOSE);
+                            return;
+                        }
+                        foreach (var thisCounter in allCounters)
+                        {
+                            try
                             {
                                 string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
                                 if (!PerformanceCounters.ContainsKey(pcKey))
@@ -66,21 +77,32 @@ namespace NewRelic
                                     PerformanceCounters.Add(pcKey, new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true));
                                 }
                             }
+
+                            catch (InvalidOperationException ioe)
+                            {
+                                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, thisCounter.CategoryName, thisCounter.CounterName, thisInstance), Log.LogLevel.WARN);
+                                return;
+                            }
                         }
-                        else
+                    }
+                    else
+                    {
+                        try
                         {
+
                             string pcKey = calcHashCode(category, counter, thisInstance);
                             if (!PerformanceCounters.ContainsKey(pcKey))
                             {
                                 PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
                             }
                         }
+                        catch (InvalidOperationException ioe)
+                        {
+                            Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category, counter, thisInstance), Log.LogLevel.WARN);
+                            return;
+                        }
                     }
-                    catch (InvalidOperationException ioe)
-                    {
-                        Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, counter, thisInstance, category), Log.LogLevel.WARN);
-                        return;
-                    }
+
                 }
             }
         }
@@ -406,6 +428,10 @@ namespace NewRelic
                         Log.WriteLog("Running Query: " + (string)thisQuery.queryString, Log.LogLevel.VERBOSE);
                         var queryResults = (new ManagementObjectSearcher(Scope,
                             new ObjectQuery((string)thisQuery.queryString))).Get();
+                        if (queryResults.Count == 0)
+                        {
+                            Log.WriteLog(String.Format("Query \"{0}\" returned no results.", thisQuery.queryString), Log.LogLevel.VERBOSE);
+                        }
                         foreach (ManagementObject result in queryResults)
                         {
                             {
@@ -449,11 +475,16 @@ namespace NewRelic
                     thisPC.PopulatePerformanceCounters();
                     foreach (var pcInPC in thisPC.PerformanceCounters.Values)
                     {
+                        Log.WriteLog(string.Format("Collecting Perf Counter: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
                         float value = pcInPC.NextValue();
                         if (!float.IsNaN(value))
                         {
                             outPCs.Add(new PerfCounterOut(pcInPC.CategoryName, pcInPC.CounterName, pcInPC.InstanceName, value));
                             Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", pcInPC.CategoryName, pcInPC.CounterName, value), Log.LogLevel.VERBOSE);
+                        }
+                        else
+                        {
+                            Log.WriteLog(string.Format("Perf Counter returned no result: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
                         }
                     }
                 }

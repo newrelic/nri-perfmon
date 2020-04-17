@@ -20,41 +20,24 @@
       ]
     },
     {
-      "provider": "ASPNET",
-      "category": "ASPNET",
+      "provider": "PerfCounter",
+      "category": "ASP.NET Applications",
       "counters": [
-        { "counter": "ApplicationRestarts" },
-        { "counter": "ApplicationsRunning" },
-        { "counter": "ErrorEventsRaised" },
-        { "counter": "InfrastructureErrorEventsRaised" },
-        { "counter": "RequestErrorEventsRaised" },
-        { "counter": "RequestExecutionTime" },
-        { "counter": "RequestsCurrent" },
-        { "counter": "RequestsQueued" },
-        { "counter": "RequestsRejected" },
-        { "counter": "RequestWaitTime" },
-        { "counter": "WorkerProcessesRunning" },
-        { "counter": "WorkerProcessRestarts" },
-        { "counter": "RequestWaitTime" }
+        { "counter": "*" }
       ]
     },
     {
-      "provider": "ASPNET",
-      "category": "ASPNETApplications",
-      "instance": "*",
+      "provider": "PerfCounter",
+      "category": "ASP.NET State Service",
       "counters": [
-        { "counter": "ErrorsTotal" },
-        { "counter": "RequestsPerSec" }
+        { "counter": "*" }
       ]
     },
     {
-      "provider": "ASPNETSTATE",
-      "category": "ASPNETStateService",
+      "provider": "Counters",
+      "category": "HTTPServiceRequestQueues",
       "counters": [
-        { "counter": "StateServerSessionsAbandoned" },
-        { "counter": "StateServerSessionsActive" },
-        { "counter": "StateServerSessionsTimedOut" },
-        { "counter": "StateServerSessionsTotal" }
+        { "counter": "*" }
       ]
     },
     {
@@ -208,6 +191,13 @@
         { "counter": "BytesSentPersec" },
         { "counter": "ConnectionAttemptsPersec" },
         { "counter": "CurrentConnections" }
+      ]
+    },
+    {
+      "provider": "W3SVCW3WPCounterProvider",
+      "category": "W3SVCW3WP",
+      "counters": [
+        { "counter": "*" }
       ]
     },
     {

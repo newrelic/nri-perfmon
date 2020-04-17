@@ -27,6 +27,20 @@
       ]
     },
     {
+      "provider": "PerfCounter",
+      "category": "ASP.NET State Service",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "Counters",
+      "category": "HTTPServiceRequestQueues",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
       "provider": "MSMQ",
       "category": "MSMQQueue",
       "counters": [
@@ -177,6 +191,13 @@
         { "counter": "BytesSentPersec" },
         { "counter": "ConnectionAttemptsPersec" },
         { "counter": "CurrentConnections" }
+      ]
+    },
+    {
+      "provider": "W3SVCW3WPCounterProvider",
+      "category": "W3SVCW3WP",
+      "counters": [
+        { "counter": "*" }
       ]
     },
     {
