@@ -51,8 +51,28 @@ namespace NewRelic
 
             if (instanceArr.Length == 0)
             {
-                Log.WriteLog(String.Format("PerfCounter {0} has no instances, skipping.", category), Log.LogLevel.VERBOSE);
-                return;
+                PerformanceCounter[] allCounters = null;
+                try
+                {
+                    allCounters = thisCategory.GetCounters();
+                }
+                catch (ArgumentException)
+                {
+                    //This should never happen. See 
+                    //https://referencesource.microsoft.com/#System/services/monitoring/system/diagnosticts/PerformanceCounterCategory.cs,466
+                    //Better be defensive and handle the potential exception, in case .NET changes the implementation, or in case it is implemented
+                    //differently in old versions of .NET.
+                    Log.WriteLog(String.Format("PerfCounter {0} has no instances, skipping.", category), Log.LogLevel.WARN);
+                }
+
+                if (allCounters != null)
+                {
+                    AddMultipleCounters(allCounters);
+                }
+                else
+                {
+                    return;
+                }
             }
 
             foreach (var thisInstance in instanceArr)
@@ -62,48 +82,60 @@ namespace NewRelic
                     if (String.Equals(counter, "*"))
                     {
                         var allCounters = thisCategory.GetCounters(thisInstance);
-                        if (allCounters.Length == 0)
-                        {
-                            Log.WriteLog(String.Format("PerfCounter {0}/{1} has no counters, skipping.", category, thisInstance), Log.LogLevel.VERBOSE);
-                            return;
-                        }
-                        foreach (var thisCounter in allCounters)
-                        {
-                            try
-                            {
-                                string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
-                                if (!PerformanceCounters.ContainsKey(pcKey))
-                                {
-                                    PerformanceCounters.Add(pcKey, new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true));
-                                }
-                            }
-
-                            catch (InvalidOperationException ioe)
-                            {
-                                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, thisCounter.CategoryName, thisCounter.CounterName, thisInstance), Log.LogLevel.WARN);
-                                return;
-                            }
-                        }
+                        AddMultipleCounters(allCounters,thisInstance);
                     }
                     else
                     {
-                        try
-                        {
-
-                            string pcKey = calcHashCode(category, counter, thisInstance);
-                            if (!PerformanceCounters.ContainsKey(pcKey))
-                            {
-                                PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
-                            }
-                        }
-                        catch (InvalidOperationException ioe)
-                        {
-                            Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category, counter, thisInstance), Log.LogLevel.WARN);
-                            return;
-                        }
+                        AddSingleCounter(counter, thisInstance);
                     }
-
                 }
+            }
+        }
+
+        private void AddMultipleCounters(PerformanceCounter[] counters, string thisInstance = "")
+        {
+            if (counters.Length == 0)
+            {
+                Log.WriteLog(String.Format("PerfCounter {0}/{1} has no counters, skipping.", category, thisInstance), Log.LogLevel.VERBOSE);
+                return;
+            }
+            foreach (var thisCounter in counters)
+            {
+                try
+                {
+                    string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
+                    if (!PerformanceCounters.ContainsKey(pcKey))
+                    {
+                        var counter = String.IsNullOrEmpty(thisInstance)
+                            ? new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, true)
+                            : new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true);
+                        PerformanceCounters.Add(pcKey, counter);
+                    }
+                }
+
+                catch (InvalidOperationException ioe)
+                {
+                    Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, thisCounter.CategoryName, thisCounter.CounterName, thisInstance), Log.LogLevel.WARN);
+                    return;
+                }
+            }
+        }
+
+        private void AddSingleCounter(string counter, string thisInstance)
+        {
+            try
+            {
+
+                string pcKey = calcHashCode(category, counter, thisInstance);
+                if (!PerformanceCounters.ContainsKey(pcKey))
+                {
+                    PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
+                }
+            }
+            catch (InvalidOperationException ioe)
+            {
+                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category, counter, thisInstance), Log.LogLevel.WARN);
+                return;
             }
         }
     }
