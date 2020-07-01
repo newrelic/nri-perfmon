@@ -58,7 +58,7 @@ namespace NewRelic
                 }
                 catch (ArgumentException)
                 {
-                    //This should never happen. See 
+                    //This should never happen. See
                     //https://referencesource.microsoft.com/#System/services/monitoring/system/diagnosticts/PerformanceCounterCategory.cs,466
                     //Better be defensive and handle the potential exception, in case .NET changes the implementation, or in case it is implemented
                     //differently in old versions of .NET.
@@ -502,50 +502,41 @@ namespace NewRelic
             for (int i = PerfCounters.Count - 1; i >= 0; i--)
             {
                 var thisPC = PerfCounters[i];
-                try
+                thisPC.PopulatePerformanceCounters();
+                foreach (var pcInPC in thisPC.PerformanceCounters.Values)
                 {
-                    thisPC.PopulatePerformanceCounters();
-                    foreach (var pcInPC in thisPC.PerformanceCounters.Values)
-                    {
-                        Log.WriteLog(string.Format("Collecting Perf Counter: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
-                        float value = pcInPC.NextValue();
-                        if (!float.IsNaN(value))
-                        {
-                            outPCs.Add(new PerfCounterOut(pcInPC.CategoryName, pcInPC.CounterName, pcInPC.InstanceName, value));
-                            Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", pcInPC.CategoryName, pcInPC.CounterName, value), Log.LogLevel.VERBOSE);
-                        }
-                        else
-                        {
-                            Log.WriteLog(string.Format("Perf Counter returned no result: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.WriteLog(String.Format("Exception occurred in processing next value. {0}\r\n{1}", e.Message, e.StackTrace), Log.LogLevel.ERROR);
-                }
+                 try{
+                   Log.WriteLog(string.Format("Collecting Perf Counter: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
+                   float value = pcInPC.NextValue();
+                   if (!float.IsNaN(value))
+                   {
+                       outPCs.Add(new PerfCounterOut(pcInPC.CategoryName, pcInPC.CounterName, pcInPC.InstanceName, value));
+                       Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", pcInPC.CategoryName, pcInPC.CounterName, value), Log.LogLevel.VERBOSE);
+                   }
+                   else
+                   {
+                       Log.WriteLog(string.Format("Perf Counter returned no result: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
+                   }
+                 } catch (Exception e)
+                 {
+                     Log.WriteLog(String.Format("Exception occurred in processing next value of Perfmon Counter:\r\nCategory: {0}\r\nCounter: {1}\r\nMessage: {2}\r\nTrace: {3}",
+                      pcInPC.CategoryName, pcInPC.CounterName, e.Message, e.StackTrace), Log.LogLevel.ERROR);
+                 }
+              }
             }
 
             if (outPCs.Count > 0)
             {
                 var organizedPerfCounters = from counter in outPCs
-                                            group counter by new
-                                            {
-                                                counter.category,
-                                                counter.instance
-                                            }
-                    into op
-                                            select new
-                                            {
-                                                Model = op.Key,
-                                                Data = op
-                                            };
-
+                                            group counter by new { counter.category, counter.instance }
+                                            into op select new { Model = op.Key, Data = op };
                 foreach (var grouping in organizedPerfCounters)
                 {
-                    var countersOut = new Dictionary<string, Object>();
-                    countersOut.Add(EventTypeAttr, grouping.Model.category);
-                    countersOut.Add("name", grouping.Model.instance);
+                    var countersOut = new Dictionary<string, Object>
+                    {
+                        { EventTypeAttr, grouping.Model.category },
+                        { "name", grouping.Model.instance }
+                    };
                     foreach (var item in grouping.Data)
                     {
                         countersOut.Add(item.counter, item.value);
@@ -560,8 +551,10 @@ namespace NewRelic
 
         private void RecordMetricMap(WMIQuery thisQuery, ManagementBaseObject properties)
         {
-            Dictionary<string, Object> propsOut = new Dictionary<string, Object>();
-            propsOut.Add(EventTypeAttr, thisQuery.eventName);
+            Dictionary<string, Object> propsOut = new Dictionary<string, Object>
+            {
+                { EventTypeAttr, thisQuery.eventName }
+            };
             if (thisQuery.membersToRename != null && thisQuery.membersToRename.Count > 0)
             {
                 foreach (var member in thisQuery.membersToRename)
@@ -577,9 +570,8 @@ namespace NewRelic
                     }
 
                     var splitmem = member.Key.Trim().Split('.');
-                    if (properties[splitmem[0]] is ManagementBaseObject)
+                    if (properties[splitmem[0]] is ManagementBaseObject memberProps)
                     {
-                        var memberProps = ((ManagementBaseObject)properties[splitmem[0]]);
                         if (splitmem.Length == 2)
                         {
                             GetValueParsed(propsOut, label, memberProps.Properties[splitmem[1]]);
