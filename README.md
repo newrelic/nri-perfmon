@@ -28,6 +28,8 @@ If run at command line without anything, the executable should report JSON resul
 
 ### Installation
 
+**NOTE: If you are installing this integration (not building it from scratch), [Download The Latest Release HERE](https://github.com/newrelic/nri-perfmon/releases/latest) instead of cloning this repo!**
+
 #### Option 1: Installer
 1. Unzip nri-perfmon to a temporary location on the server
 2. Run Powershell in "Run As Administrator" mode
