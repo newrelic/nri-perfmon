@@ -42,8 +42,6 @@ namespace NewRelic
 
     public class Options
     {
-<<<<<<< Updated upstream
-=======
         public Options() { }
 
         // For cloning to multiple instances
@@ -55,7 +53,6 @@ namespace NewRelic
           Verbose = that.Verbose;
         }
 
->>>>>>> Stashed changes
         public string ConfigFile { get; set; }
         public int PollingInterval { get; set; }
         public bool RunOnce { get; set; }

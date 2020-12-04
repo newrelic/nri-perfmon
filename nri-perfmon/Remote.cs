@@ -10,8 +10,8 @@ namespace NewRelic
 {
     public class RemoteUser
     {
-        private const int LOGON_TYPE = 9;
-        private const int LOGON_PROVIDER = 3;
+        private const int LOGON_TYPE = 9;     // LOGON_TYPE_NEW_CREDENTIALS
+        private const int LOGON_PROVIDER = 3; // LOGON32_PROVIDER_WINNT50
         private SafeTokenHandle safeToken;
         private ConnectionOptions connectionOptions;
         private bool logonSuccess = false;
@@ -30,7 +30,7 @@ namespace NewRelic
             domainname = options.DomainName;
         }
 
-        public ConnectionOptions getConnectionOptions()
+        public ConnectionOptions GetConnectionOptions()
         {
             if (connectionOptions == null)
             {

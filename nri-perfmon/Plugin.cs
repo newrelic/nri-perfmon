@@ -9,22 +9,19 @@ using System.Threading;
 
 namespace NewRelic
 {
-
     class PerfCounter
     {
-        public string category { get; private set; }
+        public PerformanceCounterCategory category { get; private set; }
         public string instance { get; private set; }
         public List<string> counters { get; private set; }
 
         public Dictionary<string, PerformanceCounter> PerformanceCounters { get; private set; }
 
-        public PerfCounter(string cname, List<string> cos, string iname, string mname) { 
+        public PerfCounter(string cname, List<string> cos, string iname, string mname)
+        {
             PerformanceCounters = new Dictionary<string, PerformanceCounter>();
-            category = cname;
             instance = iname;
             counters = cos;
-<<<<<<< Updated upstream
-=======
             category = null;
             try
             {
@@ -38,7 +35,6 @@ namespace NewRelic
                 Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}", ioe.Message, category), Log.LogLevel.WARN);
                 return;
             }
->>>>>>> Stashed changes
         }
 
         private string calcHashCode(string uno, string dos, string tres)
@@ -48,49 +44,21 @@ namespace NewRelic
 
         public void PopulatePerformanceCounters()
         {
-            var instanceArr = new String[] { instance };
-            PerformanceCounterCategory thisCategory = null;
-            try
+            if(category == null)
             {
-                thisCategory = new PerformanceCounterCategory(category);
-                if (String.IsNullOrEmpty(instance))
-                {
-                    instanceArr = thisCategory.GetInstanceNames();
-                }
-            }
-            catch (InvalidOperationException ioe)
-            {
-                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}", ioe.Message, category), Log.LogLevel.WARN);
                 return;
             }
 
-            if (instanceArr.Length == 0)
+            var instanceArr = new String[] { instance };
+            if (String.IsNullOrEmpty(instance))
             {
-                PerformanceCounter[] allCounters = null;
                 try
                 {
-<<<<<<< Updated upstream
-                    allCounters = thisCategory.GetCounters();
-=======
                     instanceArr = category.GetInstanceNames();
-                    string iArr = instanceArr.ToString();
->>>>>>> Stashed changes
                 }
-                catch (ArgumentException)
+                catch (InvalidOperationException ioe)
                 {
-                    //This should never happen. See
-                    //https://referencesource.microsoft.com/#System/services/monitoring/system/diagnosticts/PerformanceCounterCategory.cs,466
-                    //Better be defensive and handle the potential exception, in case .NET changes the implementation, or in case it is implemented
-                    //differently in old versions of .NET.
-                    Log.WriteLog(String.Format("PerfCounter {0} has no instances, skipping.", category), Log.LogLevel.WARN);
-                }
-
-                if (allCounters != null)
-                {
-                    AddMultipleCounters(allCounters);
-                }
-                else
-                {
+                    Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}", ioe.Message, category.CategoryName), Log.LogLevel.WARN);
                     return;
                 }
             }
@@ -99,39 +67,9 @@ namespace NewRelic
             {
                 foreach (var counter in counters)
                 {
+                    PerformanceCounter[] outCounters;
                     if (String.Equals(counter, "*"))
                     {
-<<<<<<< Updated upstream
-                        var allCounters = thisCategory.GetCounters(thisInstance);
-                        AddMultipleCounters(allCounters,thisInstance);
-                    }
-                    else
-                    {
-                        AddSingleCounter(counter, thisInstance);
-                    }
-                }
-            }
-        }
-
-        private void AddMultipleCounters(PerformanceCounter[] counters, string thisInstance = "")
-        {
-            if (counters.Length == 0)
-            {
-                Log.WriteLog(String.Format("PerfCounter {0}/{1} has no counters, skipping.", category, thisInstance), Log.LogLevel.VERBOSE);
-                return;
-            }
-            foreach (var thisCounter in counters)
-            {
-                try
-                {
-                    string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisInstance);
-                    if (!PerformanceCounters.ContainsKey(pcKey))
-                    {
-                        var counter = String.IsNullOrEmpty(thisInstance)
-                            ? new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, true)
-                            : new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true);
-                        PerformanceCounters.Add(pcKey, counter);
-=======
                         try
                         {
                             if (thisInstance.Length > 0)
@@ -151,8 +89,6 @@ namespace NewRelic
                                     if (!PerformanceCounters.ContainsKey(pcKey))
                                     {
                                         PerformanceCounters.Add(pcKey, thisCounter);
-                                        Log.WriteLog(String.Format("Adding PerfCounter {0}", pcKey), Log.LogLevel.VERBOSE);
-
                                     }
                                 }
                             }
@@ -180,33 +116,8 @@ namespace NewRelic
                                 Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category.CategoryName, counter, thisInstance), Log.LogLevel.WARN);
                             }
                         }
->>>>>>> Stashed changes
                     }
                 }
-
-                catch (InvalidOperationException ioe)
-                {
-                    Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, thisCounter.CategoryName, thisCounter.CounterName, thisInstance), Log.LogLevel.WARN);
-                    return;
-                }
-            }
-        }
-
-        private void AddSingleCounter(string counter, string thisInstance)
-        {
-            try
-            {
-
-                string pcKey = calcHashCode(category, counter, thisInstance);
-                if (!PerformanceCounters.ContainsKey(pcKey))
-                {
-                    PerformanceCounters.Add(pcKey, new PerformanceCounter(category, counter, thisInstance, true));
-                }
-            }
-            catch (InvalidOperationException ioe)
-            {
-                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category, counter, thisInstance), Log.LogLevel.WARN);
-                return;
             }
         }
     }
@@ -482,16 +393,19 @@ namespace NewRelic
                     DateTime now = DateTime.Now;
                     TimeSpan elapsedTime = now.Subtract(then);
                     Log.WriteLog("Polling time: " + elapsedTime.ToString(), Log.LogLevel.VERBOSE);
-                    if (pollingIntervalTS.TotalMilliseconds > elapsedTime.TotalMilliseconds)
+                    if (!RunOnce)
                     {
-                        TimeSpan sleepTime = pollingIntervalTS - elapsedTime;
-                        Log.WriteLog("Sleeping for: " + sleepTime.ToString(), Log.LogLevel.VERBOSE);
-                        Thread.Sleep(sleepTime);
-                    }
-                    else
-                    {
-                        Log.WriteLog("Sleeping for: " + pollingIntervalTS.ToString(), Log.LogLevel.VERBOSE);
-                        Thread.Sleep(pollingIntervalTS);
+                        if (pollingIntervalTS.TotalMilliseconds > elapsedTime.TotalMilliseconds)
+                        {
+                            TimeSpan sleepTime = pollingIntervalTS - elapsedTime;
+                            Log.WriteLog("Sleeping for: " + sleepTime.ToString(), Log.LogLevel.VERBOSE);
+                            Thread.Sleep(sleepTime);
+                        }
+                        else
+                        {
+                            Log.WriteLog("Sleeping for: " + pollingIntervalTS.ToString(), Log.LogLevel.VERBOSE);
+                            Thread.Sleep(pollingIntervalTS);
+                        }
                     }
                 }
                 while (!RunOnce);
@@ -516,7 +430,7 @@ namespace NewRelic
                     if (Scope == null || !Scope.Path.ToString().Equals(scopeString))
                     {
                         Log.WriteLog("Setting up scope: " + scopeString, Log.LogLevel.VERBOSE);
-                        Scope = new ManagementScope(scopeString, RUser.getConnectionOptions());
+                        Scope = new ManagementScope(scopeString, RUser.GetConnectionOptions());
                     }
 
                     if (!Scope.IsConnected)
@@ -579,33 +493,42 @@ namespace NewRelic
             {
                 var thisPC = PerfCounters[i];
                 thisPC.PopulatePerformanceCounters();
-                foreach (var pcInPC in thisPC.PerformanceCounters.Values)
+                foreach (var pcKey in thisPC.PerformanceCounters.Keys)
                 {
-                 try{
-                   Log.WriteLog(string.Format("Collecting Perf Counter: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
-                   float value = pcInPC.NextValue();
-                   if (!float.IsNaN(value))
-                   {
-                       outPCs.Add(new PerfCounterOut(pcInPC.CategoryName, pcInPC.CounterName, pcInPC.InstanceName, value));
-                       Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", pcInPC.CategoryName, pcInPC.CounterName, value), Log.LogLevel.VERBOSE);
-                   }
-                   else
-                   {
-                       Log.WriteLog(string.Format("Perf Counter returned no result: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
-                   }
-                 } catch (Exception e)
-                 {
-                     Log.WriteLog(String.Format("Exception occurred in processing next value of Perfmon Counter:\r\nCategory: {0}\r\nCounter: {1}\r\nMessage: {2}\r\nTrace: {3}",
-                      pcInPC.CategoryName, pcInPC.CounterName, e.Message, e.StackTrace), Log.LogLevel.ERROR);
-                 }
-              }
+                    var pcInPC = thisPC.PerformanceCounters[pcKey];
+                    try
+                    {
+                        Log.WriteLog(string.Format("Collecting Perf Counter: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
+                        float value = pcInPC.NextValue();
+                        if(RunOnce)
+                        {
+                            value = pcInPC.NextValue();
+                        }
+                        if (!float.IsNaN(value))
+                        {
+                            outPCs.Add(new PerfCounterOut(pcInPC.CategoryName, pcInPC.CounterName, pcInPC.InstanceName, value));
+                            Log.WriteLog(string.Format("Perf Counter result: {0}/{1}: {2}", pcInPC.CategoryName, pcInPC.CounterName, value), Log.LogLevel.VERBOSE);
+                        }
+                        else
+                        {
+                            Log.WriteLog(string.Format("Perf Counter returned no result: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.WriteLog(String.Format("Exception occurred in processing next value of Perfmon Counter. Removing from list. \r\nCategory: {0}\r\nCounter: {1}\r\nMessage: {2}\r\nTrace: {3}",
+                         pcInPC.CategoryName, pcInPC.CounterName, e.Message, e.StackTrace), Log.LogLevel.VERBOSE);
+                        thisPC.PerformanceCounters.Remove(pcKey);
+                    }
+                }
             }
 
             if (outPCs.Count > 0)
             {
                 var organizedPerfCounters = from counter in outPCs
                                             group counter by new { counter.category, counter.instance }
-                                            into op select new { Model = op.Key, Data = op };
+                                            into op
+                                            select new { Model = op.Key, Data = op };
                 foreach (var grouping in organizedPerfCounters)
                 {
                     var countersOut = new Dictionary<string, Object>
@@ -623,6 +546,7 @@ namespace NewRelic
                     }
                 }
             }
+
             return null;
         }
 
@@ -701,8 +625,15 @@ namespace NewRelic
                         }
                         break;
                     case CimType.String:
-                        if (((String)prop.Value).Length > 0)
+                        if (prop.IsArray)
                         {
+                            var propStr = String.Join(", ", (String[])prop.Value);
+                            if(propStr.Length > 0)
+                            {
+                                propsOut.Add(propName, propStr);
+                            }
+                        } else if (((String)prop.Value).Length > 0)
+                        { 
                             propsOut.Add(propName, prop.Value);
                         }
                         break;

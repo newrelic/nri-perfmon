@@ -1,0 +1,24 @@
+{
+  "counterlist": [
+    {
+      "eventname": "Win32_ComputerSystem",
+      "query": "SELECT * FROM Win32_ComputerSystem"
+    },
+    {
+      "eventname": "Win32_ComputerSystem",
+      "query": "SELECT * FROM Msvm_ComputerSystem"
+    },
+    {
+      "eventname": "Win32_ComputerSystemProduct",
+      "query": "SELECT UUID, Vendor, Name, IdentifyingNumber FROM Win32_ComputerSystemProduct"
+    },
+    {
+      "eventname": "Win32_LogicalDisk",
+      "query": "SELECT MediaType, Size FROM Win32_LogicalDisk WHERE MediaType = 12"
+    },
+    {
+      "eventname": "Win32_OperatingSystem",
+      "query": "SELECT Caption, OSArchitecture, Version FROM Win32_OperatingSystem"
+    }
+  ]
+}
