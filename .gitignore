@@ -39,3 +39,4 @@ packages/**
 *.db
 *.pdf
 **/.DS_Store
+**/*.user
