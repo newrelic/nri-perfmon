@@ -1,0 +1,208 @@
+{
+  "counterlist": [
+    {
+      "provider": "APPPOOLCountersProvider",
+      "category": "APPPOOLWAS",
+      "counters": [
+        { "counter": "CurrentApplicationPoolState" },
+        { "counter": "CurrentApplicationPoolUptime" },
+        { "counter": "CurrentWorkerProcesses" },
+        { "counter": "MaximumWorkerProcesses" },
+        { "counter": "RecentWorkerProcessFailures" },
+        { "counter": "TimeSinceLastWorkerProcessFailure" },
+        { "counter": "TotalApplicationPoolRecycles" },
+        { "counter": "TotalApplicationPoolUptime" },
+        { "counter": "TotalWorkerProcessesCreated" },
+        { "counter": "TotalWorkerProcessFailures" },
+        { "counter": "TotalWorkerProcessPingFailures" },
+        { "counter": "TotalWorkerProcessShutdownFailures" },
+        { "counter": "TotalWorkerProcessStartupFailures" }
+      ]
+    },
+    {
+      "provider": "PerfCounter",
+      "category": "ASP.NET Applications",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "PerfCounter",
+      "category": "ASP.NET State Service",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "Counters",
+      "category": "HTTPServiceRequestQueues",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "MSMQ",
+      "category": "MSMQQueue",
+      "counters": [
+        { "counter": "BytesinJournalQueue" },
+        { "counter": "BytesinQueue" },
+        { "counter": "MessagesinJournalQueue" },
+        { "counter": "MessagesinQueue" }
+      ]
+    },
+    {
+      "provider": "MSMQ",
+      "category": "MSMQService",
+      "counters": [
+        { "counter": "IncomingMessagesPersec" },
+        { "counter": "IncomingMulticastSessions" },
+        { "counter": "IPSessions" },
+        { "counter": "MSMQIncomingMessages" },
+        { "counter": "MSMQOutgoingMessages" },
+        { "counter": "OutgoingHTTPSessions" },
+        { "counter": "OutgoingMessagesPersec" },
+        { "counter": "OutgoingMulticastSessions" },
+        { "counter": "Sessions" },
+        { "counter": "Totalbytesinallqueues" },
+        { "counter": "Totalmessagesinallqueues" }
+      ]
+    },
+    {
+      "provider": "MSMQ",
+      "category": "MSMQSession",
+      "counters": [
+        { "counter": "IncomingBytes" },
+        { "counter": "IncomingBytesPersec" },
+        { "counter": "IncomingMessages" },
+        { "counter": "IncomingMessagesPersec" },
+        { "counter": "OutgoingBytes" },
+        { "counter": "OutgoingBytesPersec" },
+        { "counter": "OutgoingMessages" },
+        { "counter": "OutgoingMessagesPersec" }
+      ]
+    },
+    {
+      "provider": "NETDataProviderforOracle",
+      "category": "NETDataProviderforOracle",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "NETDataProviderforSqlServer",
+      "category": "NETDataProviderforSqlServer",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRExceptions",
+      "counters": [
+        { "counter": "NumberofExcepsThrown" },
+        { "counter": "NumberofExcepsThrownPersec" },
+        { "counter": "NumberofFiltersPersec" },
+        { "counter": "NumberofFinallysPersec" },
+        { "counter": "ThrowToCatchDepthPersec" }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRInterop",
+      "counters": [
+        { "counter": "NumberofCCWs" },
+        { "counter": "Numberofmarshalling" },
+        { "counter": "NumberofStubs" },
+        { "counter": "NumberofTLBexportsPersec" },
+        { "counter": "NumberofTLBimportsPersec" }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRJit",
+      "counters": [
+        { "counter": "ILBytesJittedPersec" },
+        { "counter": "NumberofILBytesJitted" },
+        { "counter": "NumberofMethodsJitted" },
+        { "counter": "PercentTimeinJit" },
+        { "counter": "TotalNumberofILBytesJitted" }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRLoading",
+      "counters": [
+        { "counter": "AssemblySearchLength" },
+        { "counter": "BytesinLoaderHeap" },
+        { "counter": "Currentappdomains" },
+        { "counter": "CurrentAssemblies" },
+        { "counter": "CurrentClassesLoaded" },
+        { "counter": "PercentTimeLoading" },
+        { "counter": "TotalAppdomains" },
+        { "counter": "Totalappdomainsunloaded" },
+        { "counter": "TotalAssemblies" },
+        { "counter": "TotalClassesLoaded" },
+        { "counter": "TotalNumberofLoadFailures" }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRLocksAndThreads",
+      "counters": [
+        { "counter": "ContentionRatePersec" },
+        { "counter": "CurrentQueueLength" },
+        { "counter": "NumberofcurrentlogicalThreads" },
+        { "counter": "NumberofcurrentphysicalThreads" },
+        { "counter": "Numberofcurrentrecognizedthreads" },
+        { "counter": "Numberoftotalrecognizedthreads" },
+        { "counter": "QueueLengthPersec" },
+        { "counter": "TotalNumberofContentions" }
+      ]
+    },
+    {
+      "provider": "NETFramework",
+      "category": "NETCLRMemory",
+      "counters": [
+        { "counter": "AllocatedBytesPersec" },
+        { "counter": "FinalizationSurvivors" },
+        { "counter": "Gen0heapsize" },
+        { "counter": "Gen1heapsize" },
+        { "counter": "Gen2heapsize" },
+        { "counter": "LargeObjectHeapsize" },
+        { "counter": "NumberBytesinallHeaps" },
+        { "counter": "NumberGCHandles" },
+        { "counter": "NumberGen0Collections" },
+        { "counter": "NumberGen1Collections" },
+        { "counter": "NumberGen2Collections" },
+        { "counter": "NumberInducedGC" },
+        { "counter": "NumberofPinnedObjects" },
+        { "counter": "NumberofSinkBlocksinuse" },
+        { "counter": "NumberTotalcommittedBytes" },
+        { "counter": "NumberTotalreservedBytes" },
+        { "counter": "PercentTimeinGC" },
+        { "counter": "PromotedFinalizationMemoryfromGen0" }
+      ]
+    },
+    {
+      "provider": "W3SVC",
+      "category": "WebService",
+      "counters": [
+        { "counter": "BytesReceivedPersec" },
+        { "counter": "BytesSentPersec" },
+        { "counter": "ConnectionAttemptsPersec" },
+        { "counter": "CurrentConnections" }
+      ]
+    },
+    {
+      "provider": "W3SVCW3WPCounterProvider",
+      "category": "W3SVCW3WP",
+      "counters": [
+        { "counter": "*" }
+      ]
+    },
+    {
+      "eventname": "W3WP_Process",
+      "query": "select Name, ElapsedTime, HandleCount, IDProcess, IODataBytesPersec, IODataOperationsPersec, IOOtherBytesPersec, IOOtherOperationsPersec, IOReadBytesPersec, IOReadOperationsPersec, IOWriteBytesPersec, IOWriteOperationsPersec, PageFaultsPersec, PageFileBytes, PageFileBytesPeak, PercentPrivilegedTime, PercentProcessorTime, PercentUserTime, PoolNonpagedBytes, PoolPagedBytes, PrivateBytes, ThreadCount, VirtualBytes, WorkingSet, WorkingSetPrivate from Win32_PerfFormattedData_PerfProc_Process where name like 'w3wp%'"
+    }
+  ]
+}

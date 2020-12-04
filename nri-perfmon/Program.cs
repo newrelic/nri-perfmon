@@ -9,10 +9,11 @@ namespace NewRelic
 {
     class Program
     {
+        static char[] SEPARATOR = new char[] {','};
         static void Main(string[] args)
         {
             var pollingIntervalFloor = 10000;
-            var defaultCompName = "ThisComputer";
+            var defaultCompName = Environment.MachineName;
             var defaultConfigFilePath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             var defaultConfigFile = defaultConfigFilePath + "\\config.json";
 
@@ -29,15 +30,9 @@ namespace NewRelic
             .SetDefault(pollingIntervalFloor)
             .WithDescription("Frequency of polling (ms)");
 
-<<<<<<< Updated upstream
-            parser.Setup(arg => arg.ComputerName)
+            parser.Setup(arg => arg.MachineName)
             .As('n', "compName")
             .SetDefault(defaultCompName)
-=======
-            parser.Setup(arg => arg.MachineName)
-            .As('m', "machineName")
-            .SetDefault(Environment.MachineName)
->>>>>>> Stashed changes
             .WithDescription("Name of computer that you want to poll");
 
             parser.Setup(arg => arg.UserName)
@@ -81,12 +76,6 @@ namespace NewRelic
 
             var options = parser.Object;
             Log.Verbose = options.Verbose;
-            options.ComputerName = Environment.GetEnvironmentVariable("COMPUTERNAME") ?? options.ComputerName;
-            options.ConfigFile = Environment.GetEnvironmentVariable("CONFIGFILE") ?? options.ConfigFile;
-            if (String.IsNullOrEmpty(options.ComputerName) || String.Equals(options.ComputerName, defaultCompName))
-            {
-                options.ComputerName = Environment.MachineName;
-            }
 
             // All of the possibilities for polling interval figured here...
             int pollingInterval = pollingIntervalFloor;
@@ -112,6 +101,11 @@ namespace NewRelic
                 StreamReader configFileReader = new StreamReader(options.ConfigFile);
                 Config properties = JsonConvert.DeserializeObject<Config>(configFileReader.ReadToEnd());
                 counterlist = properties.counterlist;
+                if (counterlist == null || counterlist.Count == 0)
+                {
+                    Log.WriteLog("'counterlist' is empty. Please verify " + options.ConfigFile + " is in the expected format (see README).", Log.LogLevel.ERROR);
+                    Environment.Exit(1);
+                }
             }
             catch (IOException ioe)
             {
@@ -124,40 +118,32 @@ namespace NewRelic
                 Environment.Exit(1);
             }
 
-            if (counterlist == null || counterlist.Count == 0)
-            {
-                Log.WriteLog("'counterlist' is empty. Please verify " + options.ConfigFile + " is in the expected format (see README).", Log.LogLevel.ERROR);
-                Environment.Exit(1);
-            }
 
             List<Counterlist> mainCounters = new List<Counterlist>();
             List<Thread> eventThreads = new List<Thread>();
 
-<<<<<<< Updated upstream
-            foreach (var thisCounter in counterlist)
-=======
             var splitNames = options.MachineName.Split(SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
             foreach (var thisName in splitNames)
->>>>>>> Stashed changes
             {
-                // WMI Event Listeners and WMI Queries with special namespaces get their own thread
-                if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent) || !thisCounter.querynamespace.Equals(PerfmonPlugin.DefaultNamespace))
+                var thisOptions = new Options(options)
                 {
-<<<<<<< Updated upstream
-                    PerfmonPlugin aPlugin = new PerfmonPlugin(options, thisCounter);
-                    Thread aThread = new Thread(new ThreadStart(aPlugin.RunThread));
-                    eventThreads.Add(aThread);
-                    aThread.Start();
-                }
-                else
-=======
                     MachineName = thisName.Trim()
                 };
 
                 foreach (var thisCounter in counterlist)
->>>>>>> Stashed changes
                 {
-                    mainCounters.Add(thisCounter);
+                    // WMI Event Listeners and WMI Queries with special namespaces get their own thread
+                    if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent) || !thisCounter.querynamespace.Equals(PerfmonPlugin.DefaultNamespace))
+                    {
+                        PerfmonPlugin aPlugin = new PerfmonPlugin(thisOptions, thisCounter);
+                        Thread aThread = new Thread(new ThreadStart(aPlugin.RunThread));
+                        eventThreads.Add(aThread);
+                        aThread.Start();
+                    }
+                    else
+                    {
+                        mainCounters.Add(thisCounter);
+                    }
                 }
             }
 
