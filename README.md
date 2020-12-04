@@ -24,6 +24,7 @@ If run at command line without anything, the executable should report JSON resul
 * `-c | --configFile [file]`: Config file to use (default: `config.json`)
 * `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
 * `-n | --compName [name]`: Name of computer that you want to poll (default: local host)
+* `-r | --runOnce [true|false]`: Run this integration once and exit, instead of polling (default: false)
 * `-v | --verbose [true|false]`: [Verbose Logging Mode](#verbose-logging-mode) (default: false)
 
 ### Installation
@@ -71,6 +72,8 @@ commands:
       - custom_config.json
       - -n
       - MyCompName
+      - -r
+      - true
       - -v
       - true
     prefix: integration/nri-perfmon

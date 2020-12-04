@@ -29,10 +29,36 @@ namespace NewRelic
             .SetDefault(pollingIntervalFloor)
             .WithDescription("Frequency of polling (ms)");
 
+<<<<<<< Updated upstream
             parser.Setup(arg => arg.ComputerName)
             .As('n', "compName")
             .SetDefault(defaultCompName)
+=======
+            parser.Setup(arg => arg.MachineName)
+            .As('m', "machineName")
+            .SetDefault(Environment.MachineName)
+>>>>>>> Stashed changes
             .WithDescription("Name of computer that you want to poll");
+
+            parser.Setup(arg => arg.UserName)
+            .As('u', "userName")
+            .SetDefault(Environment.UserName)
+            .WithDescription("User to perform polling");
+
+            parser.Setup(arg => arg.DomainName)
+            .As('d', "domainName")
+            .SetDefault(Environment.UserDomainName)
+            .WithDescription("Domain of user to perform polling");
+
+            parser.Setup(arg => arg.Password)
+            .As('p', "password")
+            .SetDefault("")
+            .WithDescription("Password of user to perform polling");
+
+            parser.Setup(arg => arg.RunOnce)
+            .As('r', "runOnce")
+            .SetDefault(false)
+            .WithDescription("Set to true to run this integration once and exit (instead of polling)");
 
             parser.Setup(arg => arg.Verbose)
             .As('v', "verbose")
@@ -63,17 +89,20 @@ namespace NewRelic
             }
 
             // All of the possibilities for polling interval figured here...
-            string env_PollingInterval = Environment.GetEnvironmentVariable("POLLINGINTERVAL");
             int pollingInterval = pollingIntervalFloor;
-            if(String.IsNullOrEmpty(env_PollingInterval) || !int.TryParse(env_PollingInterval, out pollingInterval))
+            if (!options.RunOnce)
             {
-                pollingInterval = options.PollingInterval;
+                string env_PollingInterval = Environment.GetEnvironmentVariable("POLLINGINTERVAL");
+                if (String.IsNullOrEmpty(env_PollingInterval) || !int.TryParse(env_PollingInterval, out pollingInterval))
+                {
+                    pollingInterval = options.PollingInterval;
+                }
+                if (pollingInterval < pollingIntervalFloor)
+                {
+                    pollingInterval = pollingIntervalFloor;
+                }
+                options.PollingInterval = pollingInterval;
             }
-            if (pollingInterval < pollingIntervalFloor)
-            {
-                pollingInterval = pollingIntervalFloor;
-            }
-            options.PollingInterval = pollingInterval;
 
             Log.WriteLog("nri-perfmon starting with options", (object)options, Log.LogLevel.INFO);
 
@@ -104,17 +133,29 @@ namespace NewRelic
             List<Counterlist> mainCounters = new List<Counterlist>();
             List<Thread> eventThreads = new List<Thread>();
 
+<<<<<<< Updated upstream
             foreach (var thisCounter in counterlist)
+=======
+            var splitNames = options.MachineName.Split(SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var thisName in splitNames)
+>>>>>>> Stashed changes
             {
                 // WMI Event Listeners and WMI Queries with special namespaces get their own thread
                 if (thisCounter.querytype.Equals(PerfmonPlugin.WMIEvent) || !thisCounter.querynamespace.Equals(PerfmonPlugin.DefaultNamespace))
                 {
+<<<<<<< Updated upstream
                     PerfmonPlugin aPlugin = new PerfmonPlugin(options, thisCounter);
                     Thread aThread = new Thread(new ThreadStart(aPlugin.RunThread));
                     eventThreads.Add(aThread);
                     aThread.Start();
                 }
                 else
+=======
+                    MachineName = thisName.Trim()
+                };
+
+                foreach (var thisCounter in counterlist)
+>>>>>>> Stashed changes
                 {
                     mainCounters.Add(thisCounter);
                 }

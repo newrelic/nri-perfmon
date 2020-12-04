@@ -3,10 +3,15 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Principal;
 using System.Threading;
 
 namespace NewRelic
 {
+    /*public class BaseIdentity {
+        public readonly static WindowsIdentity Identity = WindowsIdentity.GetCurrent();
+    }*/
+
     // Config file classes (Config > Counterlist > Counter)
 
     public class Counter
@@ -37,9 +42,28 @@ namespace NewRelic
 
     public class Options
     {
+<<<<<<< Updated upstream
+=======
+        public Options() { }
+
+        // For cloning to multiple instances
+        public Options(Options that) {
+          ConfigFile = that.ConfigFile;
+          PollingInterval = that.PollingInterval;
+          MachineName = that.MachineName;
+          RunOnce = that.RunOnce;
+          Verbose = that.Verbose;
+        }
+
+>>>>>>> Stashed changes
         public string ConfigFile { get; set; }
         public int PollingInterval { get; set; }
-        public string ComputerName { get; set; }
+        public bool RunOnce { get; set; }
+        public string MachineName { get; set; }
+        public string UserName { get; set; }
+        public string DomainName { get; set; }
+        public string Password { get; set; }
+
         public bool Verbose { get; set; }
     }
 
@@ -104,6 +128,20 @@ namespace NewRelic
             INFO = 4,
             VERBOSE = 8,
             CONSOLE = 16
+        }
+    }
+
+    public static class Util
+    {
+        // In case we're using Linux or MacOS, don't want to attempt anything with native libraries
+        // https://stackoverflow.com/questions/5116977/how-to-check-the-os-version-at-runtime-e-g-on-windows-or-linux-without-using#5117005
+        public static bool IsLinuxOrMacOS
+        {
+            get
+            {
+                int p = (int)Environment.OSVersion.Platform;
+                return (p == 4) || (p == 6) || (p == 128);
+            }
         }
     }
 }
