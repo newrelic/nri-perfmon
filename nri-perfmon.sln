@@ -9,6 +9,10 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Debug-RunOnce|x64 = Debug-RunOnce|x64
+		Debug-RunOnce|x86 = Debug-RunOnce|x86
+		Debug-RUser|x64 = Debug-RUser|x64
+		Debug-RUser|x86 = Debug-RUser|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -17,6 +21,13 @@ Global
 		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug|x64.Build.0 = Debug|x64
 		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug|x86.ActiveCfg = Debug|x86
 		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug|x86.Build.0 = Debug|x86
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RunOnce|x64.ActiveCfg = Debug-RunOnce|Any CPU
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RunOnce|x64.Build.0 = Debug-RunOnce|Any CPU
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RunOnce|x86.ActiveCfg = Debug-RunOnce|x86
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RunOnce|x86.Build.0 = Debug-RunOnce|x86
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RUser|x64.ActiveCfg = Debug-RUser|Any CPU
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RUser|x64.Build.0 = Debug-RUser|Any CPU
+		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Debug-RUser|x86.ActiveCfg = Debug-RUser|x86
 		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Release|x64.ActiveCfg = Release|x64
 		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Release|x64.Build.0 = Release|x64
 		{F461207C-425C-4E39-8B99-C276C00FF3D6}.Release|x64.Deploy.0 = Release|x64

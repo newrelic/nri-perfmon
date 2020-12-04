@@ -18,12 +18,27 @@ namespace NewRelic
 
         public Dictionary<string, PerformanceCounter> PerformanceCounters { get; private set; }
 
-        public PerfCounter(string cname, List<string> cos, string iname)
-        {
+        public PerfCounter(string cname, List<string> cos, string iname, string mname) { 
             PerformanceCounters = new Dictionary<string, PerformanceCounter>();
             category = cname;
             instance = iname;
             counters = cos;
+<<<<<<< Updated upstream
+=======
+            category = null;
+            try
+            {
+                if (PerformanceCounterCategory.Exists(cname, mname))
+                {
+                    category = new PerformanceCounterCategory(cname, mname);
+                }
+            }
+            catch (InvalidOperationException ioe)
+            {
+                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}", ioe.Message, category), Log.LogLevel.WARN);
+                return;
+            }
+>>>>>>> Stashed changes
         }
 
         private string calcHashCode(string uno, string dos, string tres)
@@ -54,7 +69,12 @@ namespace NewRelic
                 PerformanceCounter[] allCounters = null;
                 try
                 {
+<<<<<<< Updated upstream
                     allCounters = thisCategory.GetCounters();
+=======
+                    instanceArr = category.GetInstanceNames();
+                    string iArr = instanceArr.ToString();
+>>>>>>> Stashed changes
                 }
                 catch (ArgumentException)
                 {
@@ -81,6 +101,7 @@ namespace NewRelic
                 {
                     if (String.Equals(counter, "*"))
                     {
+<<<<<<< Updated upstream
                         var allCounters = thisCategory.GetCounters(thisInstance);
                         AddMultipleCounters(allCounters,thisInstance);
                     }
@@ -110,6 +131,56 @@ namespace NewRelic
                             ? new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, true)
                             : new PerformanceCounter(thisCounter.CategoryName, thisCounter.CounterName, thisInstance, true);
                         PerformanceCounters.Add(pcKey, counter);
+=======
+                        try
+                        {
+                            if (thisInstance.Length > 0)
+                            {
+                                outCounters = category.GetCounters(thisInstance);
+                            }
+                            else
+                            {
+                                outCounters = category.GetCounters();
+                            }
+
+                            if (outCounters.Length > 0)
+                            {
+                                foreach (var thisCounter in outCounters)
+                                {
+                                    string pcKey = calcHashCode(thisCounter.CategoryName, thisCounter.CounterName, thisCounter.InstanceName);
+                                    if (!PerformanceCounters.ContainsKey(pcKey))
+                                    {
+                                        PerformanceCounters.Add(pcKey, thisCounter);
+                                        Log.WriteLog(String.Format("Adding PerfCounter {0}", pcKey), Log.LogLevel.VERBOSE);
+
+                                    }
+                                }
+                            }
+                        }
+                        catch (InvalidOperationException ioe)
+                        {
+                            Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category.CategoryName, counter, thisInstance), Log.LogLevel.WARN);
+                        }
+                    }
+                    else
+                    {
+                        string pcKey = calcHashCode(category.CategoryName, counter, thisInstance);
+                        if (!PerformanceCounters.ContainsKey(pcKey))
+                        {
+                            try
+                            {
+                                var outCounter = String.IsNullOrEmpty(thisInstance)
+                                    ? new PerformanceCounter(category.CategoryName, counter, true)
+                                    : new PerformanceCounter(category.CategoryName, counter, thisInstance, true);
+                                Log.WriteLog(String.Format("Adding PerfCounter {0}", pcKey), Log.LogLevel.VERBOSE);
+                                PerformanceCounters.Add(pcKey, outCounter);
+                            }
+                            catch (InvalidOperationException ioe)
+                            {
+                                Log.WriteLog(String.Format("{0}\nSkipping monitoring of PerfCounter {1}/{2}/{3}", ioe.Message, category.CategoryName, counter, thisInstance), Log.LogLevel.WARN);
+                            }
+                        }
+>>>>>>> Stashed changes
                     }
                 }
 
@@ -233,12 +304,14 @@ namespace NewRelic
         public static string PerfCounterType = "PerfCounter";
         public String fileName = "";
 
-        string Name { get; set; }
+        string MachineName { get; set; }
         List<WMIQuery> WMIQueries { get; set; }
         List<PerfCounter> PerfCounters { get; set; }
         ManagementScope Scope { get; set; }
-        Output output = new Output();
+        Output PluginOutput = new Output();
         int PollingInterval;
+        bool RunOnce;
+        RemoteUser RUser;
 
         public PerfmonPlugin(Options options, Counterlist counter)
         {
@@ -266,14 +339,15 @@ namespace NewRelic
         {
             WMIQueries = new List<WMIQuery>();
             PerfCounters = new List<PerfCounter>();
-            Name = options.ComputerName;
             PollingInterval = options.PollingInterval;
-            output.name = Name;
-            output.protocol_version = "1";
-            output.integration_version = "0.1.0";
-            output.metrics = new List<Dictionary<string, object>>();
-            output.events = new List<Dictionary<string, object>>();
-            output.inventory = new Dictionary<string, string>();
+            RunOnce = options.RunOnce;
+            PluginOutput.name = MachineName = options.MachineName;
+            PluginOutput.protocol_version = "1";
+            PluginOutput.integration_version = "0.1.0";
+            PluginOutput.metrics = new List<Dictionary<string, object>>();
+            PluginOutput.events = new List<Dictionary<string, object>>();
+            PluginOutput.inventory = new Dictionary<string, string>();
+            RUser = new RemoteUser(options);
         }
 
         public void AddCounter(Counterlist aCounter, int whichCounter)
@@ -303,13 +377,11 @@ namespace NewRelic
                 {
                     Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'provider' or 'category'. Please review and compare to template.",
                         fileName, whichCounter), Log.LogLevel.ERROR);
-                    return;
                 }
                 if (aCounter.counters == null)
                 {
                     Log.WriteLog(String.Format("{0} contains malformed counter: counterlist[{1}] missing 'counters'. Please review and compare to template.",
                         fileName, whichCounter), Log.LogLevel.ERROR);
-                    return;
                 }
 
                 string instanceName = string.Empty;
@@ -337,7 +409,8 @@ namespace NewRelic
                     {
                         pcounters.Add(pCounter.counter);
                     }
-                    PerfCounters.Add(new PerfCounter(aCounter.category, pcounters, instanceName));
+                    PerfCounter AddPC = RUser.RunAsRemoteUser<PerfCounter>(() => new PerfCounter(aCounter.category, pcounters, instanceName, MachineName));
+                    PerfCounters.Add(AddPC);
                 }
                 else
                 {
@@ -367,20 +440,29 @@ namespace NewRelic
             if (pollingIntervalTS.TotalMilliseconds == 0)
             {
                 Log.WriteLog("Running in listener mode (no polling interval).", Log.LogLevel.VERBOSE);
-                do
-                {
-                    PollWMIQueries();
-                    if (output.metrics.Count > 0)
-                    {
-                        Log.WriteLog("Metric output", output, Log.LogLevel.CONSOLE);
-                        output.metrics.Clear();
-                    }
+                if(RunOnce) {
+                  Log.WriteLog("Listener mode does not work with RunOnce. Please run with RunOnce set to false, or remove any queries of type wmi_eventlistener.", Log.LogLevel.ERROR);
+                } else {
+                  do
+                  {
+                      PollWMIQueries();
+                      if (PluginOutput.metrics.Count > 0)
+                      {
+                          Log.WriteLog("Metric output", PluginOutput, Log.LogLevel.CONSOLE);
+                          PluginOutput.metrics.Clear();
+                      }
+                  }
+                  while (1 == 1);
                 }
-                while (1 == 1);
             }
             else
             {
-                Log.WriteLog("Running with polling interval of " + pollingIntervalTS, Log.LogLevel.VERBOSE);
+                if(RunOnce) {
+                  Log.WriteLog("Running once and exiting.", Log.LogLevel.VERBOSE);
+                } else {
+                  Log.WriteLog("Running with polling interval of " + pollingIntervalTS, Log.LogLevel.VERBOSE);
+                }
+
                 do
                 {
                     DateTime then = DateTime.Now;
@@ -390,12 +472,12 @@ namespace NewRelic
                     }
                     if (PerfCounters.Count > 0)
                     {
-                        PollPerfCounters();
+                        RUser.RunAsRemoteUser(() => PollPerfCounters());
                     }
-                    if (output.metrics.Count > 0)
+                    if (PluginOutput.metrics.Count > 0)
                     {
-                        Log.WriteLog("Metric output", output, Log.LogLevel.CONSOLE);
-                        output.metrics.Clear();
+                        Log.WriteLog("Metric output", PluginOutput, Log.LogLevel.CONSOLE);
+                        PluginOutput.metrics.Clear();
                     }
                     DateTime now = DateTime.Now;
                     TimeSpan elapsedTime = now.Subtract(then);
@@ -412,7 +494,7 @@ namespace NewRelic
                         Thread.Sleep(pollingIntervalTS);
                     }
                 }
-                while (1 == 1);
+                while (!RunOnce);
             }
         }
 
@@ -430,16 +512,11 @@ namespace NewRelic
                 }
                 try
                 {
-                    string scopeString = "\\\\" + Name + "\\" + thisQuery.queryNamespace;
-                    if (Scope == null)
+                    string scopeString = "\\\\" + MachineName + "\\" + thisQuery.queryNamespace;
+                    if (Scope == null || !Scope.Path.ToString().Equals(scopeString))
                     {
                         Log.WriteLog("Setting up scope: " + scopeString, Log.LogLevel.VERBOSE);
-                        Scope = new ManagementScope(scopeString);
-                    }
-                    else if (Scope != null && !Scope.Path.ToString().Equals(scopeString))
-                    {
-                        Log.WriteLog("Updating Scope Path from " + Scope.Path + " to " + scopeString, Log.LogLevel.VERBOSE);
-                        Scope = new ManagementScope(scopeString);
+                        Scope = new ManagementScope(scopeString, RUser.getConnectionOptions());
                     }
 
                     if (!Scope.IsConnected)
@@ -450,16 +527,15 @@ namespace NewRelic
                 }
                 catch (Exception e)
                 {
-                    Log.WriteLog(String.Format("Unable to connect to \"{0}\". {1}", Name, e.Message), Log.LogLevel.ERROR);
+                    Log.WriteLog(String.Format("Unable to connect to \"{0}\". {1}", MachineName, e.Message), Log.LogLevel.ERROR);
                     continue;
                 }
                 try
                 {
                     if (thisQuery.queryType.Equals(WMIQuery))
                     {
-                        Log.WriteLog("Running Query: " + (string)thisQuery.queryString, Log.LogLevel.VERBOSE);
-                        var queryResults = (new ManagementObjectSearcher(Scope,
-                            new ObjectQuery((string)thisQuery.queryString))).Get();
+                        Log.WriteLog("Running Query: " + (string)thisQuery.queryString, Log.LogLevel.INFO);
+                        var queryResults = (new ManagementObjectSearcher(Scope, new ObjectQuery((string)thisQuery.queryString))).Get();
                         if (queryResults.Count == 0)
                         {
                             Log.WriteLog(String.Format("Query \"{0}\" returned no results.", thisQuery.queryString), Log.LogLevel.VERBOSE);
@@ -496,7 +572,7 @@ namespace NewRelic
             }
         }
 
-        public void PollPerfCounters()
+        public object PollPerfCounters()
         {
             List<PerfCounterOut> outPCs = new List<PerfCounterOut>();
             for (int i = PerfCounters.Count - 1; i >= 0; i--)
@@ -543,10 +619,11 @@ namespace NewRelic
                     }
                     if (countersOut.Count > 2)
                     {
-                        output.metrics.Add(countersOut);
+                        PluginOutput.metrics.Add(countersOut);
                     }
                 }
             }
+            return null;
         }
 
         private void RecordMetricMap(WMIQuery thisQuery, ManagementBaseObject properties)
@@ -598,7 +675,7 @@ namespace NewRelic
                 }
             }
 
-            output.metrics.Add(propsOut);
+            PluginOutput.metrics.Add(propsOut);
         }
 
         private void GetValueParsed(Dictionary<string, Object> propsOut, String propName, PropertyData prop)
