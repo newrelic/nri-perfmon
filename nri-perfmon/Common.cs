@@ -46,11 +46,14 @@ namespace NewRelic
 
         // For cloning to multiple instances
         public Options(Options that) {
-          ConfigFile = that.ConfigFile;
-          PollingInterval = that.PollingInterval;
-          MachineName = that.MachineName;
-          RunOnce = that.RunOnce;
-          Verbose = that.Verbose;
+            ConfigFile = that.ConfigFile;
+            PollingInterval = that.PollingInterval;
+            MachineName = that.MachineName;
+            RunOnce = that.RunOnce;
+            Verbose = that.Verbose;
+            UserName = that.UserName;
+            DomainName = that.DomainName;
+            Password = that.Password;
         }
 
         public string ConfigFile { get; set; }
@@ -60,8 +63,16 @@ namespace NewRelic
         public string UserName { get; set; }
         public string DomainName { get; set; }
         public string Password { get; set; }
-
         public bool Verbose { get; set; }
+
+        public Options OptionsWithoutPassword()
+        {
+            Options withoutPassword = new Options(this);
+            if (!String.IsNullOrEmpty(withoutPassword.Password)) {
+                withoutPassword.Password = "REDACTED";
+            }
+            return withoutPassword;
+        }
     }
 
     // Output format

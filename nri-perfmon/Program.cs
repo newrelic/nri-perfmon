@@ -93,7 +93,7 @@ namespace NewRelic
                 options.PollingInterval = pollingInterval;
             }
 
-            Log.WriteLog("nri-perfmon starting with options", (object)options, Log.LogLevel.INFO);
+            Log.WriteLog(String.Format("nri-perfmon version {0} starting with options", System.Reflection.Assembly.GetEntryAssembly().GetName().Version), options.OptionsWithoutPassword(), Log.LogLevel.INFO);
 
             List<Counterlist> counterlist = null;
             try
