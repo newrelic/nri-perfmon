@@ -119,13 +119,15 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
       ]
     },
     {
-      "query": "the_whole_WMI_Query",
       "eventname": "(optional, default: 'WMIQueryResult') insights_event_name",
+			"query": "the_whole_WMI_Query",
+			"querynamespace": "(optional, default: 'root//cimv2') query_namespace",
       "querytype": "(optional, default: 'wmi_query') wmi_query|wmi_eventlistener",
       "(optional) counters": [
         {
           "counter": "counter_name|counter_class.counter_name",
-          "attrname": "(optional) attribute_name_in_insights_event"
+          "attrname": "(optional) attribute_name_in_insights_event",
+					"parser": "regex_to_parse_attribute_value"
         },
         {
           "counter": "another_counter_name"
@@ -187,15 +189,61 @@ Example of usage:
 
 #### Complex Queries & Event Listeners
 
-For more complex queries, use the "query, eventname, (optional) querytype, (optional) counters" form.
+* `eventname` (optional) - The event name you wish to create in Insights with the results of your query.
+* `query` - The WMI query to be run.
+* `querytype` (optional) - only used to run an event listener instead of a typical WMI Query (set to `wmi_eventlistener`)
+	* This listener will operate as a separate thread, so that it doesn't impede other queries from running.
+* `querynamespace` (optional) - allows you to access any WMI namespace.
+	* If set, this query will operate as a separate thread, so that it doesn't impede other queries that use the default namespace.
+	* Any escape characters (`\`) must be doubled (`\\`)
+* `eventtype` (optional) - set that query's result events in Insights to anything specified here.
+* `counters` (optional) - used to specify counters to extract from the query, and transformations to perform on them.
+	* If not performing any transformations, you can specify counters in the query itself (i.e. "`Select Name, Description, DeviceID from Win32_PNPEntity`) and out this section.
+	* Multiple `counters` entries *can* be against the same counter (see example below).
+		* They will need to write to different attributes, otherwise they will overwrite one another.
+	* `counter` - the counter name you want to extract/match. Must be exact.
+	* `attrname` (optional) - use to rename the counter.
+		* If used, that counter name will be renamed in the Insights event to the value set here.
+		* If left out, the attribute in Insights will be named with the original name of that counter.
+	* `parser` (optional) - use a regular expression to parse an attribute value.
+		* It can only be used on Strings. It will be ignored for all other counter types.
+		* Any escape characters (`\`) must be doubled (`\\`)
+		* If used, the counter value will be matched against the regular expression provided here.
+		* If it doesn't match, the original value of the counter will be returned.
+		* If it matches and you used groups, the result will be a concatenized string of all of the groups.
+		* If it matches and you didn't use groups, the result will be the portion of the string that matched.
 
-* `querytype` should only be used if you're going to run an event listener instead of a typical WMI Query (set to `wmi_eventlistener`) Note: This listener will operate as a separate thread, so that it doesn't impede other queries from running.
-* `eventtype` is optional and will set that query's result events in Insights to anything specified here.
-* `counters` is optional here, used to specify counters to extract from the query. In particular, use this when you want to either set a custom attribute name, or retrieve a sub-property from a counter object. Otherwise, you can specify counters in the query itself (i.e. "`Select Name, Description, DeviceID from Win32_PNPEntity`).
-  * If you leave out `counters`, all returned counters for that query will be reported as simple name/value pairs and will be named with their original counter name.
-  * `attrname` property in `counters` is optional. If used, that counter name will be renamed in the Insights event to the value set here. If left out, the attribute in Insights will be named with the original name of that counter.
+Example of usage:
+```json
+{
+	"eventname": "HyperV_GuestNetworkAdapter",
+	"query": "SELECT InstanceId, DHCPEnabled, DNSServers, IPAddresses FROM Msvm_GuestNetworkAdapterConfiguration",
+	"querynamespace": "ROOT\\virtualization\\v2",
+	"counters": [{
+			"counter": "InstanceId",
+			"attrname": "Name",
+			"parser": "Microsoft:GuestNetwork\\\\([0-9A-F-]+)\\\\[0-9A-F-]+"
+		},
+		{
+			"counter": "InstanceId",
+			"attrname": "AdapterId",
+			"parser": "Microsoft:GuestNetwork\\\\[0-9A-F-]+\\\\([0-9A-F-]+)"
+		},
+		{ "counter": "DHCPEnabled" },
+		{ "counter": "DNSServers" },
+		{
+			"counter": "IPAddresses",
+			"attrName": "IPAddress",
+			"parser": "([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})"
+		},
+		{ "counter": "IPAddresses" }
+	]
+},
+```
+
+Notes:
   * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
-* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
+	* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
 
 #### Tips for finding/building new simple entries for `counterlist`
 
