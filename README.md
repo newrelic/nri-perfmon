@@ -104,13 +104,11 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 
 ```json
 {
-  "counterlist": [
-    {
+  "counterlist": [{
       "provider": "provider_name|PerfCounter",
       "category": "category_name",
       "instance": "(optional) instance_name",
-      "counters": [
-        {
+      "counters": [{
           "counter": "*|counter_name"
         },
         {
@@ -120,14 +118,13 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
     },
     {
       "eventname": "(optional, default: 'WMIQueryResult') insights_event_name",
-			"query": "the_whole_WMI_Query",
-			"querynamespace": "(optional, default: 'root//cimv2') query_namespace",
+      "query": "the_whole_WMI_Query",
+      "querynamespace": "(optional, default: 'root//cimv2') query_namespace",
       "querytype": "(optional, default: 'wmi_query') wmi_query|wmi_eventlistener",
-      "(optional) counters": [
-        {
+      "counters": [{
           "counter": "counter_name|counter_class.counter_name",
           "attrname": "(optional) attribute_name_in_insights_event",
-					"parser": "regex_to_parse_attribute_value"
+          "parser": "regex_to_parse_attribute_value"
         },
         {
           "counter": "another_counter_name"
