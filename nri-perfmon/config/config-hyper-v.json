@@ -1,12 +1,37 @@
 {
   "counterlist": [
     {
-      "eventname": "Win32_ComputerSystem",
-      "query": "SELECT * FROM Win32_ComputerSystem"
+      "eventname": "HyperV_ComputerSystem",
+      "query": "SELECT * FROM Msvm_ComputerSystem",
+      "querynamespace": "ROOT\\virtualization\\v2"
+    },
+    {
+      "eventname": "HyperV_GuestNetworkAdapter",
+      "query": "SELECT InstanceId, DHCPEnabled, DNSServers, IPAddresses FROM Msvm_GuestNetworkAdapterConfiguration",
+      "querynamespace": "ROOT\\virtualization\\v2",
+      "counters": [{
+          "counter": "InstanceId",
+          "attrname": "Name",
+          "parser": "Microsoft:GuestNetwork\\\\([0-9A-F-]+)\\\\[0-9A-F-]+"
+        },
+        {
+          "counter": "InstanceId",
+          "attrname": "AdapterId",
+          "parser": "Microsoft:GuestNetwork\\\\[0-9A-F-]+\\\\([0-9A-F-]+)"
+        },
+        { "counter": "DHCPEnabled" },
+        { "counter": "DNSServers" },
+        {
+          "counter": "IPAddresses",
+          "attrName": "IPAddress",
+          "parser": "([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})"
+        },
+        { "counter": "IPAddresses" }
+      ]
     },
     {
       "eventname": "Win32_ComputerSystem",
-      "query": "SELECT * FROM Msvm_ComputerSystem"
+      "query": "SELECT * FROM Win32_ComputerSystem"
     },
     {
       "eventname": "Win32_ComputerSystemProduct",
@@ -14,7 +39,7 @@
     },
     {
       "eventname": "Win32_LogicalDisk",
-      "query": "SELECT MediaType, Size FROM Win32_LogicalDisk WHERE MediaType = 12"
+      "query": "SELECT Name, MediaType, Size FROM Win32_LogicalDisk WHERE MediaType = 12"
     },
     {
       "eventname": "Win32_OperatingSystem",

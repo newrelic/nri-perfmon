@@ -18,6 +18,7 @@ namespace NewRelic
     {
         public string counter { get; set; }
         public string attrname { get; set; } = PerfmonPlugin.UseCounterName;
+        public string parser { get; set; } = "";
     }
 
     public class Counterlist

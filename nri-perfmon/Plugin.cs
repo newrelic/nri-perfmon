@@ -153,24 +153,17 @@ namespace NewRelic
         public string eventName { get; private set; }
         public string instanceName { get; private set; }
         public string queryNamespace { get; private set; }
-        public Dictionary<string, string> membersToRename { get; private set; }
+        public List<Counter> queryAttributes { get; private set; }
         public string queryString { get; private set; }
         public string queryType { get; private set; }
 
-        public WMIQuery(string qstr, string ename, string qtype, string qns, List<Counter> rmembers)
+        public WMIQuery(string qstr, string ename, string qtype, string qns, List<Counter> qatr)
         {
             eventName = ename;
             queryType = qtype;
             queryString = qstr;
             queryNamespace = qns ?? PerfmonPlugin.DefaultNamespace;
-            if (rmembers != null)
-            {
-                membersToRename = new Dictionary<string, string>();
-                foreach (var member in rmembers)
-                {
-                    membersToRename.Add(member.counter, member.attrname);
-                }
-            }
+            queryAttributes = qatr ?? null;
         }
 
         public WMIQuery(string pname, string caname, string coname, string iname)
@@ -556,38 +549,49 @@ namespace NewRelic
             {
                 { EventTypeAttr, thisQuery.eventName }
             };
-            if (thisQuery.membersToRename != null && thisQuery.membersToRename.Count > 0)
+
+            /*if (rmembers != null)
             {
-                foreach (var member in thisQuery.membersToRename)
+
+                membersToRename = new Dictionary<string, string>();
+                foreach (var member in rmembers)
+                {
+                    membersToRename.Add(member.counter, member.attrname);
+                }
+            }*/
+
+            if (thisQuery.queryAttributes != null && thisQuery.queryAttributes.Count > 0)
+            {
+                foreach (var queryAttribute in thisQuery.queryAttributes)
                 {
                     string label;
-                    if (member.Value.Equals(PerfmonPlugin.UseCounterName))
+                    if (queryAttribute.attrname.Equals(PerfmonPlugin.UseCounterName))
                     {
-                        label = member.Key;
+                        label = queryAttribute.counter;
                     }
                     else
                     {
-                        label = member.Value;
+                        label = queryAttribute.attrname;
                     }
 
-                    var splitmem = member.Key.Trim().Split('.');
+                    var splitmem = queryAttribute.counter.Trim().Split('.');
                     if (properties[splitmem[0]] is ManagementBaseObject memberProps)
                     {
                         if (splitmem.Length == 2)
                         {
-                            GetValueParsed(propsOut, label, memberProps.Properties[splitmem[1]]);
+                            GetValueParsed(propsOut, label, memberProps.Properties[splitmem[1]], queryAttribute.parser);
                         }
                         else
                         {
                             foreach (var memberProp in memberProps.Properties)
                             {
-                                GetValueParsed(propsOut, memberProp.Name, memberProp);
+                                GetValueParsed(propsOut, memberProp.Name, memberProp, queryAttribute.parser);
                             }
                         }
                     }
                     else
                     {
-                        GetValueParsed(propsOut, label, properties.Properties[member.Key]);
+                        GetValueParsed(propsOut, label, properties.Properties[queryAttribute.counter], queryAttribute.parser);
                     }
                 }
             }
@@ -595,18 +599,18 @@ namespace NewRelic
             {
                 foreach (PropertyData prop in properties.Properties)
                 {
-                    GetValueParsed(propsOut, prop.Name, prop);
+                    GetValueParsed(propsOut, prop.Name, prop, "");
                 }
             }
 
             PluginOutput.metrics.Add(propsOut);
         }
 
-        private void GetValueParsed(Dictionary<string, Object> propsOut, String propName, PropertyData prop)
+        private void GetValueParsed(Dictionary<string, Object> propsOut, String propName, PropertyData prop, String parser)
         {
             if (prop.Value != null)
             {
-                Log.WriteLog(String.Format("Parsing: {0}, propValue: {1}, of CimType: {2}", propName, prop.Value.ToString(), prop.Type.ToString()), Log.LogLevel.VERBOSE);
+                Log.WriteLog(String.Format("Parsing: {0}, propValue: {1}, of CimType: {2}, Parsing Rule: {3}", propName, prop.Value.ToString(), prop.Type.ToString(), parser), Log.LogLevel.VERBOSE);
                 switch (prop.Type)
                 {
                     case CimType.Boolean:
@@ -625,20 +629,57 @@ namespace NewRelic
                         }
                         break;
                     case CimType.String:
+                        string propStr;
                         if (prop.IsArray)
+                          propStr = String.Join(", ", (String[])prop.Value);
+                        else
+                          propStr = (String)prop.Value;
+
+                        if (propStr.Length > 0)
                         {
-                            var propStr = String.Join(", ", (String[])prop.Value);
-                            if(propStr.Length > 0)
+                            if (!String.IsNullOrEmpty(parser))
                             {
-                                propsOut.Add(propName, propStr);
+                                Regex regex = new Regex(parser);
+                                Match match = regex.Match(propStr);
+                                if (match.Success)
+                                {
+                                    var matchStr = "";
+                                    if (match.Groups.Count > 1)
+                                    {
+                                        foreach (int groupNum in regex.GetGroupNumbers().Skip(1))
+                                        {
+                                            if(String.IsNullOrEmpty(matchStr))
+                                                matchStr = match.Groups[groupNum].Value;
+                                            else
+                                                matchStr += " " + match.Groups[groupNum].Value;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        matchStr = match.Value;
+                                    }
+                                    Log.WriteLog(String.Format("Regex matched - value parsed from {0} to {1}", propStr, matchStr), Log.LogLevel.VERBOSE);
+                                    propStr = matchStr;
+                                }
                             }
-                        } else if (((String)prop.Value).Length > 0)
-                        { 
-                            propsOut.Add(propName, prop.Value);
+                            propsOut.Add(propName, propStr);
                         }
                         break;
                     default:
-                        propsOut.Add(propName, prop.Value);
+                        if (prop.IsArray)
+                        {
+                            var outStr = "";
+                            foreach (object propItem in (Array)prop.Value)
+                            {
+                                if (String.IsNullOrEmpty(outStr))
+                                    outStr = propItem.ToString();
+                                else
+                                    outStr += ", " + propItem.ToString();
+                            }
+                            propsOut.Add(propName, outStr);
+                        }                            
+                        else
+                            propsOut.Add(propName, prop.Value);
                         break;
                 }
             }
