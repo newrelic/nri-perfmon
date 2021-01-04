@@ -1,0 +1,12 @@
+{
+  "counterlist": [
+    {
+      "eventname": "PerfProc_Process",
+      "query": "Select * from Win32_PerfFormattedData_PerfProc_Process"
+    },
+    {
+      "eventname": "Win32_Process",
+      "query": "Select * from Win32_Process"
+    },
+  ]
+}
