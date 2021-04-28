@@ -1,3 +1,5 @@
+[![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
+
 # nri-perfmon - Windows Perfmon/WMI On-Host Integration for New Relic Infrastructure
 
 This integration is capable of...
