@@ -54,7 +54,10 @@ namespace NewRelic
             {
                 try
                 {
-                    instanceArr = category.GetInstanceNames();
+                    var tempInstanceArr = category.GetInstanceNames();
+                    if(tempInstanceArr.Length > 0) {
+                        instanceArr = tempInstanceArr;
+                    }
                 }
                 catch (InvalidOperationException ioe)
                 {
@@ -72,14 +75,7 @@ namespace NewRelic
                     {
                         try
                         {
-                            if (thisInstance.Length > 0)
-                            {
-                                outCounters = category.GetCounters(thisInstance);
-                            }
-                            else
-                            {
-                                outCounters = category.GetCounters();
-                            }
+                            outCounters = String.IsNullOrEmpty(thisInstance) ? category.GetCounters() : category.GetCounters(thisInstance);
 
                             if (outCounters.Length > 0)
                             {
