@@ -3,13 +3,20 @@
 Windows Perfmon/WMI On-Host Integration for New Relic Infrastructure
 ====================================================================
 
-This is an executable that provides Windows Perfmon/WMI query & event results to stdout, in a form that is consumable by New Relic Infrastructure when run as an integration to it.
+This integration is capable of...
+* running WMI queries and collecting their result
+* collecting Performance Counters (aka Perfmon Counters)
+* running against the local host or a remote host
+* reporting the results to New Relic as events, via the Infrastructure Agent
 
-### Disclaimer
+## Links
 
-New Relic has open-sourced this integration to enable monitoring of this technology. This integration is provided AS-IS WITHOUT WARRANTY OR SUPPORT, although you can report issues and contribute to this integration via GitHub. Support for this integration is available with an [Expert Services subscription](http://www.newrelic.com/expertservices).
+* **[Download The Latest Release](https://github.com/newrelic/nri-perfmon/releases/latest)**
+* **[Library Of Config Files](nri-perfmon/config)** - includes examples for .NET, ASP, BizTalk, Exchange, Hyper-V, MSSQL, Windows Event Logs and more!
 
-### [Download The Latest Release HERE](https://github.com/newrelic/nri-perfmon/releases/latest)
+## Installation
+
+**NOTE: If you are installing this integration (not building it from scratch), [Download The Latest Release HERE](https://github.com/newrelic/nri-perfmon/releases/latest) instead of cloning this repo!**
 
 ### Requirements
 
@@ -17,7 +24,32 @@ New Relic has open-sourced this integration to enable monitoring of this technol
 * New Relic account
 * New Relic Infrastructure Agent installed on a Windows server
 
-### Execution & Command-line Arguments
+### Option 1: Installer
+
+1. Unzip nri-perfmon to a temporary location on the host
+1. Run Powershell in "Run As Administrator" mode
+1. In Powershell, change to the directory where you unzipped nri-perfmon.
+1. Run `install-windows.ps1`, which will place the files in their proper locations and restart the Infra Agent.
+
+### Option 2: Manual
+
+1. Unzip nri-perfmon to a temporary location on the host
+1. Create `nri-perfmon` under `C:\Program Files\New Relic\newrelic-infra\custom-integrations`.
+1. Place the following files in `C:\Program Files\New Relic\newrelic-infra\custom-integrations\nri-perfmon`:
+	* `nri-perfmon.exe`
+	* `nri-perfmon.exe.config`
+	* `config.json`
+	* `Newtonsoft.Json.dll`
+	* `FluentCommandLineParser.dll`
+1. Place `nri-perfmon-definition.yml` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations` (ALONGSIDE but NOT IN the `nri-perfmon` folder)
+1. Place `nri-perfmon-config.yml` in `C:\Program Files\New Relic\newrelic-infra\integrations.d\`
+1. Restart the Infra Agent
+
+## Usage
+
+Upon installation, nri-perfmon should start reporting to your New Relic account with the default counters defined in `config.json`. The following configurations are to suit advanced usage patterns, i.e. remote polling and custom counters.
+
+### Command-line Arguments
 
 If run at command line without anything, the executable should report JSON results from WMI queries specified in `config.json` to stdout, and any error messages to stderr. This is useful for testing and debugging your counter/query configuration.
 
@@ -27,32 +59,23 @@ If run at command line without anything, the executable should report JSON resul
 * `-r | --runOnce [true|false]`: Run this integration once and exit, instead of polling (default: false)
 * `-v | --verbose [true|false]`: [Verbose Logging Mode](#verbose-logging-mode) (default: false)
 
-### Installation
+#### Verbose Logging Mode
 
-**NOTE: If you are installing this integration (not building it from scratch), [Download The Latest Release HERE](https://github.com/newrelic/nri-perfmon/releases/latest) instead of cloning this repo!**
+Verbose Logging Mode is meant for testing your [Counters](#counters) and seeing if and how they will appear in NRDB. With Verbose Logging Mode enabled, the following occurs:
+* All log messages are written to stderr
+* Metrics are pretty-printed to stderr
+* No messages will appear in Event Logs
+* No metrics are written to stdout
+* **NRDB will not show any data from this Integration when running it in Verbose Logging Mode.**
 
-#### Option 1: Installer
-1. Unzip nri-perfmon to a temporary location on the server
-2. Run Powershell in "Run As Administrator" mode
-3. In Powershell, change to the directory where you unzipped nri-perfmon.
-4. Run `install-windows.ps1`, which will place the files in their proper locations and restart the Infra Agent.
+Because stderr messages arent picked up by the NRI Agent in Windows, it is best to use this mode at command line, like so:
+```batch
+C:\Program Files\New Relic\newrelic-infra\custom-integrations> nri-perfmon\nri-perfmon.exe -v -c C:\path\to\custom_config.json
+```
 
-#### Option 2: Manual install
-1. Unzip nri-perfmon to a temporary location on the server
-2. Create `nri-perfmon` under `C:\Program Files\New Relic\newrelic-infra\custom-integrations`.
-3. Place the following files in `C:\Program Files\New Relic\newrelic-infra\custom-integrations\nri-perfmon`:
-	* `nri-perfmon.exe`
-	* `nri-perfmon.exe.config`
-	* `config.json`
-	* `Newtonsoft.Json.dll`
-	* `FluentCommandLineParser.dll`
-4. Place `nri-perfmon-definition.yml` in `C:\Program Files\New Relic\newrelic-infra\custom-integrations` (ALONGSIDE but NOT IN the `nri-perfmon` folder)
-5. Place `nri-perfmon-config.yml` in `C:\Program Files\New Relic\newrelic-infra\integrations.d\`
-6. Restart the Infra Agent
+### Configuration Within Infrastructure Agent
 
-### Configuration - Command-Line Arguments
-
-To use any of the [Command-Line Arguments listed above](#execution--command-line-arguments), edit `nri-perfmon-definition.yml` and add them as argument lines, like so:
+To use any of the [Command-Line Arguments listed above](#command-line-arguments), edit `nri-perfmon-definition.yml` and add them as argument lines, like so:
 
 ```yaml
 #
@@ -75,30 +98,18 @@ commands:
       - -r
       - true
       - -v
-      - true
+      - false
     prefix: integration/nri-perfmon
     interval: 15
 ```
 
 **NOTE** the `interval:` field at the bottom does need to be there with a number, but it does not change the polling interval. To do that, add `-i` and `<interval_(ms)>` as consecutive lines to your `command` arguments.
 
-#### Verbose Logging Mode
+### Counters
 
-Verbose Logging Mode is meant for testing your [Counters](#configuration---counters) and seeing if and how they will appear in Insights. With Verbose Logging Mode enabled, the following occurs:
-* All log messages are written to stderr
-* Metrics are pretty-printed to stderr
-* No messages will appear in Event Logs
-* No metrics are written to stdout
-	* **Insights will not show any data from this Integration when running it in Verbose Logging Mode.**
-
-Also, because stderr messages arent picked up by the NRI Agent in Windows, it is best to use this mode at command line, like so:
-```batch
-C:\Program Files\New Relic\newrelic-infra\custom-integrations> nri-perfmon\nri-perfmon.exe -v true
-```
-
-### Configuration - Counters
-
-Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET applications. If you would like to collect your own counters, customize the `counterlist` in `config.json` following the structure found there. Here is an excerpt describing the format:
+* Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET applications. 
+* We have a library of pre-built config files that you can use, **[found here.](nri-perfmon/config)** Contributions to this library by way of Pull Request are welcome!
+* If you would like to collect your own counters, customize the `counterlist` in `config.json`, or create your own config file and use `-c your_config_file.json` at execution.
 
 #### `config.json` Format
 
@@ -136,6 +147,8 @@ Out-of-the-box, we have collected a set of Perfmon counters that pertain to .NET
 ```
 
 #### Simple Queries
+
+_**For a walkthrough of creating a Simple Query, please see [TIPS.md](TIPS.md).**_
 
 * The "`provider`, `category`, (optional) `instance`" form of the counter is for building simple queries, with the following limitations:
   * Uses the default namespace (`root/cimv2`)
@@ -242,87 +255,22 @@ Notes:
   * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
 	* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
 
-#### Tips for finding/building new simple entries for `counterlist`
+## Support
 
-First, to get a list of all counter categories:
+New Relic has open-sourced this project. This project is provided AS-IS WITHOUT WARRANTY OR DEDICATED SUPPORT. Issues and contributions should be reported to the project here on GitHub.
 
-```powershell
-PS C:\> Get-CimClass Win32_PerfFormattedData* | Select CimClassName
-```
+>We encourage you to bring your experiences and questions to the [Explorers Hub](https://discuss.newrelic.com) where our community members collaborate on solutions and new ideas.
 
-Let's take `root/cimv2:Win32_PerfFormattedData_MSSQLSQLEXPRESS_MSSQLSQLEXPRESSBufferManager` for example.
+## Contributing
 
-* provider = "MSSQLSQLEXPRESS"
-* category = "MSSQLSQLEXPRESSBufferManager"
+We encourage your contributions to improve nri-perfmon! Keep in mind when you submit your pull request, you'll need to sign the CLA via the click-through using CLA-Assistant. You only have to sign the CLA one time per project. If you have any questions, or to execute our corporate CLA, required if your contribution is on behalf of a company, please drop us an email at opensource@newrelic.com.
 
-The format is `Win32_PerfFormattedData_{provider}_{category}`.
+**A note about vulnerabilities**
 
-Get a list of all counters for that category:
+As noted in our [security policy](../../security/policy), New Relic is committed to the privacy and security of our customers and their data. We believe that providing coordinated disclosure by security researchers and engaging with the security community are important means to achieve our security goals.
 
-```powershell
-PS C:\> Get-CimInstance "Win32_PerfFormattedData_MSSQLSQLEXPRESS_MSSQLSQLEXPRESSBufferManager"
+If you believe you have found a security vulnerability in this project or any of New Relic's products or websites, we welcome and greatly appreciate you reporting it to New Relic through [HackerOne](https://hackerone.com/newrelic).
 
-Caption               :
-Description           :
-Name                  :
-Frequency_Object      :
-Frequency_PerfTime    :
-Frequency_Sys100NS    :
-Timestamp_Object      :
-Timestamp_PerfTime    :
-Timestamp_Sys100NS    :
-AWElookupmapsPersec   : 0
-AWEstolenmapsPersec   : 0
-AWEunmapcallsPersec   : 0
-AWEunmappagesPersec   : 0
-AWEwritemapsPersec    : 0
-Buffercachehitratio   : 100
-CheckpointpagesPersec : 0
-Databasepages         : 247
-FreeliststallsPersec  : 0
-Freepages             : 396
-LazywritesPersec      : 0
-Pagelifeexpectancy    : 251325
-PagelookupsPersec     : 56
-PagereadsPersec       : 0
-PagewritesPersec      : 0
-ReadaheadpagesPersec  : 0
-Reservedpages         : 0
-Stolenpages           : 893
-Targetpages           : 84612
-Totalpages            : 1536
-PSComputerName        :
-```
+## License
 
-* counter = "Buffercachehitratio"
-
-Putting that all together, you would add the following under `counterlist`:
-
-```json
-{
-	"provider": "MSSQLSQLEXPRESS",
-	"category": "MSSQLSQLEXPRESSBufferManager",
-	"counters": [{
-		"counter": "Buffercachehitratio"
-	}]
-}
-```
-
-Optionally, you can include an `instance` property. You can see the following in the template.
-
-```json
-{
-	"provider": "PerfOS",
-	"category": "Processor",
-	"instance": "_Total",
-	"counters": [{
-		"counter": "PercentProcessorTime"
-	}]
-}
-```
-There is an instance of the counter for each logical processor. The __total_ instance represents the sum of all of them.
-
-If you run this, you'll see all of the instances and the `Name` property is the identifier.
-```powershell
-Get-CimInstance "Win32_PerfFormattedData_PerfOS_Processor"
-```
+nri-perfmon is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
