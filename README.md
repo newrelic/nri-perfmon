@@ -1,7 +1,4 @@
-# nri-perfmon
-
-Windows Perfmon/WMI On-Host Integration for New Relic Infrastructure
-====================================================================
+# nri-perfmon - Windows Perfmon/WMI On-Host Integration for New Relic Infrastructure
 
 This integration is capable of...
 * running WMI queries and collecting their result
@@ -95,15 +92,12 @@ commands:
       - custom_config.json
       - -n
       - MyCompName
-      - -r
-      - true
-      - -v
-      - false
     prefix: integration/nri-perfmon
     interval: 15
 ```
 
-**NOTE** the `interval:` field at the bottom does need to be there with a number, but it does not change the polling interval. To do that, add `-i` and `<interval_(ms)>` as consecutive lines to your `command` arguments.
+Note:
+The `interval:` field at the bottom does need to be there with a number, but it does not change the polling interval. To do that, add `-i` and `<interval_(ms)>` as consecutive lines to your `command` arguments.
 
 ### Counters
 
@@ -252,8 +246,8 @@ Example of usage:
 ```
 
 Notes:
-  * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
-	* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
+* To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
+* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
 
 ## Support
 
