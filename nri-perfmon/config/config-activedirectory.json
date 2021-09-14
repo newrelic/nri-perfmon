@@ -1,0 +1,122 @@
+{
+	"counterlist": [{
+		"eventname": "ActiveDirectory_DirectoryServices",
+		"query": "SELECT * FROM Win32_PerfFormattedData_DirectoryServices_DirectoryServices",
+		"counters": [{
+				"counter": "DRAInboundBytesCompressedBetweenSitesAfterCompressionPersec",
+				"attrname": "DRAInboundBytesCompressedBetweenSitesAfterCompressionPerSecond"
+			},
+			{
+				"counter": "DRAInboundBytesCompressedBetweenSitesBeforeCompressionPersec",
+				"attrname": "DRAInboundBytesCompressedBetweenSitesBeforeCompressionPerSecond"
+			},
+			{
+				"counter": "DRAInboundBytesNotCompressedWithinSitePersec",
+				"attrname": "DRAInboundBytesNotCompressedWithinSitePerSecond"
+			},
+			{
+				"counter": "DRAInboundBytesTotalPersec",
+				"attrname": "DRAInboundBytesTotalPerSecond"
+			},
+			{
+				"counter": "DRAInboundFullSyncObjectsRemaining"
+			},
+			{
+				"counter": "DRAInboundObjectsAppliedPersec",
+				"attrname": "DRAInboundObjectsAppliedPerSecond"
+			},
+			{
+				"counter": "DRAInboundObjectsFilteredPersec",
+				"attrname": "DRAInboundObjectsFilteredPerSecond"
+			},
+			{
+				"counter": "DRAInboundObjectsPersec",
+				"attrname": "DRAInboundObjectsPerSecond"
+			},
+			{
+				"counter": "DRAInboundObjectUpdatesRemaininginPacket",
+				"attrname": "DRAInboundObjectUpdatesRemainingInPacket"
+			},
+			{
+				"counter": "DRAInboundPropertiesAppliedPersec",
+				"attrname": "DRAInboundPropertiesAppliedPerSecond"
+			},
+			{
+				"counter": "DRAInboundPropertiesFilteredPersec",
+				"attrname": "DRAInboundPropertiesFilteredPerSecond"
+			},
+			{
+				"counter": "DRAInboundPropertiesTotalPersec",
+				"attrname": "DRAInboundPropertiesTotalPerSecond"
+			},
+			{
+				"counter": "DRAInboundValuesDNsonlyPersec",
+				"attrname": "DRAInboundValuesDNsonlyPerSecond"
+			},
+			{
+				"counter": "DRAInboundValuesTotalPersec",
+				"attrname": "DRAInboundValuesTotalPerSecond"
+			},
+			{
+				"counter": "DRAOutboundBytesCompressedBetweenSitesAfterCompressionPersec",
+				"attrname": "DRAOutboundBytesCompressedBetweenSitesAfterCompressionPerSecond"
+			},
+			{
+				"counter": "DRAOutboundBytesCompressedBetweenSitesBeforeCompressionPersec",
+				"attrname": "DRAOutboundBytesCompressedBetweenSitesBeforeCompressionPerSecond"
+			},
+			{
+				"counter": "DRAOutboundBytesNotCompressedWithinSitePersec",
+				"attrname": "DRAOutboundBytesNotCompressedWithinSitePerSecond"
+			},
+			{
+				"counter": "DRAOutboundBytesTotalPersec",
+				"attrname": "DRAOutboundBytesTotalPerSecond"
+			},
+			{
+				"counter": "DRAOutboundObjectsFilteredPersec",
+				"attrname": "DRAOutboundObjectsFilteredPerSecond"
+			},
+			{
+				"counter": "DRAOutboundObjectsPersec",
+				"attrname": "DRAOutboundObjectsPerSecond"
+			},
+			{
+				"counter": "DRAOutboundPropertiesPersec",
+				"attrname": "DRAOutboundPropertiesPerSecond"
+			},
+			{
+				"counter": "DRAOutboundValuesDNsonlyPersec",
+				"attrname": "DRAOutboundValuesDNsonlyPerSecond"
+			},
+			{
+				"counter": "DRAOutboundValuesTotalPersec",
+				"attrname": "DRAOutboundValuesTotalPerSecond"
+			},
+			{
+				"counter": "DRAPendingReplicationSynchronizations"
+			},
+			{
+				"counter": "DRASyncRequestsMade"
+			},
+			{
+				"counter": "DSThreadsinUse",
+				"attrname": "DSThreadsInUse"
+			},
+			{
+				"counter": "LDAPBindTime"
+			},
+			{
+				"counter": "LDAPClientSessions"
+			},
+			{
+				"counter": "LDAPSearchesPersec",
+				"attrname": "LDAPSearchesPerSecond"
+			},
+			{
+				"counter": "LDAPSuccessfulBindsPersec",
+				"attrname": "LDAPSuccessfulBindsPerSecond"
+			}
+		]
+	}]
+}

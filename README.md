@@ -11,7 +11,7 @@ This integration is capable of...
 ## Links
 
 * **[Download The Latest Release](https://github.com/newrelic/nri-perfmon/releases/latest)**
-* **[Library Of Config Files](nri-perfmon/config)** - includes examples for .NET, ASP, BizTalk, Exchange, Hyper-V, MSSQL, Windows Event Logs and more!
+* **[Library Of Config Files](nri-perfmon/config)** - includes examples for .NET, Active Directory, ASP, BizTalk, Exchange, Hyper-V, MSSQL, Windows Event Logs and more!
 
 ## Installation
 
