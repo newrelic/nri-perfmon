@@ -482,9 +482,13 @@ namespace NewRelic
             {
                 var thisPC = PerfCounters[i];
                 thisPC.PopulatePerformanceCounters();
-                foreach (var pcKey in thisPC.PerformanceCounters.Keys)
+                foreach (var pcKey in thisPC.PerformanceCounters.Keys.ToList())
                 {
-                    var pcInPC = thisPC.PerformanceCounters[pcKey];
+                    if (!thisPC.PerformanceCounters.TryGetValue(pcKey, out var pcInPC))
+                    {
+                        continue;
+                    }
+
                     try
                     {
                         Log.WriteLog(string.Format("Collecting Perf Counter: {0}/{1}", pcInPC.CategoryName, pcInPC.CounterName), Log.LogLevel.VERBOSE);
