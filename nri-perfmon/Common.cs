@@ -52,6 +52,7 @@ namespace NewRelic
             MachineName = that.MachineName;
             RunOnce = that.RunOnce;
             Verbose = that.Verbose;
+            IgnoreInfoLogs = that.IgnoreInfoLogs
             UserName = that.UserName;
             DomainName = that.DomainName;
             Password = that.Password;
@@ -65,6 +66,7 @@ namespace NewRelic
         public string DomainName { get; set; }
         public string Password { get; set; }
         public bool Verbose { get; set; }
+        public bool IgnoreInfoLogs { get; set; }
 
         public Options OptionsWithoutPassword()
         {
@@ -98,6 +100,8 @@ namespace NewRelic
         };
         public static bool Verbose = false;
 
+        public static bool IgnoreInfoLogs = false;
+
         public static void WriteLog(string message, LogLevel loglevel)
         {
             if (Verbose) // If Verbose is enabled, then it all goes to Stderr
@@ -111,8 +115,19 @@ namespace NewRelic
             else if (loglevel == LogLevel.CONSOLE) // CONSOLE messages written to Stdout (unless Verbose is true)
             {
                 Console.Out.WriteLine(message);
-            }
-            else // INFO, WARN & ERROR messages written to Event Log (unless Verbose is true)
+            } 
+            else if (loglevel == LogLevel.INFO) // If ignore info logs is enabled, do not report info logs
+            {
+                if (IgnoreInfoLogs)
+                {
+                    return;
+                } else
+                {
+                    ELog.WriteEntry(message, (EventLogEntryType)loglevel);
+                }
+
+            } 
+            else if (loglevel != LogLevel.INFO) // WARN & ERROR messages written to Event Log (unless Verbose is true)
             {
                 ELog.WriteEntry(message, (EventLogEntryType)loglevel);
             }

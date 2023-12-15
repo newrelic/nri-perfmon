@@ -60,6 +60,11 @@ namespace NewRelic
             .SetDefault(false)
             .WithDescription("Verbose logging & pretty-print (for testing purposes)");
 
+            parser.Setup(arg => arg.IgnoreInfoLogs)
+            .As('g', "ignoreInfoLogs")
+            .SetDefault(false)
+            .WithDescription("Ignore info logs");
+
             parser.SetupHelp("?", "help")
              .Callback(text => Console.WriteLine(text));
 
@@ -76,6 +81,7 @@ namespace NewRelic
 
             var options = parser.Object;
             Log.Verbose = options.Verbose;
+            Log.IgnoreInfoLogs = options.IgnoreInfoLogs;
 
             // All of the possibilities for polling interval figured here...
             int pollingInterval = pollingIntervalFloor;
