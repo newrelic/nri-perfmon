@@ -56,8 +56,8 @@ If run at command line without anything, the executable should report JSON resul
 * `-i | --pollInt [nnn]`: Frequency of polling (ms) (default: 10000ms, ignored if less than 10000ms)
 * `-n | --compName [name]`: Name of computer that you want to poll (default: local host)
 * `-r | --runOnce [true|false]`: Run this integration once and exit, instead of polling (default: false)
-* `-v | --verbose [true|false]`: [Verbose Logging Mode](#verbose-logging-mode) (default: false)
 * `-g | --ignoreInfoLogs [true|false]`: [Ignore info logs]
+* `-v | --verbose [true|false]`: [Verbose Logging Mode](#verbose-logging-mode) (default: false)
 
 #### Verbose Logging Mode
 
