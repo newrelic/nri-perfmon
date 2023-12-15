@@ -127,7 +127,7 @@ namespace NewRelic
                 }
 
             } 
-            else if (loglevel != LogLevel.INFO) // WARN & ERROR messages written to Event Log (unless Verbose is true)
+            else  // WARN & ERROR messages written to Event Log (unless Verbose is true)
             {
                 ELog.WriteEntry(message, (EventLogEntryType)loglevel);
             }
