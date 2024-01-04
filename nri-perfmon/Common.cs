@@ -52,7 +52,7 @@ namespace NewRelic
             MachineName = that.MachineName;
             RunOnce = that.RunOnce;
             Verbose = that.Verbose;
-            IgnoreInfoLogs = that.IgnoreInfoLogs
+            IgnoreInfoLogs = that.IgnoreInfoLogs;
             UserName = that.UserName;
             DomainName = that.DomainName;
             Password = that.Password;
@@ -116,18 +116,12 @@ namespace NewRelic
             {
                 Console.Out.WriteLine(message);
             } 
-            else if (loglevel == LogLevel.INFO) // If ignore info logs is enabled, do not report info logs
+            else if (loglevel == LogLevel.INFO && IgnoreInfoLogs) // If ignore info logs is enabled, do not report info logs
             {
-                if (IgnoreInfoLogs)
-                {
-                    return;
-                } else
-                {
-                    ELog.WriteEntry(message, (EventLogEntryType)loglevel);
-                }
+                return;
 
             } 
-            else // WARN & ERROR messages written to Event Log (unless Verbose is true)
+            else  // INFO, WARN & ERROR messages written to Event Log (unless Verbose is true)
             {
                 ELog.WriteEntry(message, (EventLogEntryType)loglevel);
             }
