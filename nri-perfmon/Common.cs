@@ -52,7 +52,7 @@ namespace NewRelic
             MachineName = that.MachineName;
             RunOnce = that.RunOnce;
             Verbose = that.Verbose;
-            IgnoreInfoLogs = that.IgnoreInfoLogs
+            IgnoreInfoLogs = that.IgnoreInfoLogs;
             UserName = that.UserName;
             DomainName = that.DomainName;
             Password = that.Password;
