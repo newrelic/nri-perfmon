@@ -248,6 +248,23 @@ Example of usage:
 },
 ```
 
+## Release Steps
+
+1. **Build your project for the selected platform:**
+
+    - Under the `Build` menu, select `Configuration Manager`.
+
+    - Use `Build > Build Solution` to build the project for x86/x64.
+
+2. **Create a zip file of the build output:**
+
+   - After building the project, open File Explorer and navigate to your project folder.
+
+   - Go to the `bin/Release` folder (actual directory may differ based on your .NET version).
+
+   - You should see separate output folders for each target platform.
+
+
 Notes:
 * To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
 * If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
