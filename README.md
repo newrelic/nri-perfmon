@@ -248,11 +248,15 @@ Example of usage:
 },
 ```
 
+Notes:
+* To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
+* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
+
 ## Release Steps
 
 1. **Build your project for the selected platform:**
 
-    - Under the `Build` menu, select `Configuration Manager`.
+    - In Visual Studio, under the `Build` menu, select `Configuration Manager`.
 
     - Use `Build > Build Solution` to build the project for x86/x64.
 
@@ -264,10 +268,6 @@ Example of usage:
 
    - You should see separate output folders for each target platform.
 
-
-Notes:
-* To retrieve properties from within a counter object, use the format `counter.property`, i.e. `targetInstance.DeviceID`
-* If there are multiple instances returned by the counter|query, each instance name will appear in the `name` attribute of the event.
 
 ## Support
 
