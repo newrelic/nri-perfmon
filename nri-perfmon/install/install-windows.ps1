@@ -71,10 +71,7 @@ Write-Host "-----------------------------------------`n"
 $serviceName = 'newrelic-infra'
 $nrServiceInfo = Get-Service -Name $serviceName
 
-if ($nrServiceInfo.Status -ne 'Running') {
-  Write-Host "New Relic Infrastructure not running currently, starting..."
-  Start-Service -Name $serviceName
-} else {
+if ($nrServiceInfo.Status -eq 'Running') {
   Stop-Service -Name $serviceName
   Start-Service -Name $serviceName
   Write-Host " Restart complete! "
